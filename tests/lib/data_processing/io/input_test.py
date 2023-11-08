@@ -11,7 +11,7 @@ import pytest
 
 from lib.data_processing.io import input
 from lib.data_processing.io.input import load_file_as_df
-from lib.utils.file_utils import FileUtils
+from lib.utils.file_utils import FileUtils, Extension
 from lib.utils.validations import Validations
 
 
@@ -45,9 +45,9 @@ def test_load_file_as_df_success(mock_validate_reader_kwargs, mock_reader, csv_f
     mock_reader.return_value = mock_reader
     mock_validate_reader_kwargs.return_value = mock_validate_reader_kwargs
 
-    result = load_file_as_df(csv_file, FileUtils.Extension.CSV)
+    result = load_file_as_df(csv_file, Extension.CSV)
 
-    mock_reader.assert_any_call(FileUtils.Extension.CSV)
+    mock_reader.assert_any_call(Extension.CSV)
     mock_validate_reader_kwargs.assert_called_once_with(mock_reader, {})
 
     assert result.value is not None
@@ -66,9 +66,9 @@ def test_load_file_as_df_invalid_props(
     mock_reader.return_value = mock_reader
     mock_validate_reader_kwargs.return_value = False
 
-    result = load_file_as_df(csv_file, FileUtils.Extension.CSV, invalid_prop="invalid")
+    result = load_file_as_df(csv_file, Extension.CSV, invalid_prop="invalid")
 
-    mock_reader.assert_any_call(FileUtils.Extension.CSV)
+    mock_reader.assert_any_call(Extension.CSV)
     mock_validate_reader_kwargs.assert_called_once_with(
         mock_reader, {"invalid_prop": "invalid"}
     )
@@ -85,9 +85,9 @@ def test_load_file_as_df_invalid_props(
 def test_load_file_as_df_exception(mock_reader, csv_file):
     mock_reader.side_effect = Exception("Test exception")
 
-    result = load_file_as_df(csv_file, FileUtils.Extension.CSV)
+    result = load_file_as_df(csv_file, Extension.CSV)
 
-    mock_reader.assert_called_once_with(FileUtils.Extension.CSV)
+    mock_reader.assert_called_once_with(Extension.CSV)
 
     assert result.value is None
     assert result.error == "Test exception"
@@ -102,9 +102,9 @@ def test_load_file_as_df_with_kwargs(
     mock_reader.return_value = mock_reader
     mock_validate_reader_kwargs.return_value = True
 
-    result = load_file_as_df(csv_file, FileUtils.Extension.CSV, sep=",", header=0)
+    result = load_file_as_df(csv_file, Extension.CSV, sep=",", header=0)
 
-    mock_reader.assert_any_call(FileUtils.Extension.CSV)
+    mock_reader.assert_any_call(Extension.CSV)
     mock_validate_reader_kwargs.assert_called_once_with(
         mock_reader, {"sep": ",", "header": 0}
     )
@@ -121,9 +121,9 @@ def test_load_file_as_df_with_kwargs(
 def test_load_file_as_df_no_reader(mock_reader, csv_file):
     mock_reader.return_value = None
 
-    result = load_file_as_df(csv_file, FileUtils.Extension.CSV)
+    result = load_file_as_df(csv_file, Extension.CSV)
 
-    mock_reader.assert_called_once_with(FileUtils.Extension.CSV)
+    mock_reader.assert_called_once_with(Extension.CSV)
 
     assert result.value is None
     assert not result.success

@@ -3,38 +3,39 @@ from __future__ import annotations
 import inspect
 import os
 from enum import Enum
-from typing import Callable, TypeAlias
+from typing import Callable
 
 import pandas as pd
 
-PdRead: TypeAlias = Callable[..., pd.DataFrame]
+type PdRead = Callable[..., pd.DataFrame]
+
+
+class Extension(Enum):
+    """
+    An enumeration of file extensions supported by PrediKit.
+    """
+
+    CSV = "csv"
+    EXCEL = ("xlsx", "xls")
+    JSON = "json"
+    PICKLE = ("pkl", "p", "pickle")
+
+    @staticmethod
+    def from_string(extension: str) -> Extension:
+        for ext in Extension:
+            if isinstance(ext.value, tuple) and extension in ext.value:
+                return ext
+
+            if extension == ext.value:
+                return ext
+
+        raise ValueError
 
 
 class FileUtils:
     """
     A utility class for working with files.
     """
-
-    class Extension(Enum):
-        """
-        An enumeration of file extensions supported by PrediKit.
-        """
-
-        CSV = "csv"
-        EXCEL = ("xlsx", "xls")
-        JSON = "json"
-        PICKLE = ("pkl", "p", "pickle")
-
-        @staticmethod
-        def from_string(extension: str) -> FileUtils.Extension:
-            for ext in FileUtils.Extension:
-                if isinstance(ext.value, tuple) and extension in ext.value:
-                    return ext
-
-                if extension == ext.value:
-                    return ext
-
-            raise ValueError
 
     READERS: dict[Extension, PdRead] = {
         Extension.CSV: pd.read_csv,
@@ -55,7 +56,7 @@ class FileUtils:
             str: The extension of the file.
         """
         _, ext = os.path.splitext(file)
-        return FileUtils.Extension.from_string(ext.lstrip(".").lower())
+        return Extension.from_string(ext.lstrip(".").lower())
 
     @staticmethod
     def is_type_of(extension: str, criteria: list[str]) -> bool:

@@ -1,14 +1,12 @@
 from io import BytesIO
-from typing import TypeAlias
 
 import pandas as pd
 
-from lib.utils.file_utils import FileUtils
+from lib.utils.file_utils import Extension, FileUtils
 from lib.utils.result import Result
 from lib.utils.validations import Validations
 
-ResDfOrNone: TypeAlias = Result[pd.DataFrame] | Result[None]
-Extension: TypeAlias = FileUtils.Extension
+type ResDfOrNone = Result[pd.DataFrame] | Result[None]
 
 
 def load_file_as_df(file: BytesIO, ext: Extension, **props) -> ResDfOrNone:
@@ -17,7 +15,7 @@ def load_file_as_df(file: BytesIO, ext: Extension, **props) -> ResDfOrNone:
 
     Args:
         file (BytesIO): The file to load.
-        ext (FileUtils.Extension): The file extension.
+        ext (Extension): The file extension.
         props: Properties of the Input Data Node.
 
     Returns:

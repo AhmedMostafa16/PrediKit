@@ -1,9 +1,6 @@
 from io import BytesIO
-from typing import TypeAlias
 
-from utils.file_utils import FileUtils
-
-Extension: TypeAlias = FileUtils.Extension
+from utils.file_utils import Extension, FileUtils
 
 
 def export_file_as(file: BytesIO, ext: Extension) -> None:
