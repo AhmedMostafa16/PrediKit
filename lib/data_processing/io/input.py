@@ -16,7 +16,7 @@ def load_file_as_df(file: BytesIO, ext: Extension, **props) -> ResDfOrNone:
     Args:
         file (BytesIO): The file to load.
         ext (Extension): The file extension.
-        props: Properties of the Input Data Node.
+        props: Properties of the Data Input Node.
 
     Returns:
         Result: A Result object containing either the loaded DataFrame or an error message.
@@ -38,7 +38,7 @@ def load_file_as_df(file: BytesIO, ext: Extension, **props) -> ResDfOrNone:
 # To run this you need to be at the root of the project
 # then type python3 -m lib.data_processing.io.input
 def main():
-    sample = "./data/sample/temperatures.csv"
+    sample = "./data/demo/temperatures.csv"
     with open(sample, "rb") as f:
         data = f.read()
 

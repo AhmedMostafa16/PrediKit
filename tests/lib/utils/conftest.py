@@ -8,10 +8,10 @@ import pytest
 @pytest.fixture
 def sample_datasets() -> list[str]:
     datasets = [
-        "../../data/sample/airline_bumping.csv",
-        "../../data/sample/movies.p",
-        "../../data/sample/temperatures.csv",
-        "../../data/sample/stations.p",
+        "../../data/demo/airline_bumping.csv",
+        "../../data/demo/movies.p",
+        "../../data/demo/temperatures.csv",
+        "../../data/demo/stations.p",
     ]
     return datasets
 
