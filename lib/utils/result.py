@@ -1,9 +1,7 @@
-from typing import Any, Generic, Optional, TypeVar
-
-T = TypeVar("T")
+from typing import Any, Optional
 
 
-class Result(Generic[T]):
+class Result[T]:
     """
     A generic class representing the result of an operation that can either succeed with a value or fail with an error.
     """
