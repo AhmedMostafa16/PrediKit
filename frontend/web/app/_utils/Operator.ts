@@ -1,0 +1,16 @@
+export enum Operator {
+  Equals,
+  NotEquals,
+  GreaterThan,
+  GreaterThanOrEqual,
+  LessThan,
+  LessThanOrEqual,
+  IsNull,
+  IsNotNull,
+  ComesBefore,
+  ComesAfter,
+  Contains,
+  DoesNotContain,
+  IsEmpty,
+  IsNotEmpty,
+}
