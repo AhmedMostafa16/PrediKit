@@ -1,8 +1,7 @@
-import logging as log
+import logging
 
-from lib.utils import init_logging_config
+from predikit.utils import init_logging_config
 
 init_logging_config()
 
-
-log.debug("Function is Ok")
+logging.debug("Function is Ok")
