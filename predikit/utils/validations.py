@@ -1,6 +1,13 @@
 import inspect
+from typing import Callable
 
-from .io_utils import PdRead
+import pandas as pd
+
+# from ..data.io.input import PdReader
+
+
+# ToDo - put this in a better location
+type PdReader = Callable[..., pd.DataFrame]
 
 
 class Validations:
@@ -9,7 +16,7 @@ class Validations:
     """
 
     @classmethod
-    def validate_reader_kwargs(cls, reader: PdRead, kwargs) -> bool:
+    def validate_reader_kwargs(cls, reader: PdReader, kwargs) -> bool:
         """
         Validates the keyword arguments passed to a Pandas reader function.
 
