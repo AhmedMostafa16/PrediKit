@@ -68,6 +68,13 @@ export const OutputNodeProps: OutputDataNode = {
       ],
     },
     {
+      type: 'input',
+      label: 'CSV Delimiter',
+      id: 'delimiter',
+      placeholder: ',',
+      dependencies: [{ fieldId: 'format', triggerValue: ExportFormat.CSV }],
+    },
+    {
       type: 'button',
       label: 'Download',
       id: 'download',

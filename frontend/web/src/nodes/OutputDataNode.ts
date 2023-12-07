@@ -6,6 +6,7 @@ export interface OutputDataNode extends BaseNode {
 
 interface OutputDataNodeDataModel {
   format: ExportFormat;
+  delimiter?: string;
 }
 
 export enum ExportFormat {

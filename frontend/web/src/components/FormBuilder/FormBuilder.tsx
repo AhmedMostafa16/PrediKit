@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // FormBuilder.tsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -17,7 +18,7 @@ import {
   rem,
   useMantineTheme,
 } from '@mantine/core';
-import { Dropzone, MIME_TYPES } from '@mantine/dropzone';
+import { Dropzone } from '@mantine/dropzone';
 import { IconDownload, IconX, IconCloudUpload } from '@tabler/icons-react';
 import classes from './FormBuilder.module.css';
 
@@ -50,12 +51,16 @@ export interface FormField {
   onClick?: () => void;
   maxSize?: number;
   acceptedMIME?: string[];
+  dependencies?: {
+    fieldId: string; // The ID of the dependent field
+    triggerValue: any; // The value that triggers the dependency
+  }[];
   [key: string]: any;
 }
 
 interface FormBuilderProps {
   formFields: FormField[];
-  data: {};
+  data: any;
   onAutoSubmit: (formData: { [key: string]: any }) => void;
 }
 
@@ -82,164 +87,187 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
     [formData, onAutoSubmit]
   );
 
+  const shouldRenderField = (field: FormField) => {
+    if (!field.dependencies) {
+      return true;
+    }
+
+    for (const dependency of field.dependencies) {
+      const dependentFieldValue = formData[dependency.fieldId];
+      if (dependentFieldValue !== dependency.triggerValue) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   return (
     <Container>
       <Stack>
-        {formFields.map((field) => (
-          <React.Fragment key={`${field.type}_${field.id}`}>
-            {field.type === 'input' && (
-              <InputWrapper
-                id={field.id}
-                label={field.label}
-                required={field.required}
-                placeholder={field.placeholder}
-                description={field.description}
-              >
-                <Input
-                  value={formData[field.id] || ''}
-                  onChange={(event) => handleChange(field.id, event.currentTarget.value)}
-                />
-              </InputWrapper>
-            )}
+        {formFields.map(
+          (field) =>
+            shouldRenderField(field) && (
+              <React.Fragment key={`${field.type}_${field.id}`}>
+                {field.type === 'input' && (
+                  <InputWrapper
+                    id={field.id}
+                    label={field.label}
+                    required={field.required}
+                    placeholder={field.placeholder}
+                    description={field.description}
+                  >
+                    <Input
+                      value={formData[field.id] || ''}
+                      onChange={(event) => handleChange(field.id, event.currentTarget.value)}
+                    />
+                  </InputWrapper>
+                )}
 
-            {field.type === 'button' && (
-              <Button id={field.id} onClick={field.onClick}>
-                {field.label}
-              </Button>
-            )}
+                {field.type === 'button' && (
+                  <Button id={field.id} onClick={field.onClick}>
+                    {field.label}
+                  </Button>
+                )}
 
-            {field.type === 'slider' && (
-              <Slider
-                id={field.id}
-                label={field.label}
-                value={formData[field.id] || field.min}
-                onChange={(value) => handleChange(field.id, value)}
-                min={field.min}
-                max={field.max}
-                step={field.step}
-              />
-            )}
+                {field.type === 'slider' && (
+                  <Slider
+                    id={field.id}
+                    label={field.label}
+                    value={formData[field.id] || field.min}
+                    onChange={(value) => handleChange(field.id, value)}
+                    min={field.min}
+                    max={field.max}
+                    step={field.step}
+                  />
+                )}
 
-            {field.type === 'checkbox' && (
-              <Checkbox
-                id={field.id}
-                label={field.label}
-                checked={formData[field.id] || false}
-                required={field.required}
-                onChange={(event) => handleChange(field.id, event.currentTarget.checked as boolean)}
-              />
-            )}
+                {field.type === 'checkbox' && (
+                  <Checkbox
+                    id={field.id}
+                    label={field.label}
+                    checked={formData[field.id] || false}
+                    required={field.required}
+                    onChange={(event) =>
+                      handleChange(field.id, event.currentTarget.checked as boolean)
+                    }
+                  />
+                )}
 
-            {field.type === 'numberInput' && (
-              <InputWrapper id={field.id} label={field.label}>
-                <NumberInput
-                  value={field.min}
-                  onChange={(value) => handleChange(field.id, value)}
-                  min={field.min}
-                  max={field.max}
-                  step={field.step}
-                  allowDecimal={field.allowDecimal}
-                  allowNegative={field.allowNegative}
-                  required={field.required}
-                  placeholder={field.placeholder}
-                  description={field.description}
-                />
-              </InputWrapper>
-            )}
+                {field.type === 'numberInput' && (
+                  <InputWrapper id={field.id} label={field.label}>
+                    <NumberInput
+                      value={field.min}
+                      onChange={(value) => handleChange(field.id, value)}
+                      min={field.min}
+                      max={field.max}
+                      step={field.step}
+                      allowDecimal={field.allowDecimal}
+                      allowNegative={field.allowNegative}
+                      required={field.required}
+                      placeholder={field.placeholder}
+                      description={field.description}
+                    />
+                  </InputWrapper>
+                )}
 
-            {field.type === 'select' && field.options && (
-              <Select
-                id={field.id}
-                label={field.label}
-                onChange={(value) => handleChange(field.id, value)}
-                data={field.options}
-                placeholder={field.placeholder}
-                defaultValue={field.defaultValue}
-                allowDeselect={field.allowDeselect}
-              />
-            )}
+                {field.type === 'select' && field.options && (
+                  <Select
+                    id={field.id}
+                    label={field.label}
+                    onChange={(value) => handleChange(field.id, value)}
+                    data={field.options}
+                    placeholder={field.placeholder}
+                    defaultValue={field.defaultValue}
+                    allowDeselect={field.allowDeselect}
+                  />
+                )}
 
-            {field.type === 'multiSelect' && field.options && (
-              <MultiSelect
-                id={field.id}
-                label={field.label}
-                onChange={(value) => handleChange(field.id, value)}
-                data={field.options}
-                placeholder={field.placeholder}
-              />
-            )}
+                {field.type === 'multiSelect' && field.options && (
+                  <MultiSelect
+                    id={field.id}
+                    label={field.label}
+                    onChange={(value) => handleChange(field.id, value)}
+                    data={field.options}
+                    placeholder={field.placeholder}
+                  />
+                )}
 
-            {field.type === 'fileInput' && (
-              <InputWrapper
-                id={field.id}
-                label={field.label}
-                required={field.required}
-                placeholder={field.placeholder}
-                description={field.description}
-              >
-                <FileInput
-                  value={formData[field.id] || null}
-                  onChange={(value) => handleChange(field.id, value)}
-                />
-              </InputWrapper>
-            )}
+                {field.type === 'fileInput' && (
+                  <InputWrapper
+                    id={field.id}
+                    label={field.label}
+                    required={field.required}
+                    placeholder={field.placeholder}
+                    description={field.description}
+                  >
+                    <FileInput
+                      value={formData[field.id] || null}
+                      onChange={(value) => handleChange(field.id, value)}
+                    />
+                  </InputWrapper>
+                )}
 
-            {field.type === 'dropzone' && (
-              <div className={classes.wrapper}>
-                <Dropzone
-                  id={field.id}
-                  openRef={openRef}
-                  onDrop={(value) => handleChange(field.id, value[0])}
-                  className={classes.dropzone}
-                  radius="md"
-                  accept={field.acceptedMIME}
-                  maxSize={field.maxSize}
-                  multiple={false}
-                >
-                  <div style={{ pointerEvents: 'none' }}>
-                    <Group justify="center">
-                      <Dropzone.Accept>
-                        <IconDownload
-                          style={{ width: rem(50), height: rem(50) }}
-                          color={theme.colors.blue[6]}
-                          stroke={1.5}
-                        />
-                      </Dropzone.Accept>
-                      <Dropzone.Reject>
-                        <IconX
-                          style={{ width: rem(50), height: rem(50) }}
-                          color={theme.colors.red[6]}
-                          stroke={1.5}
-                        />
-                      </Dropzone.Reject>
-                      <Dropzone.Idle>
-                        <IconCloudUpload style={{ width: rem(50), height: rem(50) }} stroke={1.5} />
-                      </Dropzone.Idle>
-                    </Group>
+                {field.type === 'dropzone' && (
+                  <div className={classes.wrapper}>
+                    <Dropzone
+                      id={field.id}
+                      openRef={openRef}
+                      onDrop={(value) => handleChange(field.id, value[0])}
+                      className={classes.dropzone}
+                      radius="md"
+                      accept={field.acceptedMIME}
+                      maxSize={field.maxSize}
+                      multiple={false}
+                    >
+                      <div style={{ pointerEvents: 'none' }}>
+                        <Group justify="center">
+                          <Dropzone.Accept>
+                            <IconDownload
+                              style={{ width: rem(50), height: rem(50) }}
+                              color={theme.colors.blue[6]}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Accept>
+                          <Dropzone.Reject>
+                            <IconX
+                              style={{ width: rem(50), height: rem(50) }}
+                              color={theme.colors.red[6]}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Reject>
+                          <Dropzone.Idle>
+                            <IconCloudUpload
+                              style={{ width: rem(50), height: rem(50) }}
+                              stroke={1.5}
+                            />
+                          </Dropzone.Idle>
+                        </Group>
 
-                    <Text ta="center" fw={700} fz="lg" mt="xl">
-                      <Dropzone.Accept>Drop files here</Dropzone.Accept>
-                      <Dropzone.Reject>Invalid file type</Dropzone.Reject>
-                      <Dropzone.Idle>Upload file</Dropzone.Idle>
-                    </Text>
-                    <Text ta="center" fz="sm" mt="xs" c="dimmed">
-                      Drag&apos;n&apos;drop files here to upload.
-                    </Text>
+                        <Text ta="center" fw={700} fz="lg" mt="xl">
+                          <Dropzone.Accept>Drop files here</Dropzone.Accept>
+                          <Dropzone.Reject>Invalid file type</Dropzone.Reject>
+                          <Dropzone.Idle>Upload file</Dropzone.Idle>
+                        </Text>
+                        <Text ta="center" fz="sm" mt="xs" c="dimmed">
+                          Drag&apos;n&apos;drop files here to upload.
+                        </Text>
+                      </div>
+                    </Dropzone>
+
+                    <Button
+                      className={classes.control}
+                      size="md"
+                      radius="xl"
+                      onClick={() => openRef.current?.()}
+                    >
+                      Select a file
+                    </Button>
                   </div>
-                </Dropzone>
-
-                <Button
-                  className={classes.control}
-                  size="md"
-                  radius="xl"
-                  onClick={() => openRef.current?.()}
-                >
-                  Select a file
-                </Button>
-              </div>
-            )}
-          </React.Fragment>
-        ))}
+                )}
+              </React.Fragment>
+            )
+        )}
       </Stack>
     </Container>
   );
