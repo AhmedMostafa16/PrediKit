@@ -16,8 +16,9 @@ class FileExtension(Enum):
     """
 
     CSV = "csv"
-    EXCEL = ("xlsx", "xls")
     JSON = "json"
+    PARQUET = "parquet"
+    EXCEL = ("xlsx", "xls")
     PICKLE = ("pkl", "p", "pickle")
 
     @classmethod

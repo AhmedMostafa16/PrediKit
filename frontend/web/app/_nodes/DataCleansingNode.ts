@@ -7,6 +7,7 @@ export interface DataCleansingNode extends BaseNode {
 interface DataCleansingNodeDataModel {
   removeNullData: boolean;
   removeNullRows: boolean;
+  removeOutliers: boolean;
   selectedColumns: string[];
   replaceNullBlank: boolean;
   replaceNullNumbers: boolean;

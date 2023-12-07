@@ -31,8 +31,9 @@ class DataFrameParser(object):
 
     _READERS: dict[FileExtension, PdReader] = {
         FileExtension.CSV: pd.read_csv,
-        FileExtension.EXCEL: pd.read_excel,
         FileExtension.JSON: pd.read_json,
+        FileExtension.PARQUET: pd.read_parquet,
+        FileExtension.EXCEL: pd.read_excel,
         FileExtension.PICKLE: pd.read_pickle,
     }
 

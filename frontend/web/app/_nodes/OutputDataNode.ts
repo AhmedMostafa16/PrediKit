@@ -14,4 +14,6 @@ export enum ExportFormat {
   CSV = "CSV",
   XLS = "XLS",
   XLSX = "XLSX",
+  PICKLE = "PICKLE",
+  PARQUET = "PARQUET",
 }
