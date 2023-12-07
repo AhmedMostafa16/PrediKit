@@ -1,60 +1,108 @@
+"""
+Auto detect file type and parse it into a pandas DataFrame.
+"""
+import inspect
+import os
 from io import BytesIO
+from typing import Any
+from typing import Callable
 
-from result import Err
-from result import Ok
-from result import Result
+import pandas as pd
 
-from ...utils import Extension
-from ...utils.io_utils import get_reader
+from ...utils import FileExtension
 from ...utils.validations import Validations
 
+type PdReader = Callable[..., pd.DataFrame]
 
-def load_file_as_df(file: BytesIO, ext: Extension, **props) -> Result:
+
+class DataFrameParser(object):
     """
-    Load a file as a pandas DataFrame.
+    A class used to parse different file types into pandas DataFrames.
 
-    Parameters
+    Attributes
     ----------
-    file : BytesIO
-        The file object to load.
-    ext : Extension
-        The file extension indicating the file format.
-    **props : dict
-        Additional properties to pass to the file reader.
-
-    Returns
-    -------
-    ResDfOrNone
-        A Result object containing either a pandas DataFrame or an error message.
-
-    Notes
-    -----
-    This function uses the `get_reader` function to obtain the appropriate file reader based on the file extension.
-    It then validates the additional properties using the `Validations.validate_reader_kwargs` function.
-    Finally, it reads the file using the obtained reader and the provided properties, and returns the result as a pandas DataFrame.
-
-    If any error occurs during the loading process, an error message is returned instead of the DataFrame.
-
-    Examples
-    --------
-    >>> file = BytesIO(b"col1,col2\\n1,2\\n3,4")
-    >>> ext = Extension.CSV
-    >>> result = load_file_as_df(file, ext)
-    >>> result.is_ok()
-    True
-    >>> result.unwrap()
-        col1  col2
-    0     1     2
-    1     3     4
+    file : os.PathLike | BytesIO
+        The file to be parsed.
+    extension : str | None
+        The file extension. If None, it will be inferred from the file.
+    properties : dict[str, Any]
+        Additional properties to pass to the pandas reader function.
     """
 
-    try:
-        reader = get_reader(ext)
+    _READERS: dict[FileExtension, PdReader] = {
+        FileExtension.CSV: pd.read_csv,
+        FileExtension.JSON: pd.read_json,
+        FileExtension.PARQUET: pd.read_parquet,
+        FileExtension.EXCEL: pd.read_excel,
+        FileExtension.PICKLE: pd.read_pickle,
+    }
 
-        valid_prop = Validations.validate_reader_kwargs(reader, props)
-        props = {} if not valid_prop else props
+    def __init__(
+        self,
+        file: str | os.PathLike | BytesIO,
+        *,
+        extension: FileExtension | str | None = None,
+        **properties: Any,
+    ) -> None:
+        self.file = file
 
-        df = reader(file, **props)
-        return Ok(df)
-    except Exception as e:
-        return Err(f"error loading file as DataFrame: {e}")
+        self.extension = FileExtension.parse(extension=extension, file=file)
+
+        self.properties = properties
+
+    def get_reader(self) -> PdReader:
+        """
+        Returns the appropriate pandas reader function based on the file extension.
+        """
+        return self._READERS[self.extension]
+
+    def get_properties(self) -> dict[str, set[str | type] | None]:
+        """
+        Get the possible properties of a Pandas reader object.
+
+        Notes
+        -----
+        Useful for Views module when viewing each Node property, with their
+        default value, other possible values and data types to validate
+        against user selection.
+
+        Returns
+        -------
+        dict
+            A dictionary containing the possible properties of the reader object.
+        """
+        reader = self.get_reader()
+
+        params = inspect.signature(reader).parameters
+        possible_properties = {}
+        for name, param in params.items():
+            param_default = param.default
+            param_dtype = param.annotation
+
+            if param_default is inspect.Parameter.empty:
+                param_default = None
+
+            if param_dtype is inspect.Parameter.empty:
+                param_dtype = None
+
+            possible_properties[name] = {param_default, param_dtype}
+
+        return possible_properties
+
+    def load(self) -> pd.DataFrame:
+        """
+        Load a file as a pandas DataFrame.
+
+        Returns
+        -------
+        res.Result
+            A Result object containing either a pandas DataFrame
+            or an error message.
+        """
+
+        reader = self.get_reader()
+        valid_prop = Validations.validate_reader_kwargs(reader, self.properties)
+        props = {} if not valid_prop else self.properties
+
+        df = reader(self.file, **props)
+        return df

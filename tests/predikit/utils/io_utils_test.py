@@ -1,79 +1,61 @@
-import pandas as pd
+from io import BytesIO
+from unittest.mock import patch
+
 import pytest
 
-import predikit.utils.io_utils as iu
-from predikit.utils import Extension
+from predikit.utils.io_utils import FileExtension
 
 
-@pytest.mark.parametrize(
-    "extension,criteria,expected",
-    [
-        ("csv", ["csv", "json"], True),
-        ("csv", ["json", "pkl"], False),
-        ("xlsx", ["xlsx", "xls"], True),
-        ("xlsx", ["xls"], False),
-    ],
-)
-def test_is_type_of(extension, criteria, expected):
-    assert iu.is_type_of(extension, criteria) == expected
+def test_from_string():
+    assert FileExtension.from_string("csv") == FileExtension.CSV
+    assert FileExtension.from_string("xlsx") == FileExtension.EXCEL
+    with pytest.raises(ValueError):
+        FileExtension.from_string("unsupported_extension")
+
+    # Test case insensitivity
+    assert FileExtension.from_string("CSV") == FileExtension.CSV
 
 
-def test_get_properties():
-    properties = iu.get_properties(pd.read_csv)
-    assert "filepath_or_buffer" in properties
-    assert "sep" in properties
-    assert "delimiter" in properties
+def test_from_file():
+    with patch("os.path.splitext") as mock_splitext:
+        mock_splitext.return_value = ("/path/to/file", ".csv")
+        assert FileExtension.from_file("/path/to/file.csv") == FileExtension.CSV
 
-
-@pytest.mark.parametrize(
-    "artificial_file, expected_reader_type",
-    [
-        ("foo.json", iu.READERS[Extension.JSON]),
-        ("bar.xls", iu.READERS[Extension.EXCEL]),
-        ("baz.xlsx", iu.READERS[Extension.EXCEL]),
-        ("qux.pkl", iu.READERS[Extension.PICKLE]),
-        ("thud.csv", iu.READERS[Extension.CSV]),
-        ("corge.p", iu.READERS[Extension.PICKLE]),
-        ("xyzyy.pickle", iu.READERS[Extension.PICKLE]),
-    ],
-)
-def test_read_type_artificial_data(artificial_file, expected_reader_type):
+    # Test with different file path
+    mock_splitext.return_value = ("/another/path/to/file", ".xlsx")
     assert (
-        iu.get_reader(iu.get_extension(artificial_file)) == expected_reader_type
+        FileExtension.from_file("/another/path/to/file.xlsx")
+        == FileExtension.EXCEL
     )
 
 
-def test_extension_from_string():
-    assert Extension.from_string("csv") == Extension.CSV
-    assert Extension.from_string("xlsx") == Extension.EXCEL
-    assert Extension.from_string("json") == Extension.JSON
-    assert Extension.from_string("pkl") == Extension.PICKLE
+def test_parse():
+    assert (
+        FileExtension.parse(extension="csv", file="/path/to/file.csv")
+        == FileExtension.CSV
+    )
+    assert (
+        FileExtension.parse(
+            extension=FileExtension.CSV, file="/path/to/file.csv"
+        )
+        == FileExtension.CSV
+    )
+    with patch("os.path.splitext") as mock_splitext:
+        mock_splitext.return_value = ("/path/to/file", ".csv")
+        assert (
+            FileExtension.parse(file="/path/to/file.csv") == FileExtension.CSV
+        )
+
+    # Test with different file path
+    mock_splitext.return_value = ("/another/path/to/file", ".xlsx")
+    assert (
+        FileExtension.parse(file="/another/path/to/file.xlsx")
+        == FileExtension.EXCEL
+    )
+
+    with pytest.raises(NotImplementedError):
+        FileExtension.parse(file=BytesIO(b"some data"))
+
+    # Test with None extension and file
     with pytest.raises(ValueError):
-        Extension.from_string("unsupported_extension")
-
-
-def test_get_extension():
-    assert iu.get_extension("test.csv") == Extension.CSV
-    assert iu.get_extension("test.xlsx") == Extension.EXCEL
-    assert iu.get_extension("test.json") == Extension.JSON
-    assert iu.get_extension("test.pkl") == Extension.PICKLE
-
-
-def test_get_reader_call():
-    assert callable(iu.get_reader(Extension.CSV))
-    assert callable(iu.get_reader(Extension.EXCEL))
-    assert callable(iu.get_reader(Extension.JSON))
-    assert callable(iu.get_reader(Extension.PICKLE))
-
-
-@pytest.mark.parametrize(
-    "extension, expected",
-    [
-        (Extension.CSV, pd.read_csv),
-        (Extension.JSON, pd.read_json),
-        (Extension.PICKLE, pd.read_pickle),
-        (Extension.EXCEL, pd.read_excel),
-    ],
-)
-def test_get_reader(extension, expected):
-    assert iu.get_reader(extension) == expected
+        FileExtension.parse(extension=None, file=None)  # type: ignore

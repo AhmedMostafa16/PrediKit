@@ -6,6 +6,7 @@ export interface OutputDataNode extends BaseNode {
 
 interface OutputDataNodeDataModel {
   format: ExportFormat;
+  file: File | undefined;
 }
 
 export enum ExportFormat {

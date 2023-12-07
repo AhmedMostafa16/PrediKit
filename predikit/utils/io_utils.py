@@ -1,30 +1,51 @@
 """
-A utility module for working with files in Data Ingestion.
+A utility module for handling file-related operations in Data Ingestion.
 """
 
-import inspect
 import os
 from enum import Enum
-from typing import Callable
+from io import BytesIO
 from typing import Self
 
-import pandas as pd
 
-type PdRead = Callable[..., pd.DataFrame]
-
-
-class Extension(Enum):
+class FileExtension(Enum):
     """
     An enumeration of file extensions supported by PrediKit.
+    This Enum is used to map file extensions to their corresponding
+    pandas reader functions.
     """
 
     CSV = "csv"
-    EXCEL = ("xlsx", "xls")
     JSON = "json"
+    PARQUET = "parquet"
+    EXCEL = ("xlsx", "xls")
     PICKLE = ("pkl", "p", "pickle")
 
     @classmethod
+    def _correct_string(cls, extension: str):
+        return extension.lstrip(".").lower()
+
+    @classmethod
     def from_string(cls, extension: str) -> Self:
+        """
+        Converts a string to a FileExtension enum member.
+
+        Parameters
+        ----------
+        extension : str
+            The file extension as a string.
+
+        Returns
+        -------
+        FileExtension
+            The corresponding FileExtension enum member.
+
+        Raises
+        ------
+        ValueError
+            If the string does not match any FileExtension enum member.
+        """
+        extension = cls._correct_string(extension)
         for ext in cls:
             if isinstance(ext.value, tuple) and extension in ext.value:
                 return ext
@@ -32,83 +53,84 @@ class Extension(Enum):
             if extension == ext.value:
                 return ext
 
-        raise ValueError(f"Unsupported file extension: {extension}")
+        supported_extensions = ", ".join(
+            [
+                ext.value
+                if isinstance(ext.value, str)
+                else ", ".join(ext.value)
+                for ext in cls
+            ]
+        )
 
+        raise ValueError(
+            "Unsupported file extension: {0}. "
+            "Supported extensions are: {1}".format(
+                extension, supported_extensions
+            )
+        )
 
-READERS: dict[Extension, PdRead] = {
-    Extension.CSV: pd.read_csv,
-    Extension.EXCEL: pd.read_excel,
-    Extension.JSON: pd.read_json,
-    Extension.PICKLE: pd.read_pickle,
-}
+    @classmethod
+    def from_file(cls, file: str | os.PathLike) -> Self:
+        """
+        Determines the extension of a file.
 
+        Parameters
+        ----------
+        file : os.PathLike
+            The file path.
 
-def get_extension(file: str) -> Extension:
-    """
-    Returns the extension of a file.
+        Returns
+        -------
+        FileExtension
+            The corresponding FileExtension enum member.
+        """
+        _, ext = os.path.splitext(file)
+        return cls.from_string(ext.lstrip(".").lower())
 
-    Args:
-        file (str): The file path.
+    @classmethod
+    def parse(
+        cls,
+        *,
+        extension: Self | str | None = None,
+        file: str | os.PathLike | BytesIO,
+    ) -> Self:
+        """
+        Parses the file extension from a string or file.
 
-    Returns:
-        str: The extension of the file.
-    """
-    _, ext = os.path.splitext(file)
-    return Extension.from_string(ext.lstrip(".").lower())
+        Parameters
+        ----------
+        extension : Self | str | None, optional
+            The file extension as a string or a member of the FileExtension
+            Enum. If None, the extension is inferred from the file.
+        file : os.PathLike | BytesIO
+            The file from which to infer the extension.
 
+        Returns
+        -------
+        Self
+            A member of the Enum representing the file extension.
 
-def is_type_of(extension: str, criteria: list[str]) -> bool:
-    """
-    Check if the given extension is of the specified criteria.
+        Raises
+        ------
+        NotImplementedError
+            If the file is a BytesIO object, from which the extension
+            cannot be inferred.
+        """
+        if extension:
+            if isinstance(extension, str):
+                return cls.from_string(extension)
+            if isinstance(extension, cls):
+                return extension
 
-    Args:
-        extension (str): The extension to check.
-        criteria (list[str]): The list of criteria to check against.
+        if not file:
+            raise ValueError(
+                "Either the extension or the file must be specified."
+            )
 
-    Returns:
-        bool: True if the extension is of the specified criteria, False otherwise.
-    """
-    return extension in criteria
+        if isinstance(file, BytesIO):
+            raise NotImplementedError(
+                "This feature is not implemented yet. Currently you "
+                "can only infer file extension from a file path."
+            )
 
-
-def get_reader(ext: Extension) -> PdRead:
-    """
-    Returns a callable that can read a file with the given extension and return its contents as a pandas DataFrame.
-
-    Args:
-        ext (Extension): The file extension to read.
-
-    Returns:
-        Callable[..., pd.DataFrame]: A callable that can read a file with the given extension and return its contents as a pandas DataFrame.
-    """
-    return READERS[ext]
-
-
-def get_properties(reader: PdRead):
-    """
-    Get the possible properties of a Pandas reader object.
-    Useful for Views module when viewing each Node property,
-    with their default value, other possible values and
-    data types to validate against user selection.
-
-    Args:
-        reader (PdRead): A Pandas reader object.
-
-    Returns:
-        dict: A dictionary containing the possible properties of the reader object.
-    """
-    params = inspect.signature(reader).parameters
-    possible_properties = {}
-    for name, param in params.items():
-        param_default = param.default
-        param_dtype = param.annotation
-
-        if param_default is inspect.Parameter.empty:
-            param_default = None
-
-        if param_dtype is inspect.Parameter.empty:
-            param_dtype = None
-
-        possible_properties[name] = {param_default, param_dtype}
-
-    return possible_properties
+        return cls.from_file(file)

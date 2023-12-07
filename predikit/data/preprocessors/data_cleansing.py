@@ -17,7 +17,7 @@ init_logging_config()
 class MissingValuesProcessor(Cleaner):
     """Processor for completing missing values with simple strategies.
 
-    Replace missing values using a descriptive statistic (e.g. mean, median, or
+    Replace missing values using a descriptive statistic (e.g. mean, median,or
     most frequent) along each column, or using a constant value, or omitting.
 
     Parameters
@@ -211,8 +211,10 @@ class MissingValuesProcessor(Cleaner):
         """
         Add indicator columns to a DataFrame to mark missing values.
 
-        For each column name in `na_cols`, this method adds a new column to `data` with the suffix "_isNA".
-        Each element in the new column is 1 if the corresponding element in the original column is NaN, and 0 otherwise.
+        For each column name in `na_cols`, this method adds a new column to
+        `data` with the suffix "_isNA".
+        Each element in the new column is 1 if the corresponding element in the
+        original column is NaN, and 0 otherwise.
 
         Parameters
         ----------
@@ -245,16 +247,18 @@ class MissingValuesProcessor(Cleaner):
         """
         Log the percentage of missing values in each column of a DataFrame.
 
-        This function iterates over each column in the DataFrame, calculates the percentage of missing values in the column,
-        and logs a warning if the percentage is greater than a specified threshold.
+        This function iterates over each column in the DataFrame, calculates
+        the percentage of missing values in the column, and logs a warning if
+        the percentage is greater than a specified threshold.
 
         Parameters
         ----------
         data : pd.DataFrame
             The DataFrame for which to log the percentage of missing values.
         threshold : float
-            The threshold percentage for logging a warning. If the percentage of missing values in a column is greater than
-            this threshold, a warning is logged.
+            The threshold percentage for logging a warning. If the percentage
+            of missing values in a column is greater than this threshold,
+            a warning is logged.
 
         Returns
         -------
