@@ -63,6 +63,8 @@ export const OutputNodeProps: OutputDataNode = {
         { label: 'CSV', value: ExportFormat.CSV },
         { label: 'Excel (XLS)', value: ExportFormat.XLS },
         { label: 'Excel (XLSX)', value: ExportFormat.XLSX },
+        { label: 'Pickle', value: ExportFormat.PICKLE },
+        { label: 'Parquet', value: ExportFormat.PARQUET },
       ],
     },
     {
@@ -93,6 +95,7 @@ export const DataCleansingNodeProps: DataCleansingNode = {
     removeNumbers: false,
     removePunctuation: false,
     modifyCase: null,
+    removeOutliers: false,
   },
   name: 'dataCleansingNode',
   label: 'Data Cleansing',
@@ -103,6 +106,7 @@ export const DataCleansingNodeProps: DataCleansingNode = {
   formFields: [
     { type: 'checkbox', label: 'Remove null data', id: 'removeNullData' },
     { type: 'checkbox', label: 'Remove null rows', id: 'removeNullRows' },
+    { type: 'checkbox', label: 'Remove outliers', id: 'removeOutliers' },
     {
       type: 'checkbox',
       label: 'Replace null with blank',

@@ -6,7 +6,6 @@ export interface OutputDataNode extends BaseNode {
 
 interface OutputDataNodeDataModel {
   format: ExportFormat;
-  file: File | undefined;
 }
 
 export enum ExportFormat {
@@ -14,4 +13,6 @@ export enum ExportFormat {
   CSV = 'CSV',
   XLS = 'XLS',
   XLSX = 'XLSX',
+  PICKLE = 'PICKLE',
+  PARQUET = 'PARQUET',
 }
