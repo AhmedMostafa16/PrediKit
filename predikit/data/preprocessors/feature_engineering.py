@@ -90,12 +90,9 @@ class EncodingProcessor(Encoder):
             transformer = MyDataTransformer(encoder_instance)
             transformed_data = transformer.transform(input_data, cols=['col1', 'col2'])
         """
-    
-        if cols is not None:
-            encodeing_data = data[cols]
-        else:
-            encodeing_data = data
         
+        encodeing_data = data[cols] if cols is not None else data
+
         data[self.encoder.get_feature_names_out()] = self.encoder.transform(encodeing_data)
 
         if cols is not None:
@@ -130,6 +127,6 @@ class EncodingProcessor(Encoder):
             transformer = MyDataTransformer(strategy=CategoricalEncodingStrategies.OneHotEncoder, encoder_params={})
             transformed_data = transformer.fit_transform(input_data, cols=['col1', 'col2'])
         """
-        
+
         self.fit(data, cols)
         return self.transform(data, cols)
