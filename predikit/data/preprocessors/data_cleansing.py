@@ -1,6 +1,6 @@
 import logging
 import numbers
-from typing import Self
+from typing import Any, Self
 from typing import override
 
 import numpy as np
@@ -383,3 +383,6 @@ class OutliersProcessor(Cleaner):
         lower_bound = q1 - (iqr * threshold)
         upper_bound = q3 + (iqr * threshold)
         return (lower_bound, upper_bound)
+
+
+
