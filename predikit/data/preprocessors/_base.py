@@ -8,6 +8,7 @@ from enum import (
     auto,
 )
 from typing import Self
+from numpy import ndarray
 
 import pandas as pd
 from sklearn.base import (
@@ -121,6 +122,8 @@ class Encoder(Preprocessor, ABC):
         ...
 
 
+
+
 class FeatureEngineering(Preprocessor, ABC):
     pass
 
@@ -163,8 +166,10 @@ class OutlierDetectionMethod(StrEnum):
     IQR = auto()
     Z_SCORE = auto()
 
+class EncodingStrategies(StrEnum):
+    pass
 
-class CategoricalEncodingStrategies(StrEnum):
+class CategoricalEncodingStrategies(EncodingStrategies):
     """
     Enum class for different types of categorical encoders.
 
@@ -201,9 +206,10 @@ class CategoricalEncodingStrategies(StrEnum):
     HelmertEncoder = auto()
     BaseNEncoder = auto()
     CountEncoder = auto()
+    LabelEncoder = auto()
 
 
-class BinaryEncodingStrategies(StrEnum):
+class BinaryEncodingStrategies(EncodingStrategies):
     """
     Enum class for different types of binary encoding strategies.
 

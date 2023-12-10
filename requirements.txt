@@ -5,3 +5,4 @@ pandas==2.1.3
 pytest==7.4.3
 scikit-learn==1.3.2
 pyarrow==14.0.1
+category_encoders==2.6.3
