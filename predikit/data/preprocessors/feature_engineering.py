@@ -1,4 +1,10 @@
-from ._base import FeatureEngineering
+from ._base import (
+    BinaryEncodingStrategies,
+    CategoricalEncodingStrategies,
+    FeatureEngineering,
+)
+
+type EncodingStrategies = BinaryEncodingStrategies | CategoricalEncodingStrategies
 
 
 class FeatureSelection(FeatureEngineering):

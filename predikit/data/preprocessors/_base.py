@@ -1,13 +1,19 @@
-from abc import ABC
-from abc import abstractmethod
-from abc import abstractproperty
-from enum import StrEnum
-from enum import auto
+from abc import (
+    ABC,
+    abstractmethod,
+    abstractproperty,
+)
+from enum import (
+    StrEnum,
+    auto,
+)
 from typing import Self
 
 import pandas as pd
-from sklearn.base import BaseEstimator
-from sklearn.base import TransformerMixin
+from sklearn.base import (
+    BaseEstimator,
+    TransformerMixin,
+)
 
 
 class Preprocessor(TransformerMixin, BaseEstimator):
@@ -106,7 +112,13 @@ class Cleaner(Preprocessor, ABC):
 
 
 class Encoder(Preprocessor, ABC):
-    pass
+    @abstractmethod
+    def fit(
+        self,
+        data: pd.DataFrame,
+        cols: list[str] | None = None,
+    ) -> Self:
+        ...
 
 
 class FeatureEngineering(Preprocessor, ABC):

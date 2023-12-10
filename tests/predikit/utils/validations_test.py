@@ -3,11 +3,11 @@ from unittest.mock import MagicMock
 import pandas as pd
 import pytest
 
-from predikit.utils.validations import Validations
+from predikit import validations as v
 
 
 def test_validate_reader_kwargs_success():
-    result = Validations.validate_reader_kwargs(
+    result = v.validate_reader_kwargs(
         pd.read_csv, {"filepath_or_buffer": "test.csv", "sep": ","}
     )
 
@@ -15,7 +15,7 @@ def test_validate_reader_kwargs_success():
 
 
 def test_validate_reader_kwargs_invalid_key():
-    result = Validations.validate_reader_kwargs(
+    result = v.validate_reader_kwargs(
         pd.read_csv, {"invalid_key": "test.csv", "sep": ","}
     )
 
@@ -24,7 +24,7 @@ def test_validate_reader_kwargs_invalid_key():
 
 @pytest.mark.skip(reason="to be implemented")
 def test_validate_reader_kwargs_invalid_type():
-    result = Validations.validate_reader_kwargs(
+    result = v.validate_reader_kwargs(
         pd.read_csv, {"filepath_or_buffer": Exception, "sep": ","}
     )
 
@@ -35,7 +35,7 @@ def test_validate_reader_kwargs_no_annotations():
     mock_reader = MagicMock()
     mock_reader.__annotations__ = {}
 
-    result = Validations.validate_reader_kwargs(
+    result = v.validate_reader_kwargs(
         pd.read_csv, {"filepath_or_buffer": "test.csv", "sep": ","}
     )
 

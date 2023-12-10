@@ -136,7 +136,7 @@ export default function Workflow() {
     if (reactFlowInstance) {
       const flow = JSON.stringify(reactFlowInstance.toObject());
       localStorage.setItem('flow', flow);
-      // console.log(flow);
+      console.log(flow);
     }
   }, [reactFlowInstance]);
 

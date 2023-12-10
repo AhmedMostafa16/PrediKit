@@ -1,11 +1,15 @@
-from unittest.mock import mock_open
-from unittest.mock import patch
+from unittest.mock import (
+    mock_open,
+    patch,
+)
 
 import pandas as pd
 import pytest
 
-from predikit.data.io.input import DataFrameParser
-from predikit.utils import FileExtension
+from predikit import (
+    DataFrameParser,
+    FileExtension,
+)
 
 # Mock data for testing
 mock_data = "a,b,c\n1,2,3\n4,5,6\n"
@@ -18,21 +22,21 @@ def mock_file():
 
 def test_init():
     parser = DataFrameParser("file.csv")
-    assert parser.file == "file.csv"
-    assert parser.extension == FileExtension.CSV
-    assert parser.properties == {}
+    assert parser._file == "file.csv"
+    assert parser._extension == FileExtension.CSV
+    assert parser._properties == {}
 
 
 def test_init_with_properties():
     parser = DataFrameParser("file.csv", header=0, sep=",")
-    assert parser.file == "file.csv"
-    assert parser.extension == FileExtension.CSV
-    assert parser.properties == {"header": 0, "sep": ","}
+    assert parser._file == "file.csv"
+    assert parser._extension == FileExtension.CSV
+    assert parser._properties == {"header": 0, "sep": ","}
 
 
 def test_get_reader():
     parser = DataFrameParser("file.csv")
-    assert parser.get_reader() == pd.read_csv
+    assert parser._get_reader() == pd.read_csv
 
 
 def test_get_properties():
@@ -47,7 +51,7 @@ def test_load(mock_read_csv, mock_file):
     mock_read_csv.return_value = pd.DataFrame()
     with patch("builtins.open", new=mock_file):
         parser = DataFrameParser("file.csv")
-        df = parser.load()
+        df = parser._load()
         assert isinstance(df, pd.DataFrame)
 
 
@@ -58,5 +62,5 @@ def test_load_with_invalid_properties(mock_read_csv, mock_file):
         parser = DataFrameParser(
             "file.csv", invalid_param=10
         )  # header is out of range
-        df = parser.load()
+        df = parser._load()
         assert isinstance(df, pd.DataFrame)

@@ -1,6 +1,10 @@
 import logging
 
-from predikit.utils import init_logging_config
+from predikit import (
+    init_logging_config,
+    validations,
+
+)
 
 init_logging_config()
 

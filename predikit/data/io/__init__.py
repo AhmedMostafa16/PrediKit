@@ -1,7 +1,5 @@
-from . import input
-from . import output
+from .input import DataFrameParser
 
 __all__ = [
-    "input",
-    "output",
+    "DataFrameParser",
 ]

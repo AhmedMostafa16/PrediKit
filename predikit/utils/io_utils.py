@@ -2,9 +2,9 @@
 A utility module for handling file-related operations in Data Ingestion.
 """
 
-import os
 from enum import Enum
 from io import BytesIO
+import os
 from typing import Self
 
 
@@ -127,6 +127,8 @@ class FileExtension(Enum):
                 "Either the extension or the file must be specified."
             )
 
+        # no need to implement this since we get the dataset as BytesIO
+        # associated with its extensions from the frontend.
         if isinstance(file, BytesIO):
             raise NotImplementedError(
                 "This feature is not implemented yet. Currently you "

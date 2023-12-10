@@ -1,17 +1,18 @@
 import logging
 import numbers
-from typing import Self
-from typing import override
+from typing import (
+    Self,
+    override,
+)
 
 import numpy as np
 import pandas as pd
 
-from ...utils import init_logging_config
-from ._base import Cleaner
-from ._base import MissingValueStrategy
-from ._base import OutlierDetectionMethod
-
-init_logging_config()
+from . import (
+    Cleaner,
+    MissingValueStrategy,
+    OutlierDetectionMethod,
+)
 
 
 class MissingValuesProcessor(Cleaner):
@@ -58,7 +59,7 @@ class MissingValuesProcessor(Cleaner):
     Examples
     --------
     >>> import pandas as pd
-    >>> from predikit.data.preprocessors import MissingValuesProcessor
+    >>> from predikit import MissingValuesProcessor
     >>> df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
     >>>
     >>> mvp = MissingValuesProcessor()
@@ -189,7 +190,6 @@ class MissingValuesProcessor(Cleaner):
         self, data: pd.DataFrame, cols: list[str] | None = None
     ) -> pd.DataFrame:
         """
-
         Parameters
         ----------
         data : pd.DataFrame
@@ -202,8 +202,8 @@ class MissingValuesProcessor(Cleaner):
         pd.DataFrame
             _description_
         """
-        self.fit(data, cols)
-        return self.transform(data)
+        self.fit(data, cols)  # Name
+        return self.transform(data)  # Name Age Credit
 
     def _add_missing_value_indicator(
         self, data: pd.DataFrame, na_cols: list[str]

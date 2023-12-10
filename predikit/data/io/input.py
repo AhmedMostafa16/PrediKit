@@ -1,33 +1,58 @@
 """
-Auto detect file type and parse it into a pandas DataFrame.
+Auto parser for buffers or files into pandas DataFrames.
 """
-import inspect
-import os
 from io import BytesIO
-from typing import Any
-from typing import Callable
+from os import PathLike
+from typing import (
+    Any,
+    Callable,
+)
 
+import numpy as np
 import pandas as pd
 
-from ...utils import FileExtension
-from ...utils.validations import Validations
+from predikit._typing import (
+    FilePath,
+    PdReader,
+)
+from predikit.utils import (
+    FileExtension,
+    validations,
+)
 
-type PdReader = Callable[..., pd.DataFrame]
 
+class DataFrameParser(pd.DataFrame):
+    """DataFrameParser is a subclass of pandas DataFrame that provides
+    additional functionality for automatically parsing various file
+    types into pandas DataFrames.
 
-class DataFrameParser(object):
-    """
-    A class used to parse different file types into pandas DataFrames.
+    The class supports parsing from CSV, JSON, Parquet, Excel, and Pickle files.
+    It also provides the ability to ignore invalid properties when loading
+    data, and to inspect the properties of pandas reader functions.
+
+    Parameters
+    ----------
+    path_or_buf : str, os.PathLike, BytesIO, dict, np.ndarray, or list
+        The file or buffer to be parsed. If it's a file, the path to the file
+        is expected.
+    extension : FileExtension, str, or None, optional
+        The file extension. If None, it will be inferred from the file.
+    ignore_wrong_properties : bool, optional
+        If True, properties that are not valid for the pandas reader function
+        will be ignored.
+    properties : dict, optional
+        Additional properties to pass to the pandas reader function.
 
     Attributes
     ----------
-    file : os.PathLike | BytesIO
-        The file to be parsed.
-    extension : str | None
-        The file extension. If None, it will be inferred from the file.
-    properties : dict[str, Any]
-        Additional properties to pass to the pandas reader function.
+    _ignore : bool
+        If True, properties that are not valid for the pandas reader function
+        will be ignored.
+    _READERS : dict
+        A mapping from file extensions to pandas reader functions.
     """
+
+    _metadata = ["_ignore"]
 
     _READERS: dict[FileExtension, PdReader] = {
         FileExtension.CSV: pd.read_csv,
@@ -39,70 +64,122 @@ class DataFrameParser(object):
 
     def __init__(
         self,
-        file: str | os.PathLike | BytesIO,
+        path_or_buf: FilePath | BytesIO | dict | np.ndarray | list,
         *,
         extension: FileExtension | str | None = None,
-        **properties: Any,
+        ignore_wrong_properties: bool = False,
+        **properties,
     ) -> None:
-        self.file = file
+        self._ignore = ignore_wrong_properties
+        data = self._load(path_or_buf, extension, **properties)
+        super(DataFrameParser, self).__init__(data)  # type: ignore
 
-        self.extension = FileExtension.parse(extension=extension, file=file)
-
-        self.properties = properties
-
-    def get_reader(self) -> PdReader:
+    def _get_reader(self, extension: FileExtension) -> PdReader:
+        """Returns the appropriate pandas reader function based on the
+        file extension.
         """
-        Returns the appropriate pandas reader function based on the file extension.
-        """
-        return self._READERS[self.extension]
+        return self._READERS[extension]
 
-    def get_properties(self) -> dict[str, set[str | type] | None]:
-        """
-        Get the possible properties of a Pandas reader object.
+    def _load(
+        self,
+        path_or_buf: FilePath | BytesIO | dict | np.ndarray | list,
+        extension: FileExtension | str | None,
+        **properties,
+    ) -> pd.DataFrame:
+        df: pd.DataFrame
 
-        Notes
-        -----
-        Useful for Views module when viewing each Node property, with their
-        default value, other possible values and data types to validate
-        against user selection.
+        if isinstance(path_or_buf, (np.ndarray, dict, list)):
+            df = self._buf_loader(path_or_buf, **properties)
+
+        elif isinstance(path_or_buf, (str, PathLike, BytesIO)):
+            extension = FileExtension.parse(
+                extension=extension, file=path_or_buf
+            )
+            df = self._file_loader(path_or_buf, extension, **properties)
+
+        else:
+            raise TypeError(
+                "Unsupported type ({}) for path_or_buf. Supported "
+                "types are (str, os.PathLike, BytesIO, dict, "
+                "np.ndarray).".format(type(path_or_buf))
+            )
+
+        return df
+
+    def _buf_loader(
+        self, buf: np.ndarray | dict | list, **properties
+    ) -> pd.DataFrame:
+        if not self._ignore:
+            properties = self.__check_fix_properties(
+                func=pd.DataFrame.__init__, **properties
+            )
+        return pd.DataFrame(buf, **properties)
+
+    def _file_loader(
+        self,
+        path: FilePath | BytesIO,
+        extension: FileExtension,
+        **properties,
+    ) -> pd.DataFrame:
+        reader = self._get_reader(extension)
+        if not self._ignore:
+            properties = self.__check_fix_properties(func=reader, **properties)
+
+        return reader(path, **properties)
+
+    def __check_fix_properties(
+        self, func: Callable[..., Any], **kwargs
+    ) -> dict:
+        """Validate Keyword argument of a function (key/name only)
+        value checker is not supported yet.
+
+
+        Parameters
+        ----------
+        func : Callable[..., Any]
+            The function to retrieve its parameters and validate
+            properties against.
 
         Returns
         -------
         dict
-            A dictionary containing the possible properties of the reader object.
+            Empty properties if there's a single invalid keyword argument
         """
-        reader = self.get_reader()
+        valid_prop = validations.validate_reader_kwargs(func, kwargs)
+        props = {} if not valid_prop else kwargs
+        return props
 
-        params = inspect.signature(reader).parameters
-        possible_properties = {}
-        for name, param in params.items():
-            param_default = param.default
-            param_dtype = param.annotation
+    # # no use for this atm as properties are fetched at the frontend
+    # def get_properties(
+    #     self, reader: Callable[..., Any]
+    # ) -> dict[str, set[str | type] | None]:
+    #     """Get the possible properties of a Pandas reader object.
 
-            if param_default is inspect.Parameter.empty:
-                param_default = None
+    #     Notes
+    #     -----
+    #     Useful for Views module when viewing each Node property, with their
+    #     default value, other possible values and data types to validate
+    #     against user selection.
 
-            if param_dtype is inspect.Parameter.empty:
-                param_dtype = None
+    #     Returns
+    #     -------
+    #     dict
+    #         A dictionary containing the possible properties of the reader
+    #         object.
+    #     """
+    #     import inspect
+    #     params = inspect.signature(reader).parameters
+    #     possible_properties = {}
+    #     for name, param in params.items():
+    #         param_default = param.default
+    #         param_dtype = param.annotation
 
-            possible_properties[name] = {param_default, param_dtype}
+    #         if param_default is inspect.Parameter.empty:
+    #             param_default = None
 
-        return possible_properties
+    #         if param_dtype is inspect.Parameter.empty:
+    #             param_dtype = None
 
-    def load(self) -> pd.DataFrame:
-        """
-        Load a file as a pandas DataFrame.
+    #         possible_properties[name] = {param_default, param_dtype}
 
-        Returns
-        -------
-        res.Result
-            A Result object containing either a pandas DataFrame
-            or an error message.
-        """
-
-        reader = self.get_reader()
-        valid_prop = Validations.validate_reader_kwargs(reader, self.properties)
-        props = {} if not valid_prop else self.properties
-
-        df = reader(self.file, **props)
-        return df
+    #     return possible_properties

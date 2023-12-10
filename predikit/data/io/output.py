@@ -1,6 +1,6 @@
 from io import BytesIO
 
-from predikit.utils import FileExtension
+from predikit import FileExtension
 
 
 def export_file_as(file: BytesIO, ext: FileExtension) -> None:
