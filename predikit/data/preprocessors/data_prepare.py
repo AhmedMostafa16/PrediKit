@@ -1,19 +1,15 @@
 import logging
-from typing import Self
 
 import pandas as pd
 
-from predikit._typing import (
-    BinEncoder,
-    CatEncoder,
-    MissingValuesEncoder,
-    OutliersEncoder,
+from predikit.data.preprocessors.data_cleansing import (
+    MissingValuesProcessor,
+    OutliersProcessor,
 )
-from predikit.data.preprocessors.data_cleansing import MissingValuesProcessor
 
 from . import (
-    BinaryEncodingStrategies,
     CategoricalEncodingStrategies,
+    Encoder,
     MissingValueStrategy,
     OutlierDetectionMethod,
     Preprocessor,
@@ -21,10 +17,10 @@ from . import (
 
 
 class DataPrepare(Preprocessor):
-    _clean_missing_enc: MissingValuesEncoder = None
-    _clean_outliers_enc: OutliersEncoder = None
-    _binary_encoder: BinEncoder = None
-    _cat_encoder: CatEncoder = None
+    _clean_missing_enc: MissingValuesProcessor
+    _clean_outliers_enc: OutliersProcessor
+    _encoder: Encoder
+    _binary_encoder: Encoder
 
     # ToDo: add support for replacing values
     def __init__(
@@ -39,9 +35,6 @@ class DataPrepare(Preprocessor):
             CategoricalEncodingStrategies.HelmertEncoder,
             CategoricalEncodingStrategies.CountEncoder,
         ],
-        binary_encoders_strategies: list[BinaryEncodingStrategies] = [
-            BinaryEncodingStrategies.OrdinalEncoder,
-        ],
         drop_invariant: bool = False,
         normalization: bool = False,
         random_state: int = 42,
@@ -49,7 +42,6 @@ class DataPrepare(Preprocessor):
     ) -> None:
         self.verbose = verbose
         self.cat_encoders_strategies = cat_encoders_strategies
-        self.binary_encoders_strategies = binary_encoders_strategies
         self.random_state = random_state
 
         self._clean_missing = clean_missing
@@ -88,3 +80,6 @@ class DataPrepare(Preprocessor):
             data = self._clean_missing_enc.transform(data, cols)
 
         return data
+
+    def run(self):
+        pass

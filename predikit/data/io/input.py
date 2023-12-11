@@ -9,7 +9,14 @@ from typing import (
 )
 
 import numpy as np
-import pandas as pd
+from pandas import (
+    DataFrame,
+    read_csv,
+    read_excel,
+    read_json,
+    read_parquet,
+    read_pickle,
+)
 
 from predikit._typing import (
     FilePath,
@@ -21,7 +28,7 @@ from predikit.utils import (
 )
 
 
-class DataFrameParser(pd.DataFrame):
+class DataFrameParser(DataFrame):
     """DataFrameParser is a subclass of pandas DataFrame that provides
     additional functionality for automatically parsing various file
     types into pandas DataFrames.
@@ -55,11 +62,11 @@ class DataFrameParser(pd.DataFrame):
     _metadata = ["_ignore"]
 
     _READERS: dict[FileExtension, PdReader] = {
-        FileExtension.CSV: pd.read_csv,
-        FileExtension.JSON: pd.read_json,
-        FileExtension.PARQUET: pd.read_parquet,
-        FileExtension.EXCEL: pd.read_excel,
-        FileExtension.PICKLE: pd.read_pickle,
+        FileExtension.CSV: read_csv,
+        FileExtension.JSON: read_json,
+        FileExtension.PARQUET: read_parquet,
+        FileExtension.EXCEL: read_excel,
+        FileExtension.PICKLE: read_pickle,
     }
 
     def __init__(
@@ -85,8 +92,8 @@ class DataFrameParser(pd.DataFrame):
         path_or_buf: FilePath | BytesIO | dict | np.ndarray | list,
         extension: FileExtension | str | None,
         **properties,
-    ) -> pd.DataFrame:
-        df: pd.DataFrame
+    ) -> DataFrame:
+        df: DataFrame
 
         if isinstance(path_or_buf, (np.ndarray, dict, list)):
             df = self._buf_loader(path_or_buf, **properties)
@@ -108,19 +115,19 @@ class DataFrameParser(pd.DataFrame):
 
     def _buf_loader(
         self, buf: np.ndarray | dict | list, **properties
-    ) -> pd.DataFrame:
+    ) -> DataFrame:
         if not self._ignore:
             properties = self.__check_fix_properties(
-                func=pd.DataFrame.__init__, **properties
+                func=DataFrame.__init__, **properties
             )
-        return pd.DataFrame(buf, **properties)
+        return DataFrame(buf, **properties)
 
     def _file_loader(
         self,
         path: FilePath | BytesIO,
         extension: FileExtension,
         **properties,
-    ) -> pd.DataFrame:
+    ) -> DataFrame:
         reader = self._get_reader(extension)
         if not self._ignore:
             properties = self.__check_fix_properties(func=reader, **properties)
@@ -148,38 +155,3 @@ class DataFrameParser(pd.DataFrame):
         valid_prop = validations.validate_reader_kwargs(func, kwargs)
         props = {} if not valid_prop else kwargs
         return props
-
-    # # no use for this atm as properties are fetched at the frontend
-    # def get_properties(
-    #     self, reader: Callable[..., Any]
-    # ) -> dict[str, set[str | type] | None]:
-    #     """Get the possible properties of a Pandas reader object.
-
-    #     Notes
-    #     -----
-    #     Useful for Views module when viewing each Node property, with their
-    #     default value, other possible values and data types to validate
-    #     against user selection.
-
-    #     Returns
-    #     -------
-    #     dict
-    #         A dictionary containing the possible properties of the reader
-    #         object.
-    #     """
-    #     import inspect
-    #     params = inspect.signature(reader).parameters
-    #     possible_properties = {}
-    #     for name, param in params.items():
-    #         param_default = param.default
-    #         param_dtype = param.annotation
-
-    #         if param_default is inspect.Parameter.empty:
-    #             param_default = None
-
-    #         if param_dtype is inspect.Parameter.empty:
-    #             param_dtype = None
-
-    #         possible_properties[name] = {param_default, param_dtype}
-
-    #     return possible_properties

@@ -1,7 +1,9 @@
 from predikit.data import preprocessors
 from predikit.data.io import DataFrameParser
 from predikit.data.preprocessors import (
+    CategoricalEncodingStrategies,
     DataPrepare,
+    EncodingProcessor,
     MissingValuesProcessor,
     MissingValueStrategy,
     OutlierDetectionMethod,
@@ -15,7 +17,6 @@ from predikit.utils import (
 
 __all__ = [
     "validations",
-    "init_logging_config",
     "FileExtension",
     "DataFrameParser",
     "preprocessors",
@@ -23,6 +24,8 @@ __all__ = [
     "OutlierDetectionMethod",
     "MissingValuesProcessor",
     "OutliersProcessor",
+    "CategoricalEncodingStrategies",
+    "EncodingProcessor",
     "DataPrepare",
 ]
 

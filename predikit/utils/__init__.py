@@ -1,6 +1,6 @@
 from . import validations
 from .io_utils import FileExtension
-from .logger import init_logging_config
+from ._logger import init_logging_config
 
 __all__ = [
     "FileExtension",

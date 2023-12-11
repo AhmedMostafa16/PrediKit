@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# [ ] Make it crossplatform compatible
+
 print_help() {
     echo "Usage: $0 [option] [env_name]"
     echo "Options:"
@@ -29,7 +31,7 @@ create_venv() {
         return 1
     fi
 
-    python3 -m venv "$env_name"
+    python -m venv "$env_name"
     source "./$env_name/bin/activate"
     pip install -U pip
 }
@@ -116,5 +118,3 @@ case "$1" in
         exit 1
         ;;
 esac
-
-# TODO Make it crossplatform compatible

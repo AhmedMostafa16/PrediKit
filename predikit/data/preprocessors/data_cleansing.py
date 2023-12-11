@@ -1,19 +1,21 @@
 import logging
 import numbers
-from typing import Any, Self
-from typing import override
+from typing import (
+    Self,
+    override,
+)
 
 import numpy as np
-import pandas as pd
+from pandas import DataFrame
 
 from . import (
-    Cleaner,
     MissingValueStrategy,
     OutlierDetectionMethod,
+    Preprocessor,
 )
 
 
-class MissingValuesProcessor(Cleaner):
+class MissingValuesProcessor(Preprocessor):
     """Processor for completing missing values with simple strategies.
 
     Replace missing values using a descriptive statistic (e.g. mean, median,or
@@ -66,8 +68,6 @@ class MissingValuesProcessor(Cleaner):
     >>> df
     """
 
-    _cleaner_type: str = "MissingValues"
-
     def __init__(
         self,
         *,
@@ -82,13 +82,13 @@ class MissingValuesProcessor(Cleaner):
         self.verbose = verbose
 
     @override
-    def fit(self, data: pd.DataFrame, cols: list[str] | None = None) -> Self:
+    def fit(self, data: DataFrame, cols: list[str] | None = None) -> Self:
         """Fit the MissingValuesProcessor to the data.
 
         Parameters
         ----------
-        data : pd.DataFrame
-            dataset (pd.DataFrame shape = (n_samples, n_features))
+        data : DataFrame
+            dataset (DataFrame shape = (n_samples, n_features))
         cols : list[str] | None, optional
             list of features to consider for fitting, by default None
 
@@ -136,9 +136,9 @@ class MissingValuesProcessor(Cleaner):
             logging.info("No missing values in features.")
 
         strategy_fill = {
-            MissingValueStrategy.MEAN: pd.DataFrame.mean,
-            MissingValueStrategy.MEDIAN: pd.DataFrame.median,
-            MissingValueStrategy.MODE: pd.DataFrame.mode,
+            MissingValueStrategy.MEAN: DataFrame.mean,
+            MissingValueStrategy.MEDIAN: DataFrame.median,
+            MissingValueStrategy.MODE: DataFrame.mode,
             MissingValueStrategy.CONSTANT: lambda _: fill_value,
             MissingValueStrategy.OMIT: lambda _: None,
         }
@@ -152,18 +152,18 @@ class MissingValuesProcessor(Cleaner):
 
     @override
     def transform(
-        self, data: pd.DataFrame, cols: list[str] | None = None
-    ) -> pd.DataFrame:
+        self, data: DataFrame, cols: list[str] | None = None
+    ) -> DataFrame:
         """Apply the MissingValuesProcessor to the dataset.
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data : DataFrame
             The input dataframe (shape = (n_samples, n_features)
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             The transformed dataframe (shape = (n_samples, n_features))
         """
         if cols is not None:
@@ -185,27 +185,27 @@ class MissingValuesProcessor(Cleaner):
 
     @override
     def fit_transform(
-        self, data: pd.DataFrame, cols: list[str] | None = None
-    ) -> pd.DataFrame:
+        self, data: DataFrame, cols: list[str] | None = None
+    ) -> DataFrame:
         """
         Parameters
         ----------
-        data : pd.DataFrame
+        data : DataFrame
             _description_
         cols : list[str] | None, optional
             _description_, by default None
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             _description_
         """
         self.fit(data, cols)  # Name
         return self.transform(data)  # Name Age Credit
 
     def _add_missing_value_indicator(
-        self, data: pd.DataFrame, na_cols: list[str]
-    ) -> pd.DataFrame:
+        self, data: DataFrame, na_cols: list[str]
+    ) -> DataFrame:
         """
         Add indicator columns to a DataFrame to mark missing values.
 
@@ -216,14 +216,14 @@ class MissingValuesProcessor(Cleaner):
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data : DataFrame
             The DataFrame to which to add the indicator columns.
         na_cols : List[str]
             A list of column names for which to add indicator columns.
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             The DataFrame with the added indicator columns.
 
         Raises
@@ -239,9 +239,7 @@ class MissingValuesProcessor(Cleaner):
             data[na_col + "_isNA"] = data[na_col].isna().astype("uint8")
         return data
 
-    def _log_missing_percent(
-        self, data: pd.DataFrame, threshold: float
-    ) -> None:
+    def _log_missing_percent(self, data: DataFrame, threshold: float) -> None:
         """
         Log the percentage of missing values in each column of a DataFrame.
 
@@ -251,7 +249,7 @@ class MissingValuesProcessor(Cleaner):
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data : DataFrame
             The DataFrame for which to log the percentage of missing values.
         threshold : float
             The threshold percentage for logging a warning. If the percentage
@@ -264,7 +262,7 @@ class MissingValuesProcessor(Cleaner):
 
         Examples
         --------
-        >>> df = pd.DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, np.nan]})
+        >>> df = DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, np.nan]})
         >>> _log_missing_percent(df, 0.5)
         Warning: ! Attention B - 67% Missing!
         """
@@ -278,7 +276,7 @@ class MissingValuesProcessor(Cleaner):
                 )
 
 
-class OutliersProcessor(Cleaner):
+class OutliersProcessor(Preprocessor):
     """Class to process outliers in a dataset using a
     specified outlier detection method.
 
@@ -304,7 +302,6 @@ class OutliersProcessor(Cleaner):
         Outlier Detection using the Interquartile Range Rule.
     """
 
-    _cleaner_type: str = "Outliers"
     _weights = {}
 
     def __init__(
@@ -316,12 +313,12 @@ class OutliersProcessor(Cleaner):
         self.threshold = threshold
 
     @override
-    def fit(self, data: pd.DataFrame, cols: list[str]) -> Self:
+    def fit(self, data: DataFrame, cols: list[str]) -> Self:
         """Fit the OutliersProcessor on the dataset.
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data : DataFrame
             The dataset to fit on (shape = (n_samples, n_features)).
         cols : list[str]
             The columns to consider for fitting.
@@ -334,23 +331,23 @@ class OutliersProcessor(Cleaner):
         raise NotImplementedError
 
     @override
-    def transform(self, data: pd.DataFrame) -> pd.DataFrame:
+    def transform(self, data: DataFrame) -> DataFrame:
         """Transform the dataset by processing outliers.
 
         Parameters
         ----------
-        data : pd.DataFrame
+        data : DataFrame
             The dataframe to transform (shape = (n_samples, n_features)).
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             The transformed dataframe (shape = (n_samples, n_features)).
         """
         raise NotImplementedError
 
     def _IQR(
-        self, data: pd.DataFrame, col: str, threshold: float = 1.5
+        self, data: DataFrame, col: str, threshold: float = 1.5
     ) -> tuple[float, float]:
         """Outlier Detection using the Interquartile Range Rule.
         Calculate Q3, Q1, IQR
@@ -364,8 +361,8 @@ class OutliersProcessor(Cleaner):
 
         Parameters
         ----------
-        data : pd.DataFrame
-            dataset (pd.DataFrame shape = (n_samples, n_features))
+        data : DataFrame
+            dataset (DataFrame shape = (n_samples, n_features))
         col : str
             feature_name
         threshold : float, optional
@@ -381,6 +378,3 @@ class OutliersProcessor(Cleaner):
         lower_bound = q1 - (iqr * threshold)
         upper_bound = q3 + (iqr * threshold)
         return (lower_bound, upper_bound)
-
-
-

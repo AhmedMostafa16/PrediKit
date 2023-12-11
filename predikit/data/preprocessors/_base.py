@@ -1,23 +1,28 @@
 from abc import (
     ABC,
     abstractmethod,
-    abstractproperty,
 )
 from enum import (
+    Enum,
     StrEnum,
     auto,
 )
-from typing import Self
-from numpy import ndarray
+from typing import (
+    Self,
+    override,
+)
 
-import pandas as pd
+import numpy as np
+from pandas import DataFrame
+from scipy.sparse import csr_matrix
 from sklearn.base import (
     BaseEstimator,
     TransformerMixin,
 )
+from strenum import PascalCaseStrEnum
 
 
-class Preprocessor(TransformerMixin, BaseEstimator):
+class Preprocessor(TransformerMixin, BaseEstimator, ABC):
     """
     Base class for all preprocessing tasks in the data pipeline.
 
@@ -42,90 +47,74 @@ class Preprocessor(TransformerMixin, BaseEstimator):
     ...         return X_transformed
     """
 
-    pass
+    def __init__(self, data: DataFrame, *args, **params):
+        self.data = data
 
-
-class Cleaner(Preprocessor, ABC):
-    """The cleaner base class in data preprocessing.
-
-    Parameters
-    ----------
-    method : StrEnum
-        method used for cleaning the dataset
-    """
-
-    @abstractmethod
-    def __init__(self, method: StrEnum, verbose: bool = False) -> None:
-        pass
-
-    @abstractmethod
     def fit(
         self,
-        data: pd.DataFrame,
+        data: DataFrame,
         cols: list[str] | None = None,
     ) -> Self:
-        """Fit CleanOutliers / MissingValuesProcessor to the dataset.
+        """_summary_
 
         Parameters
         ----------
-        data : pd.DataFrame
-            dataset (pd.DataFrame shape = (n_samples, n_features))
-        cols : list[str],
-            list feature names to be cleaned
+        data : DataFrame
+            _description_
+        cols : list[str] | None, optional
+            _description_, by default None
 
         Returns
         -------
-        self
+        Self
+            _description_
         """
         ...
 
     @abstractmethod
     def transform(
         self,
-        data: pd.DataFrame,
+        data: DataFrame,
         cols: list[str] | None = None,
-    ) -> pd.DataFrame:
+    ) -> DataFrame:
         """Transforms the dataset by cleaning the features.
 
         Parameters
         ----------
-        data : pd.DataFrame
-            dataset (pd.DataFrame shape = (n_samples, n_features))
+        data : DataFrame
+            dataset (DataFrame shape = (n_samples, n_features))
 
         Returns
         -------
-        pd.DataFrame
+        DataFrame
             dataset with the cleaned features
-            (pd.DataFrame shape = (n_samples, n_features)
+            (DataFrame shape = (n_samples, n_features)
         """
         ...
 
-    @abstractproperty
-    def _cleaner_type(self) -> str:
-        """Return the type of cleaner.
+    def fit_transform(
+        self, data: DataFrame, cols: list[str] | None = None, **fit_params
+    ) -> DataFrame:
+        if cols is None:
+            return self.fit(data, **fit_params).transform(data)
 
-        Returns
-        -------
-        str
-            type of cleaner
-        """
-        ...
+        return self.fit(data, cols, **fit_params).transform(data)
 
 
 class Encoder(Preprocessor, ABC):
     @abstractmethod
-    def fit(
-        self,
-        data: pd.DataFrame,
-        cols: list[str] | None = None,
-    ) -> Self:
+    def get_feature_names_out(self) -> np.ndarray:
+        """Return the names of the encoded features.
+
+        Returns
+        -------
+        np.ndarray
+            names of the encoded features
+        """
+
+    @override
+    def transform(self, X) -> csr_matrix:
         ...
-
-
-
-
-class FeatureEngineering(Preprocessor, ABC):
-    pass
 
 
 class MissingValueStrategy(StrEnum):
@@ -166,10 +155,8 @@ class OutlierDetectionMethod(StrEnum):
     IQR = auto()
     Z_SCORE = auto()
 
-class EncodingStrategies(StrEnum):
-    pass
 
-class CategoricalEncodingStrategies(EncodingStrategies):
+class CategoricalEncodingStrategies(PascalCaseStrEnum):
     """
     Enum class for different types of categorical encoders.
 
@@ -207,24 +194,5 @@ class CategoricalEncodingStrategies(EncodingStrategies):
     BaseNEncoder = auto()
     CountEncoder = auto()
     LabelEncoder = auto()
-
-
-class BinaryEncodingStrategies(EncodingStrategies):
-    """
-    Enum class for different types of binary encoding strategies.
-
-    This class provides an enumeration of common binary
-    encoding strategies. Each member of the enumeration
-    represents a different type of binary encoder.
-
-    Attributes
-    ----------
-    OrdinalEncoder : enum member
-        Represents the Ordinal Encoder strategy.
-
-    Examples
-    --------
-    >>> encoder = BinaryEncoderStrategies.OrdinalEncoder
-    """
-
+    PolynomialEncoder = auto()
     OrdinalEncoder = auto()
