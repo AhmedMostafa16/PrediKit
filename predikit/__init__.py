@@ -1,5 +1,8 @@
 from predikit.data import preprocessors
-from predikit.data.io import DataFrameParser
+from predikit.data.io import (
+    DataFrameExporter,
+    DataFrameParser,
+)
 from predikit.data.preprocessors import (
     CategoricalEncodingStrategies,
     DataPrepare,
@@ -27,6 +30,7 @@ __all__ = [
     "CategoricalEncodingStrategies",
     "EncodingProcessor",
     "DataPrepare",
+    "DataFrameExporter",
 ]
 
 

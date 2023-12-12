@@ -19,7 +19,7 @@ class FileExtension(Enum):
     JSON = "json"
     PARQUET = "parquet"
     EXCEL = ("xlsx", "xls")
-    PICKLE = ("pkl", "p", "pickle")
+    PICKLE = ("pickle", "p", "pkl")
 
     @classmethod
     def _correct_string(cls, extension: str):
@@ -136,3 +136,25 @@ class FileExtension(Enum):
             )
 
         return cls.from_file(file)
+
+
+def ext_to_str(ext: FileExtension) -> str:
+    return (
+        f".{ext.value}" if not isinstance(ext, tuple) else f".{ext.value[0]}"
+    )
+
+
+def get_home() -> str:
+    return os.path.expanduser("~")
+
+
+def append_to_home(file: str) -> str:
+    return os.path.join(get_home(), file)
+
+
+def abs_path(dir: str, file: str) -> str:
+    return os.path.join(dir, file)
+
+
+def init_dir(name: str) -> None:
+    os.makedirs(name, exist_ok=True)

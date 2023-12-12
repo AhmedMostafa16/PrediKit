@@ -7,3 +7,4 @@ type Number = int | float
 
 type PdReader = Callable[..., DataFrame]
 type FilePath = str | PathLike[str]
+type DfExporter = Callable[..., str | None]
