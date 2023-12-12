@@ -22,7 +22,7 @@ from sklearn.base import (
 from strenum import PascalCaseStrEnum
 
 
-class Preprocessor(TransformerMixin, BaseEstimator, ABC):
+class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
     """
     Base class for all preprocessing tasks in the data pipeline.
 
@@ -37,7 +37,7 @@ class Preprocessor(TransformerMixin, BaseEstimator, ABC):
 
     Examples
     --------
-    >>> class CustomPreprocessor(Preprocessor):
+    >>> class CustomPreprocessor(BasePreprocessor):
     ...     def fit(self, X, y=None):
     ...         # Implement fit functionality here
     ...         return self
@@ -53,58 +53,35 @@ class Preprocessor(TransformerMixin, BaseEstimator, ABC):
     def fit(
         self,
         data: DataFrame,
-        cols: list[str] | None = None,
+        columns: list[str] | None = None,
     ) -> Self:
-        """_summary_
-
-        Parameters
-        ----------
-        data : DataFrame
-            _description_
-        cols : list[str] | None, optional
-            _description_, by default None
-
-        Returns
-        -------
-        Self
-            _description_
-        """
         ...
 
     @abstractmethod
     def transform(
         self,
         data: DataFrame,
-        cols: list[str] | None = None,
+        columns: list[str] | None = None,
     ) -> DataFrame:
-        """Transforms the dataset by cleaning the features.
-
-        Parameters
-        ----------
-        data : DataFrame
-            dataset (DataFrame shape = (n_samples, n_features))
-
-        Returns
-        -------
-        DataFrame
-            dataset with the cleaned features
-            (DataFrame shape = (n_samples, n_features)
-        """
         ...
 
     def fit_transform(
-        self, data: DataFrame, cols: list[str] | None = None, **fit_params
+        self,
+        data: DataFrame,
+        columns: list[str] | None = None,
+        **fit_params,
     ) -> DataFrame:
-        if cols is None:
+        if columns is None:
             return self.fit(data, **fit_params).transform(data)
 
-        return self.fit(data, cols, **fit_params).transform(data)
+        return self.fit(data, columns, **fit_params).transform(data)
 
 
-class Encoder(Preprocessor, ABC):
+class Encoder(BasePreprocessor, ABC):
     @abstractmethod
     def get_feature_names_out(self) -> np.ndarray:
-        """Return the names of the encoded features.
+        """
+        Return the names of the encoded features.
 
         Returns
         -------
@@ -118,7 +95,8 @@ class Encoder(Preprocessor, ABC):
 
 
 class MissingValueStrategy(StrEnum):
-    """Enum for specifying the method of handling missing values.
+    """
+    Enum for specifying the method of handling missing values.
 
     Attributes
     ----------
@@ -142,7 +120,8 @@ class MissingValueStrategy(StrEnum):
 
 
 class OutlierDetectionMethod(StrEnum):
-    """Enum for specifying the method of detecting outliers.
+    """
+    Enum for specifying the method of detecting outliers.
 
     Attributes
     ----------
@@ -196,3 +175,81 @@ class CategoricalEncodingStrategies(PascalCaseStrEnum):
     LabelEncoder = auto()
     PolynomialEncoder = auto()
     OrdinalEncoder = auto()
+
+
+class FilterOperator(Enum):
+    """
+    An enumeration representing various filter operators used in data filtering.
+    """
+
+    EQUAL = 1
+    NOTEQUAL = 2
+    GREATER = 3
+    GREATEREQUAL = 4
+    LESS = 5
+    LESSEQUAL = 6
+    NULL = 7
+    NOTNULL = 8
+    CONTAINS = 9
+    DOES_NOT_CONTAIN = 10
+
+    @property
+    def to_str(self) -> str:
+        """
+        Returns the string representation of the operator.
+
+        Returns
+        -------
+        str
+            The string representation of the operator.
+        """
+
+        return {
+            FilterOperator.EQUAL: "==",
+            FilterOperator.NOTEQUAL: "!=",
+            FilterOperator.GREATER: ">",
+            FilterOperator.GREATEREQUAL: ">=",
+            FilterOperator.LESS: "<",
+            FilterOperator.LESSEQUAL: "<=",
+            FilterOperator.NULL: "isna()",
+            FilterOperator.NOTNULL: "notna()",
+        }[self]
+
+    @property
+    def is_comparison_operator(self) -> bool:
+        """
+        Returns True if the operator is a comparison operator.
+
+        Returns
+        -------
+        bool
+            True if the operator is a comparison operator.
+        """
+
+        return self.value in list(range(1, 7))
+
+    @property
+    def is_nullity_operator(self) -> bool:
+        """
+        Returns True if the operator is a null operator.
+
+        Returns
+        -------
+        bool
+            True if the operator is a null operator.
+        """
+
+        return self.value in [7, 8]
+
+    @property
+    def is_containment_operator(self) -> bool:
+        """
+        Returns True if the operator is a contains operator.
+
+        Returns
+        -------
+        bool
+            True if the operator is a contains operator.
+        """
+
+        return self.value in [9, 10]

@@ -1,4 +1,4 @@
-dask==2023.11.0
+dask[complete]
 fastapi==0.104.1
 numpy==1.26.1
 pandas==2.1.3

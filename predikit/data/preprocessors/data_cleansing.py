@@ -8,15 +8,16 @@ from typing import (
 import numpy as np
 from pandas import DataFrame
 
-from . import (
+from ._base import (
+    BasePreprocessor,
     MissingValueStrategy,
     OutlierDetectionMethod,
-    Preprocessor,
 )
 
 
-class MissingValuesProcessor(Preprocessor):
-    """Processor for completing missing values with simple strategies.
+class MissingValuesProcessor(BasePreprocessor):
+    """
+    Processor for completing missing values with simple strategies.
 
     Replace missing values using a descriptive statistic (e.g. mean, median,or
     most frequent) along each column, or using a constant value, or omitting.
@@ -82,14 +83,15 @@ class MissingValuesProcessor(Preprocessor):
         self.verbose = verbose
 
     @override
-    def fit(self, data: DataFrame, cols: list[str] | None = None) -> Self:
-        """Fit the MissingValuesProcessor to the data.
+    def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
+        """
+        Fit the MissingValuesProcessor to the data.
 
         Parameters
         ----------
         data : DataFrame
             dataset (DataFrame shape = (n_samples, n_features))
-        cols : list[str] | None, optional
+        columns : list[str] | None, optional
             list of features to consider for fitting, by default None
 
         Returns
@@ -97,8 +99,8 @@ class MissingValuesProcessor(Preprocessor):
         self
             The fitted MissingValuesProcessor instance.
         """
-        if cols is not None:
-            data = data[cols]
+        if columns is not None:
+            data = data[columns]
 
         if self.strategy not in (
             MissingValueStrategy.CONSTANT,
@@ -152,9 +154,10 @@ class MissingValuesProcessor(Preprocessor):
 
     @override
     def transform(
-        self, data: DataFrame, cols: list[str] | None = None
+        self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
-        """Apply the MissingValuesProcessor to the dataset.
+        """
+        Apply the MissingValuesProcessor to the dataset.
 
         Parameters
         ----------
@@ -166,8 +169,8 @@ class MissingValuesProcessor(Preprocessor):
         DataFrame
             The transformed dataframe (shape = (n_samples, n_features))
         """
-        if cols is not None:
-            data = data[cols]
+        if columns is not None:
+            data = data[columns]
 
         if not self.na_cols:
             raise ValueError("No missing values in features.")
@@ -182,26 +185,6 @@ class MissingValuesProcessor(Preprocessor):
             data.fillna(self.fill_value, inplace=True)
 
         return data
-
-    @override
-    def fit_transform(
-        self, data: DataFrame, cols: list[str] | None = None
-    ) -> DataFrame:
-        """
-        Parameters
-        ----------
-        data : DataFrame
-            _description_
-        cols : list[str] | None, optional
-            _description_, by default None
-
-        Returns
-        -------
-        DataFrame
-            _description_
-        """
-        self.fit(data, cols)  # Name
-        return self.transform(data)  # Name Age Credit
 
     def _add_missing_value_indicator(
         self, data: DataFrame, na_cols: list[str]
@@ -237,6 +220,7 @@ class MissingValuesProcessor(Preprocessor):
                     f"Column {na_col} does not exist in the DataFrame."
                 )
             data[na_col + "_isNA"] = data[na_col].isna().astype("uint8")
+
         return data
 
     def _log_missing_percent(self, data: DataFrame, threshold: float) -> None:
@@ -276,14 +260,15 @@ class MissingValuesProcessor(Preprocessor):
                 )
 
 
-class OutliersProcessor(Preprocessor):
-    """Class to process outliers in a dataset using a
+class OutliersProcessor(BasePreprocessor):
+    """
+    Class to process outliers in a dataset using a
     specified outlier detection method.
 
     Attributes
     ----------
-    _cleaner_type : str
-        "Outliers"
+    _weight : dict
+        holds the weight of the Outlier Procecssor method
 
     Parameters
     ----------
@@ -294,33 +279,35 @@ class OutliersProcessor(Preprocessor):
 
     Methods
     -------
-    fit(data, cols)
+    fit(data, columns)
         Fit the OutliersProcessor to the data.
     transform(data)
         Apply the OutliersProcessor to the data.
-    _IQR(data, col, threshold)
+    _IQR(data, column, threshold)
         Outlier Detection using the Interquartile Range Rule.
     """
 
-    _weights = {}
+    _weight: dict
 
     def __init__(
         self,
         method: OutlierDetectionMethod = OutlierDetectionMethod.IQR,
         threshold: float = 1.5,
+        verbose: bool = False,
     ) -> None:
         self.method = method
         self.threshold = threshold
+        self.verbose = verbose
 
-    @override
-    def fit(self, data: DataFrame, cols: list[str]) -> Self:
-        """Fit the OutliersProcessor on the dataset.
+    def fit(self, data: DataFrame, columns: list[str]) -> Self:
+        """
+        Fit the OutliersProcessor on the dataset.
 
         Parameters
         ----------
         data : DataFrame
             The dataset to fit on (shape = (n_samples, n_features)).
-        cols : list[str]
+        columns : list[str]
             The columns to consider for fitting.
 
         Returns
@@ -328,11 +315,61 @@ class OutliersProcessor(Preprocessor):
         self
             The fitted OutliersProcessor instance.
         """
-        raise NotImplementedError
+        if columns:
+            data = data[columns]
+
+        if (selection := self._numeric_selector(data, columns)) == []:
+            raise ValueError(
+                "Selected columns are of non-numeric type. "
+                "Unable to process outliers on non-numeric columns."
+            )
+
+        data = data[selection]
+        self._weight = {}
+        for column in selection:
+            if self.method == OutlierDetectionMethod.IQR:
+                lower_bound, upper_bound = self._IQR(
+                    data, column, self.threshold
+                )
+                self._weight[column] = (lower_bound, upper_bound)
+
+                if not self.verbose:
+                    continue
+
+                total_outliers = len(
+                    data[column][
+                        (data[column] < lower_bound)
+                        | (data[column] > upper_bound)
+                    ]
+                )
+
+            # bug not detecting outliers correctly
+            elif self.method == OutlierDetectionMethod.Z_SCORE:
+                mean, std = self._fit_z_score(data, column)
+                self._weight[column] = [mean, std]
+
+                if not self.verbose:
+                    continue
+
+                filtered_samples = self._get_z_score(
+                    mean, std, data, column, self.threshold
+                )
+                total_outliers = filtered_samples.sum()
+
+            else:
+                raise ValueError("Wrong Outlier Detection Method")
+
+            if self.verbose:
+                if total_outliers <= 0:
+                    continue
+                self._log_outliers_num_percent(total_outliers, data, column)
+
+        return self
 
     @override
     def transform(self, data: DataFrame) -> DataFrame:
-        """Transform the dataset by processing outliers.
+        """
+        Transform the dataset by processing outliers.
 
         Parameters
         ----------
@@ -344,12 +381,36 @@ class OutliersProcessor(Preprocessor):
         DataFrame
             The transformed dataframe (shape = (n_samples, n_features)).
         """
-        raise NotImplementedError
+        if self.method == OutlierDetectionMethod.IQR:
+            pass
+
+        return data
+
+    def _fit_z_score(
+        self, data: DataFrame, column: str
+    ) -> tuple[float, float]:
+        mean = data[column].mean()
+        std = data[column].std()
+        return (mean, std)
+
+    def _get_z_score(
+        self,
+        mean: float,
+        std: float,
+        data: DataFrame,
+        column: str,
+        threshold: float = 3,
+    ):
+        return np.abs(((data[column] - mean) / std)) > threshold
 
     def _IQR(
-        self, data: DataFrame, col: str, threshold: float = 1.5
+        self,
+        data: DataFrame,
+        column: str,
+        threshold: float = 1.5,
     ) -> tuple[float, float]:
-        """Outlier Detection using the Interquartile Range Rule.
+        """
+        Outlier Detection using the Interquartile Range Rule.
         Calculate Q3, Q1, IQR
         Q3: 75th quantile, Q1: 25th quantile
         IQR = Q3 - Q1
@@ -363,7 +424,7 @@ class OutliersProcessor(Preprocessor):
         ----------
         data : DataFrame
             dataset (DataFrame shape = (n_samples, n_features))
-        col : str
+        column : str
             feature_name
         threshold : float, optional
             threshold on method, by default 1.5
@@ -373,8 +434,32 @@ class OutliersProcessor(Preprocessor):
         tuple[float, float]
             lower_bound and upper_bound
         """
-        q3, q1 = np.percentile(data[col], [75, 25])
+        q3, q1 = np.percentile(data[column], [75, 25])
         iqr = q3 - q1
         lower_bound = q1 - (iqr * threshold)
         upper_bound = q3 + (iqr * threshold)
         return (lower_bound, upper_bound)
+
+    def _numeric_selector(
+        self, data: DataFrame, columns: list[str]
+    ) -> list[str]:
+        numeric_columns = []
+        for col in columns:
+            if data[col].dtype.kind not in "iuf":
+                continue
+            numeric_columns.append(col)
+
+        return numeric_columns
+
+    def _log_outliers_num_percent(
+        self, outliers_num: int, data: DataFrame, column: str
+    ) -> None:
+        logging.info(
+            f"Number of outliers detected: {outliers_num} in Feature {column}"
+        )
+
+        logging.info(
+            "Proportion of outlier detected: {}%".format(
+                round((100 / (len(data) / outliers_num)), 1)
+            )
+        )

@@ -2,21 +2,20 @@ import logging
 
 import pandas as pd
 
-from predikit.data.preprocessors.data_cleansing import (
-    MissingValuesProcessor,
-    OutliersProcessor,
-)
-
-from . import (
+from ._base import (
+    BasePreprocessor,
     CategoricalEncodingStrategies,
     Encoder,
     MissingValueStrategy,
     OutlierDetectionMethod,
-    Preprocessor,
+)
+from .data_cleansing import (
+    MissingValuesProcessor,
+    OutliersProcessor,
 )
 
 
-class DataPrepare(Preprocessor):
+class DataPrepare(BasePreprocessor):
     _clean_missing_enc: MissingValuesProcessor
     _clean_outliers_enc: OutliersProcessor
     _encoder: Encoder
@@ -56,7 +55,7 @@ class DataPrepare(Preprocessor):
     def fit_transform(
         self,
         data: pd.DataFrame,
-        cols: list[str] | None = None,
+        columns: list[str] | None = None,
     ) -> pd.DataFrame:
         logging.info("#" * 50)
         logging.info("! START Preprocessing Data")
@@ -68,18 +67,15 @@ class DataPrepare(Preprocessor):
                 verbose=self.verbose,
             )
             logging.info("> Cleansing")
-            data = self._clean_missing_enc.fit_transform(data, cols)
+            data = self._clean_missing_enc.fit_transform(data, columns)
 
         return data
 
     def transform(
-        self, data: pd.DataFrame, cols: list[str] | None = None
+        self, data: pd.DataFrame, columns: list[str] | None = None
     ) -> pd.DataFrame:
         if self._clean_missing_enc:
             logging.info("> Cleansing")
-            data = self._clean_missing_enc.transform(data, cols)
+            data = self._clean_missing_enc.transform(data, columns)
 
         return data
-
-    def run(self):
-        pass

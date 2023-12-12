@@ -29,7 +29,8 @@ from predikit.utils import (
 
 
 class DataFrameParser(DataFrame):
-    """DataFrameParser is a subclass of pandas DataFrame that provides
+    """
+    DataFrameParser is a subclass of pandas DataFrame that provides
     additional functionality for automatically parsing various file
     types into pandas DataFrames.
 
@@ -82,10 +83,29 @@ class DataFrameParser(DataFrame):
         super(DataFrameParser, self).__init__(data)  # type: ignore
 
     def _get_reader(self, extension: FileExtension) -> PdReader:
-        """Returns the appropriate pandas reader function based on the
-        file extension.
         """
-        return self._READERS[extension]
+        Returns the appropriate pandas reader function based on the
+        file extension.
+
+        Parameters
+        ----------
+        extension : FileExtension
+            The file extension for which to get the reader function.
+
+        Returns
+        -------
+        PdReader
+            The pandas reader function for the specified file extension.
+
+        Raises
+        ------
+        TypeError
+            If there is no reader function for the specified file extension.
+        """
+        reader = self._READERS.get(extension)
+        if not reader:
+            raise TypeError(f"No reader for type {extension}")
+        return reader
 
     def _load(
         self,
@@ -93,6 +113,34 @@ class DataFrameParser(DataFrame):
         extension: FileExtension | str | None,
         **properties,
     ) -> DataFrame:
+        """
+        Loads a DataFrame from a file, a BytesIO stream, or a buffer.
+
+        This method determines the type of the input, then uses the
+        appropriate loader function to load the DataFrame. If the input
+        is a file or a BytesIO stream, it also parses the file extension.
+
+        Parameters
+        ----------
+        path_or_buf : FilePath | BytesIO | dict | np.ndarray | list
+            The path to the file, a BytesIO stream, or a buffer to
+            load into a DataFrame.
+        extension : FileExtension | str | None
+            The file extension of the file to load. This is ignored if the
+            input is a buffer.
+        **properties : dict
+            Additional properties to pass to the loader function.
+
+        Returns
+        -------
+        DataFrame
+            The loaded DataFrame.
+
+        Raises
+        ------
+        TypeError
+            If the type of the input is not supported.
+        """
         df: DataFrame
 
         if isinstance(path_or_buf, (np.ndarray, dict, list)):
@@ -116,6 +164,25 @@ class DataFrameParser(DataFrame):
     def _buf_loader(
         self, buf: np.ndarray | dict | list, **properties
     ) -> DataFrame:
+        """
+        Loads a DataFrame from a buffer.
+
+        This method checks and fixes properties if `_ignore` is False, then
+        initializes a DataFrame with the buffer and properties.
+
+        Parameters
+        ----------
+        buf : np.ndarray | dict | list
+            The buffer to load into a DataFrame. This can be a NumPy array,
+            a dictionary, or a list.
+        **properties : dict
+            Additional properties to pass to the DataFrame constructor.
+
+        Returns
+        -------
+        DataFrame
+            The loaded DataFrame.
+        """
         if not self._ignore:
             properties = self.__check_fix_properties(
                 func=DataFrame.__init__, **properties
@@ -128,6 +195,27 @@ class DataFrameParser(DataFrame):
         extension: FileExtension,
         **properties,
     ) -> DataFrame:
+        """
+        Loads a DataFrame from a file or a BytesIO stream.
+
+        This method gets the appropriate reader function based on the file
+        extension, checks and fixes properties if `_ignore` is False, then
+        uses the reader function to load the DataFrame from the file or stream.
+
+        Parameters
+        ----------
+        path : FilePath | BytesIO
+            The path to the file or a BytesIO stream to load into a DataFrame.
+        extension : FileExtension
+            The file extension of the file to load.
+        **properties : dict
+            Additional properties to pass to the reader function.
+
+        Returns
+        -------
+        DataFrame
+            The loaded DataFrame.
+        """
         reader = self._get_reader(extension)
         if not self._ignore:
             properties = self.__check_fix_properties(func=reader, **properties)
@@ -137,8 +225,9 @@ class DataFrameParser(DataFrame):
     def __check_fix_properties(
         self, func: Callable[..., Any], **kwargs
     ) -> dict:
-        """Validate Keyword argument of a function (key/name only)
-        value checker is not supported yet.
+        """
+        Validate Keyword argument of a function (key/name only) value checker
+        is not supported yet.
 
 
         Parameters

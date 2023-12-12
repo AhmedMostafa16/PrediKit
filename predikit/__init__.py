@@ -4,9 +4,12 @@ from predikit.data.io import (
     DataFrameParser,
 )
 from predikit.data.preprocessors import (
+    BasicFilteringProcessor,
     CategoricalEncodingStrategies,
     DataPrepare,
     EncodingProcessor,
+    FeatureSelection,
+    FilterOperator,
     MissingValuesProcessor,
     MissingValueStrategy,
     OutlierDetectionMethod,
@@ -31,6 +34,9 @@ __all__ = [
     "EncodingProcessor",
     "DataPrepare",
     "DataFrameExporter",
+    "FilterOperator",
+    "BasicFilteringProcessor",
+    "FeatureSelection"
 ]
 
 

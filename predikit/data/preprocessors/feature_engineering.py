@@ -7,22 +7,29 @@ from typing import (
 from pandas import DataFrame
 
 from . import (
+    BasePreprocessor,
     CategoricalEncodingStrategies,
     Encoder,
-    Preprocessor,
 )
 from ._encoders import init_encoder
 
 
-class FeatureSelection(Preprocessor):
+class FeatureSelection(BasePreprocessor):
+    def __init__(self):
+        pass
+
+    @override
+    def transform(
+        self, data: DataFrame, columns: list[str] | None = None
+    ) -> DataFrame:
+        raise NotImplementedError
+
+
+class NumericalInteractionFeatures(BasePreprocessor):
     pass
 
 
-class NumericalInteractionFeatures(Preprocessor):
-    pass
-
-
-class EncodingProcessor(Preprocessor):
+class EncodingProcessor(BasePreprocessor):
     _encoder: Encoder
 
     def __init__(
@@ -37,9 +44,9 @@ class EncodingProcessor(Preprocessor):
         self._encoder_params = encoder_params
 
     @override
-    def fit(self, data: DataFrame, cols: list[str] | None = None) -> Self:
-        if cols is not None:
-            data = data[cols]
+    def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
+        if columns is not None:
+            data = data[columns]
 
         self._encoder = init_encoder(self.strategy, **self._encoder_params)
         self._encoder.fit(data)
@@ -52,9 +59,9 @@ class EncodingProcessor(Preprocessor):
 
     @override
     def transform(
-        self, data: DataFrame, cols: list[str] | None = None
+        self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
-        masked_data = data[cols] if cols else data
+        masked_data = data[columns] if columns else data
 
         if self.encoded_names.size == 0:
             raise ValueError("No columns to be encoded")
@@ -63,14 +70,14 @@ class EncodingProcessor(Preprocessor):
 
         data[self.encoded_names] = encoded_values.toarray()
 
-        if cols:
-            data.drop(cols, axis=1, inplace=True)
+        if columns:
+            data.drop(columns, axis=1, inplace=True)
 
         return data
 
     @override
     def fit_transform(
-        self, data: DataFrame, cols: list[str] | None = None
+        self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
-        self.fit(data, cols)
-        return self.transform(data, cols)
+        self.fit(data, columns)
+        return self.transform(data, columns)
