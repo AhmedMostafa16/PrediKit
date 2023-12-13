@@ -12,10 +12,13 @@ __all__ = [
     "EncodingProcessor",
     "FilterOperator",
     "BasicFilteringProcessor",
+    "StringOperationsProcessor",
+    "CaseModifyingMethod",
 ]
 
 from ._base import (
     BasePreprocessor,
+    CaseModifyingMethod,
     CategoricalEncodingStrategies,
     Encoder,
     FilterOperator,
@@ -25,6 +28,7 @@ from ._base import (
 from .data_cleansing import (
     MissingValuesProcessor,
     OutliersProcessor,
+    StringOperationsProcessor,
 )
 from .data_filtering import BasicFilteringProcessor
 from .data_prepare import DataPrepare

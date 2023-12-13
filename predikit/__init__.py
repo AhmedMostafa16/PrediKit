@@ -5,6 +5,7 @@ from predikit.data.io import (
 )
 from predikit.data.preprocessors import (
     BasicFilteringProcessor,
+    CaseModifyingMethod,
     CategoricalEncodingStrategies,
     DataPrepare,
     EncodingProcessor,
@@ -14,6 +15,7 @@ from predikit.data.preprocessors import (
     MissingValueStrategy,
     OutlierDetectionMethod,
     OutliersProcessor,
+    StringOperationsProcessor,
 )
 from predikit.utils import (
     FileExtension,
@@ -36,7 +38,9 @@ __all__ = [
     "DataFrameExporter",
     "FilterOperator",
     "BasicFilteringProcessor",
-    "FeatureSelection"
+    "FeatureSelection",
+    "StringOperationsProcessor",
+    "CaseModifyingMethod",
 ]
 
 

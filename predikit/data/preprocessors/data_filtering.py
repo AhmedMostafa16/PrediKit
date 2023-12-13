@@ -124,7 +124,12 @@ class BasicFilteringProcessor(BasePreprocessor):
             return f"{column}.{operator.to_str}"
 
         if operator.is_containment_operator:
-            negator = "~" if operator.value == 10 else ""
+            negator = (
+                "~"
+                if operator == FilterOperator.DOES_NOT_CONTAIN
+                else ""
+            )
+
             return "{0}{1}.str.contains('{2}', case={3})".format(
                 negator, column, value, self.case_sensitive
             )

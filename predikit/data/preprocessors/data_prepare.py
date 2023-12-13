@@ -26,9 +26,10 @@ class DataPrepare(BasePreprocessor):
         self,
         clean_missing: bool = True,
         clean_strategy: MissingValueStrategy = MissingValueStrategy.MEAN,
+        fill_value: str | None = None,
         clean_outliers: bool = True,
-        clean_indicator: bool = False,
         outliers_method: OutlierDetectionMethod = OutlierDetectionMethod.IQR,
+        clean_indicator: bool = False,
         outliers_threshold: float = 1.5,
         cat_encoders_strategies: list[CategoricalEncodingStrategies] = [
             CategoricalEncodingStrategies.HelmertEncoder,
@@ -45,6 +46,7 @@ class DataPrepare(BasePreprocessor):
 
         self._clean_missing = clean_missing
         self._clean_strategy = clean_strategy
+        self._fill_value = fill_value
         self._clean_indicator = clean_indicator
         self._clean_outliers = clean_outliers
         self._outliers_method = outliers_method

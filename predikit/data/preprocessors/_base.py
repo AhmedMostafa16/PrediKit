@@ -19,7 +19,6 @@ from sklearn.base import (
     BaseEstimator,
     TransformerMixin,
 )
-from strenum import PascalCaseStrEnum
 
 
 class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
@@ -135,7 +134,7 @@ class OutlierDetectionMethod(StrEnum):
     Z_SCORE = auto()
 
 
-class CategoricalEncodingStrategies(PascalCaseStrEnum):
+class CategoricalEncodingStrategies(Enum):
     """
     Enum class for different types of categorical encoders.
 
@@ -177,21 +176,21 @@ class CategoricalEncodingStrategies(PascalCaseStrEnum):
     OrdinalEncoder = auto()
 
 
-class FilterOperator(Enum):
+class FilterOperator(StrEnum):
     """
     An enumeration representing various filter operators used in data filtering.
     """
 
-    EQUAL = 1
-    NOTEQUAL = 2
-    GREATER = 3
-    GREATEREQUAL = 4
-    LESS = 5
-    LESSEQUAL = 6
-    NULL = 7
-    NOTNULL = 8
-    CONTAINS = 9
-    DOES_NOT_CONTAIN = 10
+    EQUAL = auto()
+    NOTEQUAL = auto()
+    GREATER = auto()
+    GREATEREQUAL = auto()
+    LESS = auto()
+    LESSEQUAL = auto()
+    NULL = auto()
+    NOTNULL = auto()
+    CONTAINS = auto()
+    DOES_NOT_CONTAIN = auto()
 
     @property
     def to_str(self) -> str:
@@ -226,7 +225,7 @@ class FilterOperator(Enum):
             True if the operator is a comparison operator.
         """
 
-        return self.value in list(range(1, 7))
+        return self.value in self.list()[:6]
 
     @property
     def is_nullity_operator(self) -> bool:
@@ -239,7 +238,7 @@ class FilterOperator(Enum):
             True if the operator is a null operator.
         """
 
-        return self.value in [7, 8]
+        return self.value in self.list()[6:8]
 
     @property
     def is_containment_operator(self) -> bool:
@@ -252,4 +251,83 @@ class FilterOperator(Enum):
             True if the operator is a contains operator.
         """
 
-        return self.value in [9, 10]
+        return self.value in self.list()[8:]
+
+    def list(self):
+        """
+        Returns a list of all the members of the enumeration.
+
+        Returns
+        -------
+        list
+            A list of all the members of the enumeration.
+        """
+
+        return list(map(lambda c: c.value, self.__class__))
+
+    @classmethod
+    def from_str(cls, operator: str) -> Self:
+        """
+        Returns the enumeration member corresponding to the given string.
+
+        Parameters
+        ----------
+        operator : str
+            The string representation of the operator.
+
+        Returns
+        -------
+        FilterOperator
+            The enumeration member corresponding to the given string.
+        """
+        operator = operator.lower()
+        match operator:
+            case "==" | "=" | "equal" | "eq":
+                return FilterOperator.EQUAL
+            case "!=" | "ne" | "not_equal":
+                return FilterOperator.NOTEQUAL
+            case ">" | "gt" | "greater":
+                return FilterOperator.GREATER
+            case ">=" | "ge" | "greater_equal":
+                return FilterOperator.GREATEREQUAL
+            case "<" | "lt" | "less":
+                return FilterOperator.LESS
+            case "<=" | "le" | "less_equal":
+                return FilterOperator.LESSEQUAL
+            case "isna" | "null":
+                return FilterOperator.NULL
+            case "notna()" | "not_null":
+                return FilterOperator.NOTNULL
+            case "contains" | "in":
+                return FilterOperator.CONTAINS
+            case "does_not_contain" | "not in":
+                return FilterOperator.DOES_NOT_CONTAIN
+            case _:
+                raise ValueError(f"Invalid filter operator: {operator}")
+
+
+class CaseModifyingMethod(StrEnum):
+    """
+    An enumeration of methods for modifying the case of strings in a pandas Series.
+
+    Attributes
+    ----------
+    LOWER : enum.auto
+        Converts all characters to lowercase.
+    UPPER : enum.auto
+        Converts all characters to uppercase.
+    TITLE : enum.auto
+        Converts first character of each word to uppercase and remaining to lowercase.
+    CAPITALIZE : enum.auto
+        Converts first character to uppercase and remaining to lowercase.
+    SWAPCASE : enum.auto
+        Converts uppercase to lowercase and lowercase to uppercase.
+    CASEFOLD : enum.auto
+        Removes all case distinctions in the string.
+    """
+
+    LOWER = auto()
+    UPPER = auto()
+    TITLE = auto()
+    CAPITALIZE = auto()
+    SWAPCASE = auto()
