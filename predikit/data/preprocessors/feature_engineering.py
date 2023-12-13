@@ -15,14 +15,60 @@ from ._encoders import init_encoder
 
 
 class FeatureSelection(BasePreprocessor):
-    def __init__(self):
-        pass
+    """_summary_
+
+    Parameters
+    ----------
+    BasePreprocessor : _type_
+        _description_
+    """
+    def __init__(self) -> None:
+        self.stored_cols = None
+        self.stored_dtypes = None
+
+    @override
+    def fit(
+        self,
+        data: DataFrame,
+        cols: list[str] | None = None,
+        dtypes: list[str] | None = None,
+    ) -> Self:
+        self.empty = False
+        if cols is None and dtypes is None:
+            self.empty = True
+        elif cols is None and dtypes is not None:
+            self.stored_dtypes = dtypes
+            self.empty = False
+        elif cols is not None and dtypes is None:
+            self.stored_cols = cols
+            self.empty = False
+        else:
+            self.stored_cols = cols
+            self.stored_dtypes = dtypes
+            self.empty = False
+
+        return self
 
     @override
     def transform(
-        self, data: DataFrame, columns: list[str] | None = None
+        self,
+        data: DataFrame,
+        cols: list[str] | None = None,
+        dtypes: list[str] | None = None,
     ) -> DataFrame:
-        raise NotImplementedError
+        if self.empty == True:
+            return data
+        else:
+            if self.stored_cols is None and self.stored_dtypes is not None:
+                data = data.select_dtypes(exclude=self.stored_dtypes)
+            elif self.stored_cols is not None and self.stored_dtypes is None:
+                data = data.loc[:, ~data.columns.isin(self.stored_cols)]
+            else:
+                data = data.loc[
+                    :, ~data.columns.isin(self.stored_cols)
+                ].select_dtypes(exclude=self.stored_dtypes)
+
+        return data
 
 
 class NumericalInteractionFeatures(BasePreprocessor):
