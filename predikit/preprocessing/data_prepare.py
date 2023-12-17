@@ -4,8 +4,8 @@ import pandas as pd
 
 from ._base import (
     BasePreprocessor,
-    CategoricalEncodingStrategies,
     Encoder,
+    EncodingStrategies,
     MissingValueStrategy,
     OutlierDetectionMethod,
 )
@@ -32,9 +32,9 @@ class DataPreparer(BasePreprocessor):
         outliers_method: OutlierDetectionMethod = OutlierDetectionMethod.IQR,
         clean_indicator: bool = False,
         outliers_threshold: float = 1.5,
-        cat_encoders_strategies: list[CategoricalEncodingStrategies] = [
-            CategoricalEncodingStrategies.HelmertEncoder,
-            CategoricalEncodingStrategies.CountEncoder,
+        cat_encoders_strategies: list[EncodingStrategies] = [
+            EncodingStrategies.HelmertEncoder,
+            EncodingStrategies.CountEncoder,
         ],
         drop_invariant: bool = False,
         normalization: bool = False,

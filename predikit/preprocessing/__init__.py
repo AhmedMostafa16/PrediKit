@@ -1,31 +1,39 @@
+"""
+The :mod:`predikit.preprocessing` module includes data cleansing,
+filtering and feature engineering methods.
+"""
+# ToDo: replace feature engineering with scaling, centering, normalization
+# , methods.
+
 __all__ = [
-    "Encoder",
     "MissingValueStrategy",
     "OutlierDetectionMethod",
-    "BasePreprocessor",
     "FeatureSelection",
     "NumericalInteractionFeatures",
     "DataPreparer",
     "MissingValuesProcessor",
     "OutliersProcessor",
-    "CategoricalEncodingStrategies",
+    "EncodingStrategies",
     "EncodingProcessor",
     "FilterOperator",
     "BasicFilteringProcessor",
     "StringOperationsProcessor",
     "CaseModifyingMethod",
     "DataCleanser",
+    "FeatureType",
 ]
 
+# ------ method enums -------
 from ._base import (
-    BasePreprocessor,
     CaseModifyingMethod,
-    CategoricalEncodingStrategies,
-    Encoder,
+    EncodingStrategies,
+    FeatureType,
     FilterOperator,
     MissingValueStrategy,
     OutlierDetectionMethod,
 )
+
+# ----- Processors -----
 from .data_cleansing import (
     DataCleanser,
     MissingValuesProcessor,

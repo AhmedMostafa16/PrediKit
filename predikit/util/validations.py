@@ -13,7 +13,8 @@ def validate_reader_kwargs(reader: PdReader, kwargs) -> bool:
 
     Args:
         cls (type): The class that the reader function belongs to.
-        reader (PdRead): The Pandas reader function to validate the keyword arguments for.
+        reader (PdRead): The Pandas reader function to validate the keyword
+        arguments for.
         kwargs (dict): The keyword arguments to validate.
 
     Returns:

@@ -24,7 +24,7 @@ from predikit._typing import (
     FilePath,
     PdReader,
 )
-from predikit.utils import (
+from predikit.util import (
     FileExtension,
     get_dataframe_column_names,
     get_non_numeric_data,
@@ -41,7 +41,8 @@ class DataFrameParser(DataFrame):
     additional functionality for automatically parsing various file
     types into pandas DataFrames.
 
-    The class supports parsing from CSV, JSON, Parquet, Excel, and Pickle files.
+    The class supports parsing from CSV, JSON, Parquet, Excel, and Pickle
+    files.
     It also provides the ability to ignore invalid properties when loading
     data, and to inspect the properties of pandas reader functions.
 
@@ -208,7 +209,8 @@ class DataFrameParser(DataFrame):
 
         This method gets the appropriate reader function based on the file
         extension, checks and fixes properties if `_ignore` is False, then
-        uses the reader function to load the DataFrame from the file or stream.
+        uses the reader function to load the DataFrame from the file or
+        stream.
 
         Parameters
         ----------
@@ -226,7 +228,10 @@ class DataFrameParser(DataFrame):
         """
         reader = self._get_reader(extension)
         if not self._ignore:
-            properties = self.__check_fix_properties(func=reader, **properties)
+            properties = self.__check_fix_properties(
+                func=reader,
+                **properties,
+            )
 
         return reader(path, **properties)
 
@@ -268,20 +273,22 @@ class DataFrameParser(DataFrame):
         """
         Get the data types of the DataFrame's columns.
 
-        This method returns a dictionary where the keys are the column names of the
-        DataFrame and the values are the data types of these columns. If the `parsed`
-        argument is `True`, the data types are parsed using the `_parse_types` method.
+        This method returns a dictionary where the keys are the column names
+        of the DataFrame and the values are the data types of these columns.
+        If the `parsed` argument is `True`, the data types are parsed using
+        the `_parse_types` method.
 
         Parameters
         ----------
         parsed : bool, optional
-            Whether to parse the data types using the `_parse_types` method, by default False
+            Whether to parse the data types using the `_parse_types` method,
+            by default False
 
         Returns
         -------
         dict[str, Any]
-            A dictionary where the keys are the column names of the DataFrame and
-            the values are the data types of these columns.
+            A dictionary where the keys are the column names of the DataFrame
+            and the values are the data types of these columns.
         """
         if not parsed:
             return self.dtypes.to_dict(into=dict)
@@ -336,19 +343,22 @@ class DataFrameParser(DataFrame):
         """
         Parse the data types of the DataFrame's columns to their kind codes.
 
-        This method applies a function to each data type of the DataFrame's columns
-        that returns the kind code of the data type. The kind code is a character
-        code representing the type of the data. For example, 'b' represents boolean,
-        'i' represents signed integer, 'u' represents unsigned integer, 'f'
-        represents floating-point, 'c' represents complex floating-point, 'O'
-        represents object, 'S' represents byte string, 'U' represents Unicode string,
-        and 'V' represents void.
+        This method applies a function to each data type of the DataFrame's
+        columns that returns the kind code of the data type. The kind code
+        is a character code representing the type of the data. For example,
+        'b' represents boolean, 'i' represents signed integer.
+        'u' represents unsigned integer, 'f' represents floating-point.
+        'c' represents complex floating-point, 'O' represents object.
+        'S' represents byte string.
+        'U' represents Unicode string.
+        'V' represents void.
 
         Returns
         -------
         dict[str, str]
-            A dictionary where the keys are the column names of the DataFrame and
-            the values are the kind codes of the data types of these columns.
+            A dictionary where the keys are the column names of the DataFrame
+            and the values are the kind codes of the data types of these
+            columns.
         """
         parsed_types = {}
         for col in self.columns:

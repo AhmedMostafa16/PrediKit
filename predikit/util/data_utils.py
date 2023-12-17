@@ -12,7 +12,8 @@ from pandas import DataFrame
 #         validation_split (float): The split ratio for the validation set.
 
 #     Returns:
-#         A tuple of tf.Data.Dataset objects representing the training and validation sets.
+#         A tuple of tf.Data.Dataset objects representing the training and
+#         validation sets.
 #     """
 #     ...
 
@@ -50,7 +51,8 @@ def select_numeric_columns(
     Returns
     -------
     list[str] | None
-        The numeric columns from the DataFrame, or None if there are no numeric columns.
+        The numeric columns from the DataFrame, or None if there are no
+        numeric columns.
     """
     if columns:
         dataframe = dataframe[columns]
@@ -76,7 +78,8 @@ def select_non_numeric_columns(
     Returns
     -------
     list[str] | None
-        The non-numeric columns from the DataFrame, or None if there are no non-numeric columns.
+        The non-numeric columns from the DataFrame, or None if there are no
+        non-numeric columns.
     """
     if columns:
         dataframe = dataframe[columns]
@@ -101,7 +104,8 @@ def get_non_numeric_data(
     Returns
     -------
     DataFrame | None
-        The non-numeric data from the DataFrame, or None if there is no non-numeric data.
+        The non-numeric data from the DataFrame, or None if there is no
+        non-numeric data.
     """
     non_numeric_columns = select_non_numeric_columns(dataframe, columns)
     return None if not non_numeric_columns else dataframe[non_numeric_columns]
@@ -123,7 +127,27 @@ def get_numeric_data(
     Returns
     -------
     DataFrame | None
-        The numeric data from the DataFrame, or None if there is no numeric data.
+        The numeric data from the DataFrame, or None if there is no
+        numeric data.
     """
     numeric_columns = select_numeric_columns(dataframe, columns)
     return None if not numeric_columns else dataframe[numeric_columns]
+
+
+def exclude_from_columns(columns: list[str], exclude: list[str]) -> list[str]:
+    """
+    Exclude the columns from the list of columns.
+
+    Parameters
+    ----------
+    columns : list[str]
+        The list of columns to exclude from.
+    exclude : list[str]
+        The list of columns to exclude.
+
+    Returns
+    -------
+    list[str]
+        The list of columns excluding the excluded columns.
+    """
+    return [column for column in columns if column not in exclude]

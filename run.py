@@ -1,5 +1,6 @@
 import logging
 
 import predikit as pk
+from predikit.preprocessing import *
 
-logging.debug("Function is Ok")
+logging.info("😸 Welcome to PrediKit <3")

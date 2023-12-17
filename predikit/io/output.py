@@ -3,7 +3,7 @@ import logging
 from pandas import DataFrame
 
 from predikit._typing import DfExporter
-from predikit.utils.io_utils import (
+from predikit.util.io_utils import (
     FileExtension,
     abs_path,
     append_to_home,

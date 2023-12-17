@@ -13,24 +13,23 @@ from sklearn.preprocessing import (
     OrdinalEncoder,
 )
 
-from ._base import CategoricalEncodingStrategies
+from ._base import EncodingStrategies
 
 ENCODERS = {
-    CategoricalEncodingStrategies.HashingEncoder: HashingEncoder,
-    CategoricalEncodingStrategies.SumEncoder: SumEncoder,
-    CategoricalEncodingStrategies.BackwardDifferenceEncoder:
-    BackwardDifferenceEncoder,
-    CategoricalEncodingStrategies.OneHotEncoder: OneHotEncoder,
-    CategoricalEncodingStrategies.HelmertEncoder: HelmertEncoder,
-    CategoricalEncodingStrategies.BaseNEncoder: BaseNEncoder,
-    CategoricalEncodingStrategies.CountEncoder: CountEncoder,
-    CategoricalEncodingStrategies.LabelEncoder: LabelEncoder,
-    CategoricalEncodingStrategies.PolynomialEncoder: PolynomialEncoder,
-    CategoricalEncodingStrategies.OrdinalEncoder: OrdinalEncoder,
+    EncodingStrategies.HashingEncoder: HashingEncoder,
+    EncodingStrategies.SumEncoder: SumEncoder,
+    EncodingStrategies.BackwardDifferenceEncoder: BackwardDifferenceEncoder,
+    EncodingStrategies.OneHotEncoder: OneHotEncoder,
+    EncodingStrategies.HelmertEncoder: HelmertEncoder,
+    EncodingStrategies.BaseNEncoder: BaseNEncoder,
+    EncodingStrategies.CountEncoder: CountEncoder,
+    EncodingStrategies.LabelEncoder: LabelEncoder,
+    EncodingStrategies.PolynomialEncoder: PolynomialEncoder,
+    EncodingStrategies.OrdinalEncoder: OrdinalEncoder,
 }
 
 
-def init_encoder(strategy: CategoricalEncodingStrategies, **params):
+def init_encoder(strategy: EncodingStrategies, **params):
     """
     Initialize an encoder based on the specified strategy.
 

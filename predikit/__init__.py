@@ -1,15 +1,18 @@
-from predikit.data import preprocessors
-from predikit.data.io import (
+from predikit import (
+    preprocessing,
+    util,
+)
+from predikit.io import (
     DataFrameExporter,
     DataFrameParser,
 )
-from predikit.data.preprocessors import (
+from predikit.preprocessing import (
     BasicFilteringProcessor,
     CaseModifyingMethod,
-    CategoricalEncodingStrategies,
     DataCleanser,
     DataPreparer,
     EncodingProcessor,
+    EncodingStrategies,
     FeatureSelection,
     FilterOperator,
     MissingValuesProcessor,
@@ -18,7 +21,7 @@ from predikit.data.preprocessors import (
     OutliersProcessor,
     StringOperationsProcessor,
 )
-from predikit.utils import (
+from predikit.util import (
     FileExtension,
     init_logging_config,
     validations,
@@ -28,12 +31,12 @@ __all__ = [
     "validations",
     "FileExtension",
     "DataFrameParser",
-    "preprocessors",
+    "preprocessing",
     "MissingValueStrategy",
     "OutlierDetectionMethod",
     "MissingValuesProcessor",
     "OutliersProcessor",
-    "CategoricalEncodingStrategies",
+    "EncodingStrategies",
     "EncodingProcessor",
     "DataPreparer",
     "DataFrameExporter",
@@ -43,6 +46,7 @@ __all__ = [
     "StringOperationsProcessor",
     "CaseModifyingMethod",
     "DataCleanser",
+    "util",
 ]
 
 

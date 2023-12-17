@@ -1,13 +1,21 @@
 import logging
 from typing import (
     Self,
+    cast,
     override,
 )
 
 from pandas import DataFrame
+from result import (
+    Err,
+    Ok,
+    Result,
+)
 
-from . import BasePreprocessor
-from ._base import FilterOperator
+from ._base import (
+    BasePreprocessor,
+    FilterOperator,
+)
 
 
 class BasicFilteringProcessor(BasePreprocessor):
@@ -28,7 +36,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
     def __init__(
         self,
-        operator: FilterOperator,
+        operator: FilterOperator | str,
         value: str | None = None,
         case_sensitive: bool = True,
         verbose: bool = False,
@@ -38,7 +46,9 @@ class BasicFilteringProcessor(BasePreprocessor):
         self.case_sensitive = case_sensitive
         self.verbose = verbose
 
-    def fit(self, data: DataFrame, column: str | None = None) -> Self:
+    def fit(
+        self, data: DataFrame, column: str | None = None
+    ) -> Self | Err[str]:
         """
         Compute the necessary parameters for filtering.
 
@@ -54,16 +64,21 @@ class BasicFilteringProcessor(BasePreprocessor):
         BasicFilteringProcessor
             The instance itself.
         """
+        if isinstance(self.operator, str):
+            self.operator = FilterOperator.from_str(self.operator)
+
         if not column:
-            raise ValueError("Column name must be provided")
+            exc = ValueError("Column name must be provided")
+            return Err(str(exc))
 
         self._numeric = self._is_numeric(data, column)
         self._query = self._parse_query(column, self.operator, self.value)
-
         return self
 
     @override
-    def transform(self, data: DataFrame) -> DataFrame:
+    def transform(
+        self, data: DataFrame, column: str | None = None
+    ) -> Result[DataFrame, str]:
         """
         Apply the filtering to the data.
 
@@ -72,7 +87,8 @@ class BasicFilteringProcessor(BasePreprocessor):
         data : DataFrame
             The data to be filtered.
         column : str, optional
-            The column to be filtered.
+            This parameter is kept for codebase consistency but should always
+            be None in this context.
 
         Returns
         -------
@@ -84,6 +100,8 @@ class BasicFilteringProcessor(BasePreprocessor):
                 "Data must be fitted first using the 'fit' method"
             )
 
+        self.operator = cast(FilterOperator, self.operator)
+
         if self.verbose:
             logging.info(f"Filtering data by => [{self._query}]")
 
@@ -92,7 +110,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         data = data.query(self._query)
 
-        return data
+        return Ok(data)
 
     def _parse_query(
         self,
@@ -125,9 +143,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         if operator.is_containment_operator:
             negator = (
-                "~"
-                if operator == FilterOperator.DOES_NOT_CONTAIN
-                else ""
+                "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
             )
 
             return "{0}{1}.str.contains('{2}', case={3})".format(
