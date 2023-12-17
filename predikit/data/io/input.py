@@ -6,6 +6,8 @@ from os import PathLike
 from typing import (
     Any,
     Callable,
+    Self,
+    override,
 )
 
 import numpy as np
@@ -24,6 +26,11 @@ from predikit._typing import (
 )
 from predikit.utils import (
     FileExtension,
+    get_dataframe_column_names,
+    get_non_numeric_data,
+    get_numeric_data,
+    select_non_numeric_columns,
+    select_numeric_columns,
     validations,
 )
 
@@ -105,6 +112,7 @@ class DataFrameParser(DataFrame):
         reader = self._READERS.get(extension)
         if not reader:
             raise TypeError(f"No reader for type {extension}")
+        # self.__setattr__("", reader)
         return reader
 
     def _load(
@@ -244,3 +252,122 @@ class DataFrameParser(DataFrame):
         valid_prop = validations.validate_reader_kwargs(func, kwargs)
         props = {} if not valid_prop else kwargs
         return props
+
+    def get_column_names(self) -> list[str]:
+        """
+        Returns the column names of the DataFrame.
+
+        Returns
+        -------
+        list[str]
+            The column names of the DataFrame.
+        """
+        return get_dataframe_column_names(self)
+
+    def get_column_types(self, parsed=False) -> dict[str, Any]:
+        """
+        Get the data types of the DataFrame's columns.
+
+        This method returns a dictionary where the keys are the column names of the
+        DataFrame and the values are the data types of these columns. If the `parsed`
+        argument is `True`, the data types are parsed using the `_parse_types` method.
+
+        Parameters
+        ----------
+        parsed : bool, optional
+            Whether to parse the data types using the `_parse_types` method, by default False
+
+        Returns
+        -------
+        dict[str, Any]
+            A dictionary where the keys are the column names of the DataFrame and
+            the values are the data types of these columns.
+        """
+        if not parsed:
+            return self.dtypes.to_dict(into=dict)
+
+        return self._parse_types()
+
+    def get_numeric_columns(self) -> list[str] | None:
+        """
+        Returns the numeric columns of the DataFrame.
+
+        Returns
+        -------
+        list[str] | None
+            The numeric columns of the DataFrame.
+        """
+        return select_numeric_columns(self)
+
+    def get_non_numeric_columns(self) -> list[str] | None:
+        """
+        Returns the non-numeric columns of the DataFrame.
+
+        Returns
+        -------
+        list[str] | None
+            The non-numeric columns of the DataFrame.
+        """
+        return select_non_numeric_columns(self)
+
+    def get_non_numeric_data(self) -> DataFrame | None:
+        """
+        Returns the non-numeric data of the DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            The non-numeric data of the DataFrame.
+        """
+        return get_non_numeric_data(self)
+
+    def get_numeric_data(self) -> DataFrame | None:
+        """
+        Returns the numeric data of the DataFrame.
+
+        Returns
+        -------
+        DataFrame
+            The numeric data of the DataFrame.
+        """
+        return get_numeric_data(self)
+
+    def _parse_types(self) -> dict[str, str]:
+        """
+        Parse the data types of the DataFrame's columns to their kind codes.
+
+        This method applies a function to each data type of the DataFrame's columns
+        that returns the kind code of the data type. The kind code is a character
+        code representing the type of the data. For example, 'b' represents boolean,
+        'i' represents signed integer, 'u' represents unsigned integer, 'f'
+        represents floating-point, 'c' represents complex floating-point, 'O'
+        represents object, 'S' represents byte string, 'U' represents Unicode string,
+        and 'V' represents void.
+
+        Returns
+        -------
+        dict[str, str]
+            A dictionary where the keys are the column names of the DataFrame and
+            the values are the kind codes of the data types of these columns.
+        """
+        parsed_types = {}
+        for col in self.columns:
+            # print(self[col].dtype.kind)
+            parsed_types[col] = self[col].dtype.kind
+
+        return parsed_types
+
+    @override
+    def __new__(cls, *args, **kwargs) -> Self:
+        """
+        Creates a new instance of the DataFrameParser class.
+
+        This method overrides the default constructor to add the
+        `_ignore` attribute to the instance.
+
+        Returns
+        -------
+        DataFrameParser
+            The new instance of the DataFrameParser class.
+        """
+        return super(DataFrameParser, cls).__new__(cls)

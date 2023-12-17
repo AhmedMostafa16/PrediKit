@@ -18,7 +18,8 @@ from ._base import CategoricalEncodingStrategies
 ENCODERS = {
     CategoricalEncodingStrategies.HashingEncoder: HashingEncoder,
     CategoricalEncodingStrategies.SumEncoder: SumEncoder,
-    CategoricalEncodingStrategies.BackwardDifferenceEncoder: BackwardDifferenceEncoder,
+    CategoricalEncodingStrategies.BackwardDifferenceEncoder:
+    BackwardDifferenceEncoder,
     CategoricalEncodingStrategies.OneHotEncoder: OneHotEncoder,
     CategoricalEncodingStrategies.HelmertEncoder: HelmertEncoder,
     CategoricalEncodingStrategies.BaseNEncoder: BaseNEncoder,

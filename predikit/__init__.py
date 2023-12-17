@@ -7,7 +7,8 @@ from predikit.data.preprocessors import (
     BasicFilteringProcessor,
     CaseModifyingMethod,
     CategoricalEncodingStrategies,
-    DataPrepare,
+    DataCleanser,
+    DataPreparer,
     EncodingProcessor,
     FeatureSelection,
     FilterOperator,
@@ -34,13 +35,14 @@ __all__ = [
     "OutliersProcessor",
     "CategoricalEncodingStrategies",
     "EncodingProcessor",
-    "DataPrepare",
+    "DataPreparer",
     "DataFrameExporter",
     "FilterOperator",
     "BasicFilteringProcessor",
     "FeatureSelection",
     "StringOperationsProcessor",
     "CaseModifyingMethod",
+    "DataCleanser",
 ]
 
 

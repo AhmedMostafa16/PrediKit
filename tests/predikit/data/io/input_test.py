@@ -51,7 +51,7 @@ def test_load(mock_read_csv, mock_file):
     mock_read_csv.return_value = pd.DataFrame()
     with patch("builtins.open", new=mock_file):
         parser = DataFrameParser("file.csv")
-        df = parser._load()
+        df = parser.parse()
         assert isinstance(df, pd.DataFrame)
 
 
@@ -62,5 +62,5 @@ def test_load_with_invalid_properties(mock_read_csv, mock_file):
         parser = DataFrameParser(
             "file.csv", invalid_param=10
         )  # header is out of range
-        df = parser._load()
+        df = parser.parse()
         assert isinstance(df, pd.DataFrame)

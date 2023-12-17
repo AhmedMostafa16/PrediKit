@@ -5,7 +5,7 @@ __all__ = [
     "BasePreprocessor",
     "FeatureSelection",
     "NumericalInteractionFeatures",
-    "DataPrepare",
+    "DataPreparer",
     "MissingValuesProcessor",
     "OutliersProcessor",
     "CategoricalEncodingStrategies",
@@ -14,6 +14,7 @@ __all__ = [
     "BasicFilteringProcessor",
     "StringOperationsProcessor",
     "CaseModifyingMethod",
+    "DataCleanser",
 ]
 
 from ._base import (
@@ -26,12 +27,13 @@ from ._base import (
     OutlierDetectionMethod,
 )
 from .data_cleansing import (
+    DataCleanser,
     MissingValuesProcessor,
     OutliersProcessor,
     StringOperationsProcessor,
 )
 from .data_filtering import BasicFilteringProcessor
-from .data_prepare import DataPrepare
+from .data_prepare import DataPreparer
 from .feature_engineering import (
     EncodingProcessor,
     FeatureSelection,

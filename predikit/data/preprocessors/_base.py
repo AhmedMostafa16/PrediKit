@@ -70,7 +70,7 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
         columns: list[str] | None = None,
         **fit_params,
     ) -> DataFrame:
-        if columns is None:
+        if not columns:
             return self.fit(data, **fit_params).transform(data)
 
         return self.fit(data, columns, **fit_params).transform(data)
@@ -117,6 +117,36 @@ class MissingValueStrategy(StrEnum):
     CONSTANT = auto()
     OMIT = auto()
 
+    @classmethod
+    def from_str(cls, strategy: str) -> Self:
+        """
+        Returns the enumeration member corresponding to the given string.
+
+        Parameters
+        ----------
+        strategy : str
+            The string representation of the strategy.
+
+        Returns
+        -------
+        MissingValueStrategy
+            The enumeration member corresponding to the given string.
+        """
+        strategy = strategy.lower()
+        match strategy:
+            case "mean":
+                return MissingValueStrategy.MEAN
+            case "median":
+                return MissingValueStrategy.MEDIAN
+            case "mode" | "most_frequent" | "most frequent" | "most-frequent":
+                return MissingValueStrategy.MODE
+            case "constant" | "fill" | "value":
+                return MissingValueStrategy.CONSTANT
+            case "omit" | "drop" | "dropna" | "drop_na" | "drop na" | "drop-na":
+                return MissingValueStrategy.OMIT
+            case _:
+                raise ValueError(f"Invalid missing value strategy: {strategy}")
+
 
 class OutlierDetectionMethod(StrEnum):
     """
@@ -132,6 +162,30 @@ class OutlierDetectionMethod(StrEnum):
 
     IQR = auto()
     Z_SCORE = auto()
+
+    @classmethod
+    def from_str(cls, method: str) -> Self:
+        """
+        Returns the enumeration member corresponding to the given string.
+
+        Parameters
+        ----------
+        method : str
+            The string representation of the method.
+
+        Returns
+        -------
+        OutlierDetectionMethod
+            The enumeration member corresponding to the given string.
+        """
+        method = method.lower()
+        match method:
+            case "iqr" | "interquartile_range" | "interquartile range" | "inter quartile range" | "inter quartile_range" | "inter quartile":
+                return OutlierDetectionMethod.IQR
+            case "z_score" | "zscore" | "z-score" | "z":
+                return OutlierDetectionMethod.Z_SCORE
+            case _:
+                raise ValueError(f"Invalid outlier detection method: {method}")
 
 
 class CategoricalEncodingStrategies(Enum):

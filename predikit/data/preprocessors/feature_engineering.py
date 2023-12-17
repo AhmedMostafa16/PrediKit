@@ -34,7 +34,8 @@ class EncodingProcessor(BasePreprocessor):
 
     def __init__(
         self,
-        strategy: CategoricalEncodingStrategies = CategoricalEncodingStrategies.OneHotEncoder,
+        strategy: CategoricalEncodingStrategies = CategoricalEncodingStrategies
+        .OneHotEncoder,
         *,
         verbose: bool = False,
         **encoder_params,

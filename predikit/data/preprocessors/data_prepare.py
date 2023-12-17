@@ -15,11 +15,12 @@ from .data_cleansing import (
 )
 
 
-class DataPrepare(BasePreprocessor):
-    _clean_missing_enc: MissingValuesProcessor
-    _clean_outliers_enc: OutliersProcessor
-    _encoder: Encoder
-    _binary_encoder: Encoder
+class DataPreparer(BasePreprocessor):
+    _clean_missing_enc: MissingValuesProcessor | None = None
+    _clean_outliers_enc: OutliersProcessor | None = None
+    _encoder: Encoder | None = None
+    _binary_encoder: Encoder | None = None
+    _fitted: bool = False
 
     # ToDo: add support for replacing values
     def __init__(
