@@ -26,7 +26,7 @@ class FileExtension(Enum):
         return extension.lstrip(".").lower()
 
     @classmethod
-    def from_string(cls, extension: str) -> Self:
+    def from_string(cls, extension: str) -> "FileExtension":
         """
         Converts a string to a FileExtension enum member.
 
@@ -70,7 +70,7 @@ class FileExtension(Enum):
         )
 
     @classmethod
-    def from_file(cls, file: str | os.PathLike) -> Self:
+    def from_file(cls, file: str | os.PathLike) -> "FileExtension":
         """
         Determines the extension of a file.
 
@@ -93,7 +93,7 @@ class FileExtension(Enum):
         *,
         extension: Self | str | None = None,
         file: str | os.PathLike | BytesIO,
-    ) -> Self:
+    ) -> "FileExtension":
         """
         Parses the file extension from a string or file.
 

@@ -134,7 +134,9 @@ def get_numeric_data(
     return None if not numeric_columns else dataframe[numeric_columns]
 
 
-def exclude_from_columns(columns: list[str], exclude: list[str]) -> list[str]:
+def exclude_from_columns(
+    columns: list[str], exclude: list[str] | None
+) -> list[str]:
     """
     Exclude the columns from the list of columns.
 
@@ -150,4 +152,7 @@ def exclude_from_columns(columns: list[str], exclude: list[str]) -> list[str]:
     list[str]
         The list of columns excluding the excluded columns.
     """
+    if exclude is None:
+        return columns
+
     return [column for column in columns if column not in exclude]

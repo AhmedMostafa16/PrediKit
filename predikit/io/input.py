@@ -78,6 +78,7 @@ class DataFrameParser(DataFrame):
         FileExtension.PICKLE: read_pickle,
     }
 
+    # ToDo add support for reading specific amount of columns and rows.
     def __init__(
         self,
         path_or_buf: FilePath | BytesIO | dict | np.ndarray | list,

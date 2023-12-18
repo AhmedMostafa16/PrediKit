@@ -985,24 +985,24 @@ class DataCleanser(BasePreprocessor):
             )
             logging.info("> Outliers")
             missing_labels = None
+
             # ToDo optimize this to be created while creating labels
-            # in MissingValuesProcessor
-            if self._clean_missing_enc is not None and hasattr(
-                self._clean_missing_enc, "na_cols"
-            ):
-                na_cols = self._clean_missing_enc.na_cols
-                # undesired for outliers detection and treatment
-                missing_labels = self._clean_missing_enc._missing_value_labels(
-                    na_cols
-                )
+            if self._clean_missing_enc is not None and self.missing_indicator:
+                    logging.info("Post-cleansing column correction")
+                    na_cols = self._clean_missing_enc.na_cols
+                    # undesired for outliers detection and treatment
+                    missing_labels = (
+                        self._clean_missing_enc._missing_value_labels(na_cols)
+                    )
 
-                na_cols = exclude_from_columns(columns, missing_labels)
-                result = coe.fit_transform(data, columns=na_cols)
+            na_cols = exclude_from_columns(columns, missing_labels)
+            logging.info(na_cols)
+            result = coe.fit_transform(data, columns=na_cols)
 
-                if result.is_err():
-                    return result
+            if result.is_err():
+                return result
 
-                data = result.unwrap()
+            data = result.unwrap()
 
         if self.string_operations:
             soe = self._string_operations_enc = StringOperationsProcessor(
