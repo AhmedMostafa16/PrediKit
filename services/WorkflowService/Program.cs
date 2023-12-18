@@ -32,10 +32,9 @@ builder.Host.UseSerilog(LoggerConfig.ConfigureLogger());
 
 // builder.Services.AddScoped<GrpcExecutionClient>();
 builder.Services.AddHttpClient();
-
 // Register MongoDB
 var mongoSettings = MongoClientSettings.FromConnectionString(
-        "mongodb+srv://admin:strongpassword@cluster0.uweprlu.mongodb.net/?retryWrites=true&w=majority&compressors=zstd,snappy,zlib");
+        builder.Configuration.GetConnectionString("DefaultConnection"));
 mongoSettings.MaxConnecting = Environment.ProcessorCount;
 
 await DB.InitAsync("Cluster0", settings: mongoSettings);
