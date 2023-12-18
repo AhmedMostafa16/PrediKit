@@ -9,7 +9,11 @@ export default function NodeFactory(props: BaseNode) {
 
   const node = () => (
     <div>
-      <Card style={{ background: `var(--mantine-color-${props.color}-6)` }} padding="sm">
+      <Card
+        style={{ background: `var(--mantine-color-${props.color}-6)` }}
+        padding="sm"
+        onClick={props.onClick}
+      >
         <Center inline>
           {React.cloneElement(props.icon, {
             size: 40,
@@ -32,8 +36,8 @@ export default function NodeFactory(props: BaseNode) {
             position={Position.Left}
             key={index}
             id={`t${index}`}
-            onConnect={item.onConnect}
             isValidConnection={item.isValidConnection}
+            onConnect={item.onConnect}
             style={{
               left: -16,
               top: 32 / props.inputHandles.length + (index * 64) / props.inputHandles.length,
@@ -51,8 +55,8 @@ export default function NodeFactory(props: BaseNode) {
             position={Position.Right}
             key={index}
             id={`s${index}`}
-            onConnect={item.onConnect}
             isValidConnection={item.isValidConnection}
+            onConnect={item.onConnect}
             style={{
               right: -16,
               top: 32 / props.outputHandles.length + (index * 64) / props.outputHandles.length,
@@ -66,7 +70,7 @@ export default function NodeFactory(props: BaseNode) {
     </div>
   );
 
-  node.displayName = props.name;
+  node.displayName = props.type;
 
   return node;
 }

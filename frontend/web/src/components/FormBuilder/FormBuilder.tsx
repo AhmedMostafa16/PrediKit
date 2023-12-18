@@ -17,8 +17,9 @@ import {
   Text,
   rem,
   useMantineTheme,
+  ComboboxData,
 } from '@mantine/core';
-import { Dropzone } from '@mantine/dropzone';
+import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import { IconDownload, IconX, IconCloudUpload } from '@tabler/icons-react';
 import classes from './FormBuilder.module.css';
 
@@ -43,17 +44,20 @@ export interface FormField {
   allowNegative?: boolean;
   allowDecimal?: boolean;
   allowDeselect?: boolean;
-  options?: { label: string; value: string }[];
+  options?: ComboboxData;
   required?: boolean;
   description?: string;
   placeholder?: string;
   defaultValue?: string | null;
+  defaultChecked?: boolean;
+  searchable?: boolean;
   onClick?: () => void;
   maxSize?: number;
   acceptedMIME?: string[];
   dependencies?: {
     fieldId: string; // The ID of the dependent field
     triggerValue: any; // The value that triggers the dependency
+    optional: boolean; // If true, the dependency is optional
   }[];
   [key: string]: any;
 }
@@ -71,20 +75,20 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
 }: FormBuilderProps) => {
   const theme = useMantineTheme();
   const openRef = useRef<() => void>(null);
-  const [formData, setFormData] = useState<{ [key: string]: any }>(data);
+  const [formFieldsData, setFormData] = useState<{ [key: string]: any }>(data);
 
   useEffect(() => {
     setFormData(data);
-  }, [data]);
+  }, [data, formFields]);
 
   const handleChange = useMemo(
     () => (id: string, value: any) => {
-      const updatedFormData = { ...formData, [id]: value };
+      const updatedFormData = { ...formFieldsData, [id]: value };
       setFormData(updatedFormData);
       onAutoSubmit(updatedFormData);
       // console.log(updatedFormData);
     },
-    [formData, onAutoSubmit]
+    [formFieldsData, onAutoSubmit]
   );
 
   const shouldRenderField = (field: FormField) => {
@@ -93,8 +97,8 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
     }
 
     for (const dependency of field.dependencies) {
-      const dependentFieldValue = formData[dependency.fieldId];
-      if (dependentFieldValue !== dependency.triggerValue) {
+      const dependentFieldValue = formFieldsData[dependency.fieldId];
+      if (dependentFieldValue !== dependency.triggerValue && !dependency.optional) {
         return false;
       }
     }
@@ -114,11 +118,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     id={field.id}
                     label={field.label}
                     required={field.required}
-                    placeholder={field.placeholder}
                     description={field.description}
                   >
                     <Input
-                      value={formData[field.id] || ''}
+                      value={formFieldsData[field.id] || field.defaultValue || ''}
+                      placeholder={field.placeholder}
                       onChange={(event) => handleChange(field.id, event.currentTarget.value)}
                     />
                   </InputWrapper>
@@ -134,7 +138,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                   <Slider
                     id={field.id}
                     label={field.label}
-                    value={formData[field.id] || field.min}
+                    value={formFieldsData[field.id] || field.min}
                     onChange={(value) => handleChange(field.id, value)}
                     min={field.min}
                     max={field.max}
@@ -146,7 +150,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                   <Checkbox
                     id={field.id}
                     label={field.label}
-                    checked={formData[field.id] || false}
+                    checked={formFieldsData[field.id] || false}
                     required={field.required}
                     onChange={(event) =>
                       handleChange(field.id, event.currentTarget.checked as boolean)
@@ -179,7 +183,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     data={field.options}
                     placeholder={field.placeholder}
                     defaultValue={field.defaultValue}
+                    value={formFieldsData[field.id]}
+                    multiple={false}
                     allowDeselect={field.allowDeselect}
+                    onLoad={field.onLoad}
+                    searchable={field.searchable}
                   />
                 )}
 
@@ -189,6 +197,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     label={field.label}
                     onChange={(value) => handleChange(field.id, value)}
                     data={field.options}
+                    value={formFieldsData[field.id]}
                     placeholder={field.placeholder}
                   />
                 )}
@@ -198,11 +207,10 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     id={field.id}
                     label={field.label}
                     required={field.required}
-                    placeholder={field.placeholder}
                     description={field.description}
                   >
                     <FileInput
-                      value={formData[field.id] || null}
+                      value={formFieldsData[field.id] || null}
                       onChange={(value) => handleChange(field.id, value)}
                     />
                   </InputWrapper>
@@ -213,7 +221,10 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     <Dropzone
                       id={field.id}
                       openRef={openRef}
-                      onDrop={(value) => handleChange(field.id, value[0])}
+                      onDrop={async (value: FileWithPath[]) => {
+                        const file = value[0];
+                        return handleChange(field.id, file);
+                      }}
                       className={classes.dropzone}
                       radius="md"
                       accept={field.acceptedMIME}

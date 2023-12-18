@@ -1,7 +1,7 @@
 import logging
 from typing import (
     Self,
-    override,
+    # override,
 )
 from xml.etree.ElementInclude import include
 
@@ -43,7 +43,7 @@ class FeatureSelection(BasePreprocessor):
         self.stored_dtypes = None
 
     # ToDo: Add include/exclude dtypes parameter
-    @override
+    # @override
     def fit(
         self,
         data: DataFrame,
@@ -82,7 +82,7 @@ class FeatureSelection(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self,
         data: DataFrame,
@@ -126,7 +126,7 @@ class EncodingProcessor(BasePreprocessor):
         self.strategy = strategy
         self._encoder_params = encoder_params
 
-    @override
+    # @override
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         if columns is not None:
             data = data[columns]
@@ -140,7 +140,7 @@ class EncodingProcessor(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -158,7 +158,7 @@ class EncodingProcessor(BasePreprocessor):
 
         return Ok(data)
 
-    @override
+    # @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:

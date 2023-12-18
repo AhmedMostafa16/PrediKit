@@ -1,10 +1,7 @@
 import logging
 import numbers
 from string import punctuation
-from typing import (
-    Self,
-    override,
-)
+from typing import Self  # override,
 
 import numpy as np
 from pandas import (
@@ -187,7 +184,7 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -438,7 +435,7 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -953,7 +950,7 @@ class DataCleanser(BasePreprocessor):
     ) -> Self | Err[str]:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    @override
+    # @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -996,13 +993,13 @@ class DataCleanser(BasePreprocessor):
                     na_cols
                 )
 
-                na_cols = exclude_from_columns(columns, missing_labels)
-                result = coe.fit_transform(data, columns=na_cols)
+            na_cols = exclude_from_columns(columns, missing_labels)
+            result = coe.fit_transform(data, columns=na_cols)
 
-                if result.is_err():
-                    return result
+            if result.is_err():
+                return result
 
-                data = result.unwrap()
+            data = result.unwrap()
 
         if self.string_operations:
             soe = self._string_operations_enc = StringOperationsProcessor(
@@ -1023,7 +1020,7 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return Ok(data)
 
-    @override
+    # @override
     def transform(
         self,
         data: DataFrame,

@@ -1,6 +1,7 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import HomePage from './pages/Home.page';
 import WorkflowEditorPage from './pages/WorkflowsEditor.page';
+import PortalPage from './pages/Portal.page';
 
 const router = createBrowserRouter([
   {
@@ -9,6 +10,10 @@ const router = createBrowserRouter([
   },
   {
     path: '/workflows',
+    element: <PortalPage />,
+  },
+  {
+    path: '/workflows/:id',
     element: <WorkflowEditorPage />,
   },
 ]);
