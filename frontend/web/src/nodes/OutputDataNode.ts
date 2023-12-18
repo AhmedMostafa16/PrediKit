@@ -1,19 +1,20 @@
 import { BaseNode } from './BaseNode';
+import { PropertiesBase } from './PropertiesBase';
 
 export interface OutputDataNode extends BaseNode {
   data: OutputDataNodeDataModel;
 }
 
-interface OutputDataNodeDataModel {
+interface OutputDataNodeDataModel extends PropertiesBase {
+  filename: string | null;
   format: ExportFormat;
-  delimiter?: string;
 }
 
 export enum ExportFormat {
-  Original = 'Original',
-  CSV = 'CSV',
-  XLS = 'XLS',
-  XLSX = 'XLSX',
-  PICKLE = 'PICKLE',
-  PARQUET = 'PARQUET',
+  // Original = 'Original',
+  CSV = 'csv',
+  XLS = 'xls',
+  XLSX = 'xlsx',
+  PICKLE = 'pickle',
+  PARQUET = 'parquet',
 }

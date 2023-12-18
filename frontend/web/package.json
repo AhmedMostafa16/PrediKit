@@ -36,6 +36,8 @@
     "@tiptap/extension-link": "^2.1.13",
     "@tiptap/react": "^2.1.13",
     "@tiptap/starter-kit": "^2.1.13",
+    "@types/uuid": "^9.0.7",
+    "axios": "^1.6.2",
     "dayjs": "^1.11.10",
     "embla-carousel-react": "^8.0.0-rc15",
     "localforage": "^1.10.0",
@@ -45,6 +47,7 @@
     "react-router-dom": "^6.20.1",
     "reactflow": "^11.10.1",
     "sort-by": "^1.2.0",
+    "uuid": "^9.0.1",
     "zustand": "^4.4.7"
   },
   "devDependencies": {

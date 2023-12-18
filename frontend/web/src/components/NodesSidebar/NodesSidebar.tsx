@@ -3,7 +3,7 @@ import { ItemsGroup } from '../NodesSidebarItemsGroup/NodesSidebarItemsGroup';
 import classes from './NodesSidebar.module.css';
 import {
   DataCleansingNodeProps,
-  FilterNodeProps,
+  BasicFilterNodeProps,
   InputNodeProps,
   OutputNodeProps,
 } from '@/types/NodeTypes';
@@ -17,13 +17,13 @@ const sidebarData = [
       {
         label: InputNodeProps.label,
         icon: InputNodeProps.icon,
-        nodeType: InputNodeProps.name,
+        nodeType: InputNodeProps.type,
         data: InputNodeProps.data,
       },
       {
         label: OutputNodeProps.label,
         icon: OutputNodeProps.icon,
-        nodeType: OutputNodeProps.name,
+        nodeType: OutputNodeProps.type,
         data: OutputNodeProps.data,
       },
     ],
@@ -36,14 +36,14 @@ const sidebarData = [
       {
         label: DataCleansingNodeProps.label,
         icon: DataCleansingNodeProps.icon,
-        nodeType: DataCleansingNodeProps.name,
+        nodeType: DataCleansingNodeProps.type,
         data: DataCleansingNodeProps.data,
       },
       {
-        label: FilterNodeProps.label,
-        icon: FilterNodeProps.icon,
-        nodeType: FilterNodeProps.name,
-        data: FilterNodeProps.data,
+        label: BasicFilterNodeProps.label,
+        icon: BasicFilterNodeProps.icon,
+        nodeType: BasicFilterNodeProps.type,
+        data: BasicFilterNodeProps.data,
       },
     ],
     color: 'blue' as Color,

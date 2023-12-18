@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Connection,
   Background,
@@ -14,41 +14,80 @@ import ReactFlow, {
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 import { IconDeviceFloppy } from '@tabler/icons-react';
+import { v4 as uuidv4 } from 'uuid';
 import { FormField } from '@/components/FormBuilder/FormBuilder';
 import { NodeSidebar } from '@/components/NodesSidebar/NodesSidebar';
 import { PropertiesSidebar } from '@/components/PropertiesSidebar/PropertiesSidebar';
 import useFlowStore, { FlowState } from '@/stores/FlowStore';
 import { nodeTypesProps, nodeTypes } from '@/types/NodeTypes';
 import 'reactflow/dist/style.css';
+import EditorHeader from '@/components/EditorHeader/EditorHeader';
 
 const proOptions = { hideAttribution: true };
 const defaultViewport: Viewport = { x: 0, y: 0, zoom: 1.0 };
 
-let id: number = 0;
-const getId: (nodeType: string) => string = (nodeType: string): string => {
-  const newId = `${nodeType}_${(id += 1)}`;
-  return newId;
-};
 const selector = (state: FlowState) => ({
   nodes: state.nodes,
   edges: state.edges,
+  currentWorkflowId: state.currentWorkflowId,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
   addNode: state.addNode,
   updateNodeData: state.updateNodeData,
+  setNodes: state.setNodes,
+  setEdges: state.setEdges,
+  setViewport: state.setViewport,
+  updateWorkflow: state.updateWorkflow,
 });
 
 export default function Workflow() {
   const reactFlowWrapper: React.MutableRefObject<HTMLDivElement | null> = useRef(null);
 
-  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, addNode, updateNodeData } =
-    useFlowStore(selector, shallow);
+  const {
+    nodes,
+    edges,
+    currentWorkflowId,
+    onNodesChange,
+    onEdgesChange,
+    onConnect,
+    addNode,
+    updateNodeData,
+    setNodes,
+    setEdges,
+    setViewport,
+    updateWorkflow,
+  } = useFlowStore(selector, shallow);
 
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const [fields, setFields] = useState<FormField[]>([]);
   const [currentNode, setCurrentNode] = useState<Node | null>(null);
   const [showPropertiesSidebar, setShowPropertiesSidebar] = useState<boolean>(false);
+
+  const autosave = useCallback(async () => {
+    await updateWorkflow(currentWorkflowId);
+    console.log('Autosaving...');
+  }, []);
+
+  useEffect(() => {
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const handleAutosave = () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      timeoutId = setTimeout(autosave, 1000);
+    };
+
+    handleAutosave();
+
+    return () => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [nodes, edges, autosave]);
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -73,7 +112,7 @@ export default function Workflow() {
       });
 
       const newNode: Node = {
-        id: getId(node.nodeType),
+        id: uuidv4(),
         type: node.nodeType,
         position,
         data: node.data,
@@ -93,7 +132,9 @@ export default function Workflow() {
         return;
       }
 
-      const uielements = nodeTypesProps[node.type as keyof typeof nodeTypesProps].formFields;
+      const nodeProps = nodeTypesProps[node.type as keyof typeof nodeTypesProps];
+
+      const uielements = nodeProps.formFields;
 
       setFields(uielements);
       // console.log(node.data);
@@ -140,45 +181,85 @@ export default function Workflow() {
     }
   }, [reactFlowInstance]);
 
+  const onRestore = useCallback(() => {
+    const restoreFlow = async () => {
+      const json = localStorage.getItem('flow');
+      if (!json) return;
+      const flow = JSON.parse(json);
+
+      if (flow) {
+        const { x = 0, y = 0, zoom = 1 } = flow.viewport;
+        setNodes(flow.nodes || []);
+        setEdges(flow.edges || []);
+        setViewport({ x, y, zoom });
+      }
+    };
+
+    restoreFlow();
+  }, [setNodes, setViewport]);
   return (
-    <div className="dndflow" style={{ height: '100vh', width: '100%' }}>
-      <ReactFlowProvider>
-        <NodeSidebar />
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100vh',
+        width: '100%',
+      }}
+    >
+      <EditorHeader />
 
-        <div className="reactflow-wrapper" ref={reactFlowWrapper}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            nodeTypes={nodeTypes}
-            proOptions={proOptions}
-            onInit={setReactFlowInstance}
-            defaultViewport={defaultViewport}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-            onNodeClick={onNodeClick}
-            onPaneClick={() => setShowPropertiesSidebar(false)}
-            isValidConnection={isValidConnection}
-            nodesDraggable
-            zoomOnDoubleClick
-            elementsSelectable
-          >
-            <Background gap={32} />
+      <div className="dndflow" style={{ height: '100vh', width: '100%' }}>
+        <ReactFlowProvider>
+          <NodeSidebar />
 
-            <MiniMap style={{ background: 'var(--mantine-color-default)' }} />
-            <Controls>
-              <ControlButton onClick={onSave}>
-                <IconDeviceFloppy size={12} stroke={1} />
-              </ControlButton>
-            </Controls>
-          </ReactFlow>
-        </div>
-        {showPropertiesSidebar && (
-          <PropertiesSidebar fields={fields} node={currentNode!} onAutoSubmit={handleAutoSubmit} />
-        )}
-      </ReactFlowProvider>
+          <div className="reactflow-wrapper" ref={reactFlowWrapper}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+              nodeTypes={nodeTypes}
+              proOptions={proOptions}
+              onInit={setReactFlowInstance}
+              defaultViewport={defaultViewport}
+              onDragOver={onDragOver}
+              onDrop={onDrop}
+              onNodeClick={onNodeClick}
+              onPaneClick={() => setShowPropertiesSidebar(false)}
+              isValidConnection={isValidConnection}
+              nodesDraggable
+              zoomOnDoubleClick
+              elementsSelectable
+            >
+              <Background gap={32} />
+
+              <MiniMap style={{ background: 'var(--mantine-color-default)' }} />
+              <Controls>
+                <ControlButton
+                  onClick={() => {
+                    onSave();
+                    updateWorkflow(currentWorkflowId);
+                  }}
+                  title="Save"
+                >
+                  <IconDeviceFloppy size={12} stroke={1} />
+                </ControlButton>
+                <ControlButton onClick={onRestore} title="Restore">
+                  <IconDeviceFloppy size={12} stroke={1} />
+                </ControlButton>
+              </Controls>
+            </ReactFlow>
+          </div>
+          {showPropertiesSidebar && (
+            <PropertiesSidebar
+              fields={fields}
+              node={currentNode!}
+              onAutoSubmit={handleAutoSubmit}
+            />
+          )}
+        </ReactFlowProvider>
+      </div>
     </div>
   );
 

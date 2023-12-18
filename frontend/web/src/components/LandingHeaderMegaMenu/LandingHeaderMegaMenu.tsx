@@ -36,7 +36,7 @@ import {
 import { useState } from 'react';
 import cx from 'clsx';
 import { Link } from 'react-router-dom';
-import classes from './HeaderMegaMenu.module.css';
+import classes from './LandingHeaderMegaMenu.module.css';
 
 const mockdata = [
   {
@@ -78,11 +78,10 @@ const user = {
     'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=255&q=80',
 };
 
-export function HeaderMegaMenu() {
+export function LandingHeaderMegaMenu() {
   const [drawerOpened, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [linksOpened, { toggle: toggleLinks }] = useDisclosure(false);
 
-  const [opened, { toggle }] = useDisclosure(false);
   const [userMenuOpened, setUserMenuOpened] = useState<boolean>(false);
   const theme = useMantineTheme();
   const os = useOs();

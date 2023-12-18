@@ -1,5 +1,4 @@
 dask[complete]
-fastapi==0.104.1
 numpy==1.26.1
 pandas==2.1.3
 pytest==7.4.3

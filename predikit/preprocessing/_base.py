@@ -7,10 +7,7 @@ from enum import (
     StrEnum,
     auto,
 )
-from typing import (
-    Self,
-    override,
-)
+from typing import Self  # override,
 
 import numpy as np
 from pandas import DataFrame
@@ -41,11 +38,11 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
     Examples
     --------
     >>> class CustomPreprocessor(BasePreprocessor):
-    ...     def fit(self, X, y=None):
+    ...     def fit(self, data, columns=None):
     ...         # Implement fit functionality here
     ...         return self
     ...
-    ...     def transform(self, X):
+    ...     def transform(self, data):
     ...         # Implement transform functionality here
     ...         return X_transformed
     """
@@ -109,7 +106,7 @@ class Encoder(BasePreprocessor, ABC):
             names of the encoded features
         """
 
-    @override
+    # @override
     def transform(self, X) -> csr_matrix:
         ...
 
