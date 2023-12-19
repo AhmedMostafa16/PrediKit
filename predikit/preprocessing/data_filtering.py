@@ -1,7 +1,8 @@
 import logging
-from typing import (  # override,
+from typing import (
     Self,
     cast,
+    override,
 )
 
 from pandas import DataFrame
@@ -47,7 +48,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
     def fit(
         self, data: DataFrame, column: str | None = None
-    ) -> Ok[Self] | Err[str]:
+    ) -> Self | Err[str]:
         """
         Compute the necessary parameters for filtering.
 
@@ -72,9 +73,9 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         self._numeric = self._is_numeric(data, column)
         self._query = self._parse_query(column, self.operator, self.value)
-        return Ok(self)
+        return self
 
-    # @override
+    @override
     def transform(
         self, data: DataFrame, column: str | None = None
     ) -> Result[DataFrame, str]:
@@ -169,8 +170,8 @@ class BasicFilteringProcessor(BasePreprocessor):
         """
         return data[column].dtype.kind in "biufc"
 
-    def fit_transform(self, data, column=None):
-        # TODO: fix this Result workaround
-        bfp = self.fit(data, column)
-        bfp = bfp.unwrap()
-        return bfp.transform(data, column).unwrap()
+    # def fit_transform(self, data, column=None):
+    #     # TODO: fix this Result workaround
+    #     bfp = self.fit(data, column)
+    #     bfp = bfp.unwrap()
+    #     return bfp.transform(data, column).unwrap()

@@ -2,12 +2,14 @@
 Auto parser for buffers or files into pandas DataFrames.
 """
 from io import BytesIO
+import logging
 from os import PathLike
 from typing import (
     Any,
     Callable,
     Self,
-    # override,
+    cast,
+    override,
 )
 
 import numpy as np
@@ -26,11 +28,13 @@ from predikit._typing import (
 )
 from predikit.util import (
     FileExtension,
+    file_exists,
     get_dataframe_column_names,
     get_non_numeric_data,
     get_numeric_data,
     select_non_numeric_columns,
     select_numeric_columns,
+    str_data_memory_usage,
     validations,
 )
 
@@ -68,7 +72,7 @@ class DataFrameParser(DataFrame):
         A mapping from file extensions to pandas reader functions.
     """
 
-    _metadata = ["_ignore"]
+    _metadata = ["_ignore", "verbose"]
 
     _READERS: dict[FileExtension, PdReader] = {
         FileExtension.CSV: read_csv,
@@ -85,8 +89,10 @@ class DataFrameParser(DataFrame):
         *,
         extension: FileExtension | str | None = None,
         ignore_wrong_properties: bool = False,
+        verbose: bool = False,
         **properties,
     ) -> None:
+        self.verbose = verbose
         self._ignore = ignore_wrong_properties
         data = self._load(path_or_buf, extension, **properties)
         super(DataFrameParser, self).__init__(data)  # type: ignore
@@ -114,7 +120,7 @@ class DataFrameParser(DataFrame):
         reader = self._READERS.get(extension)
         if not reader:
             raise TypeError(f"No reader for type {extension}")
-        # self.__setattr__("", reader)
+
         return reader
 
     def _load(
@@ -153,6 +159,9 @@ class DataFrameParser(DataFrame):
         """
         df: DataFrame
 
+        if self.verbose:
+            logging.info("Starting data ingestion process ...")
+
         if isinstance(path_or_buf, (np.ndarray, dict, list)):
             df = self._buf_loader(path_or_buf, **properties)
 
@@ -160,6 +169,7 @@ class DataFrameParser(DataFrame):
             extension = FileExtension.parse(
                 extension=extension, file=path_or_buf
             )
+            path_or_buf = cast(FilePath, path_or_buf)
             df = self._file_loader(path_or_buf, extension, **properties)
 
         else:
@@ -168,6 +178,27 @@ class DataFrameParser(DataFrame):
                 "types are (str, os.PathLike, BytesIO, dict, "
                 "np.ndarray).".format(type(path_or_buf))
             )
+
+        if self.verbose:
+            logging.info(
+                f"✅ Done! Data ingestion process completed. DataFrame is "
+                "ready for use."
+            )
+            shape = df.shape
+            # logging.info(f"DataFrame columns: {shape[0]} | rows: {shape[1]}")
+            tab = "\t" * 7
+            logging.info(
+                "DataFrame Shape\t 🔻"
+                f"\n{tab} _______\n{tab}"
+                f"|columns| {shape[0]:>1}"
+                f"\n{tab} _______\n{tab}"
+                f"| rows  | {shape[1]:>1}"
+            )
+
+            mem = str_data_memory_usage(df, unit="KB", deep=True)
+            logging.info(f"DataFrame size in memory: {mem} ")
+            logging.info(f"DataFrame dtypes\n{df.dtypes} ")
+            print(f"DataFrame head: {df.head(3)} ")
 
         return df
 
@@ -215,7 +246,7 @@ class DataFrameParser(DataFrame):
 
         Parameters
         ----------
-        path : FilePath | BytesIO
+        path : FilePath
             The path to the file or a BytesIO stream to load into a DataFrame.
         extension : FileExtension
             The file extension of the file to load.
@@ -227,6 +258,15 @@ class DataFrameParser(DataFrame):
         DataFrame
             The loaded DataFrame.
         """
+        # ToDo fix shouldn't be in for BytesIO, cast it later on.
+        if not isinstance(path, BytesIO) and not file_exists(path):
+            raise FileNotFoundError(f"File {path} does not exist.")
+
+        if self.verbose:
+            logging.info(f"Loading DataFrame from {path} ...")
+
+        if extension:
+            FileExtension.parse(extension=extension, file=path)
         reader = self._get_reader(extension)
         if not self._ignore:
             properties = self.__check_fix_properties(
@@ -363,12 +403,11 @@ class DataFrameParser(DataFrame):
         """
         parsed_types = {}
         for col in self.columns:
-            # print(self[col].dtype.kind)
             parsed_types[col] = self[col].dtype.kind
 
         return parsed_types
 
-    # @override
+    @override
     def __new__(cls, *args, **kwargs) -> Self:
         """
         Creates a new instance of the DataFrameParser class.

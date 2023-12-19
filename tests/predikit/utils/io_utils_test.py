@@ -7,13 +7,13 @@ from predikit import FileExtension
 
 
 def test_from_string():
-    assert FileExtension.from_string("csv") == FileExtension.CSV
-    assert FileExtension.from_string("xlsx") == FileExtension.EXCEL
+    assert FileExtension.from_str("csv") == FileExtension.CSV
+    assert FileExtension.from_str("xlsx") == FileExtension.EXCEL
     with pytest.raises(ValueError):
-        FileExtension.from_string("unsupported_extension")
+        FileExtension.from_str("unsupported_extension")
 
     # Test case insensitivity
-    assert FileExtension.from_string("CSV") == FileExtension.CSV
+    assert FileExtension.from_str("CSV") == FileExtension.CSV
 
 
 def test_from_file():

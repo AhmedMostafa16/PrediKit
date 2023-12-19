@@ -1,7 +1,10 @@
 import logging
 import numbers
 from string import punctuation
-from typing import Self  # override,
+from typing import (
+    Self,
+    override,
+)
 
 import numpy as np
 from pandas import (
@@ -180,11 +183,16 @@ class MissingValuesProcessor(BasePreprocessor):
             MissingValueStrategy.OMIT: lambda _: None,
         }
 
-        self.fill_value = strategy_fill[self.strategy](data)
+        if self.strategy == MissingValueStrategy.MODE:
+            self.fill_value = strategy_fill[self.strategy](
+                data[self.na_cols]
+            ).iloc[0]
+        else:
+            self.fill_value = strategy_fill[self.strategy](data[self.na_cols])
 
         return self
 
-    # @override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -435,7 +443,7 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    # @override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -917,7 +925,7 @@ class DataCleanser(BasePreprocessor):
         outlier_clean: bool = True,
         outlier_method: OutlierDetectionMethod
         | str = OutlierDetectionMethod.IQR,
-        outlier_threshold: float = 1.5,
+        outlier_threshold: float = 2.5,
         outlier_indicator: bool = True,
         str_operations: bool = False,
         str_case_modifier_method: CaseModifyingMethod | str | None = None,
@@ -950,7 +958,7 @@ class DataCleanser(BasePreprocessor):
     ) -> Self | Err[str]:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    # @override
+    @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -985,12 +993,12 @@ class DataCleanser(BasePreprocessor):
 
             # ToDo optimize this to be created while creating labels
             if self._clean_missing_enc is not None and self.missing_indicator:
-                    logging.info("Post-cleansing column correction")
-                    na_cols = self._clean_missing_enc.na_cols
-                    # undesired for outliers detection and treatment
-                    missing_labels = (
-                        self._clean_missing_enc._missing_value_labels(na_cols)
-                    )
+                logging.info("Post-cleansing column correction")
+                na_cols = self._clean_missing_enc.na_cols
+                # undesired for outliers detection and treatment
+                missing_labels = self._clean_missing_enc._missing_value_labels(
+                    na_cols
+                )
 
             na_cols = exclude_from_columns(columns, missing_labels)
             logging.info(na_cols)
@@ -1023,7 +1031,7 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return Ok(data)
 
-    # @override
+    @override
     def transform(
         self,
         data: DataFrame,

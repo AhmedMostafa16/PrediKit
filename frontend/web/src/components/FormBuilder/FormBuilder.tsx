@@ -48,7 +48,7 @@ export interface FormField {
   required?: boolean;
   description?: string;
   placeholder?: string;
-  defaultValue?: string | null;
+  defaultValue?: number | string | null;
   defaultChecked?: boolean;
   searchable?: boolean;
   onClick?: () => void;

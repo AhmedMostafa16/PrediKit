@@ -7,6 +7,8 @@ from io import BytesIO
 import os
 from typing import Self
 
+from .._typing import FilePath
+
 
 class FileExtension(Enum):
     """
@@ -22,11 +24,11 @@ class FileExtension(Enum):
     PICKLE = ("pickle", "p", "pkl")
 
     @classmethod
-    def _correct_string(cls, extension: str):
+    def _correct_str(cls, extension: str):
         return extension.lstrip(".").lower()
 
     @classmethod
-    def from_string(cls, extension: str) -> "FileExtension":
+    def from_str(cls, extension: str) -> "FileExtension":
         """
         Converts a string to a FileExtension enum member.
 
@@ -45,7 +47,7 @@ class FileExtension(Enum):
         ValueError
             If the string does not match any FileExtension enum member.
         """
-        extension = cls._correct_string(extension)
+        extension = cls._correct_str(extension)
         for ext in cls:
             if isinstance(ext.value, tuple) and extension in ext.value:
                 return ext
@@ -70,7 +72,7 @@ class FileExtension(Enum):
         )
 
     @classmethod
-    def from_file(cls, file: str | os.PathLike) -> "FileExtension":
+    def from_file(cls, file: FilePath) -> "FileExtension":
         """
         Determines the extension of a file.
 
@@ -85,14 +87,14 @@ class FileExtension(Enum):
             The corresponding FileExtension enum member.
         """
         _, ext = os.path.splitext(file)
-        return cls.from_string(ext.lstrip(".").lower())
+        return cls.from_str(ext.lstrip(".").lower())
 
     @classmethod
     def parse(
         cls,
         *,
         extension: Self | str | None = None,
-        file: str | os.PathLike | BytesIO,
+        file: FilePath | BytesIO,
     ) -> "FileExtension":
         """
         Parses the file extension from a string or file.
@@ -118,7 +120,7 @@ class FileExtension(Enum):
         """
         if extension:
             if isinstance(extension, str):
-                return cls.from_string(extension)
+                return cls.from_str(extension)
             if isinstance(extension, cls):
                 return extension
 
@@ -137,11 +139,20 @@ class FileExtension(Enum):
 
         return cls.from_file(file)
 
+    def to_str(self) -> str:
+        """
+        Converts the FileExtension enum member to a string.
 
-def ext_to_str(ext: FileExtension) -> str:
-    return (
-        f".{ext.value}" if not isinstance(ext, tuple) else f".{ext.value[0]}"
-    )
+        Returns
+        -------
+        str
+            The string representation of the FileExtension enum member.
+        """
+        return "." + (
+            str(self.value)
+            if not isinstance(self.value, tuple)
+            else str(self.value[0])
+        )
 
 
 def get_home() -> str:
@@ -158,3 +169,46 @@ def abs_path(dir: str, file: str) -> str:
 
 def init_dir(name: str) -> None:
     os.makedirs(name, exist_ok=True)
+
+
+def file_exists(file: FilePath) -> bool:
+    return os.path.exists(file)
+
+
+def export_index_correction(
+    ext: FileExtension | str, index_columns: bool
+) -> bool:
+    """
+    This is a utility method for the DataFrameExporter to correct the value
+    of the index_columns parameter based on the file extension.
+
+    The export method expects a **params argument, in which case we can pass
+    index_columns as a parameter to the pandas to_* method. However, some
+    methods do not have an index_columns parameter, such as the to_pickle
+    method. In this case, we need to correct the value of index_columns
+    before passing it to the to_pickle method.
+
+    Parameters
+    ----------
+    ext : FileExtension | str
+        The file extension or FileExtension enum value representing the file
+        format.
+    index_columns : bool
+        A boolean indicating whether to include the index columns in the
+        exported file.
+
+    Returns
+    -------
+    bool
+        Returns True if the index_columns value needs to be corrected, False otherwise.
+    """
+    if isinstance(ext, str):
+        ext = FileExtension.from_str(extension=ext)
+
+    if not index_columns:
+        return False
+
+    if ext == FileExtension.PICKLE:
+        return False
+
+    return True

@@ -6,27 +6,25 @@ export interface DataCleansingNode extends BaseNode {
 }
 
 interface DataCleansingNodeDataModel extends PropertiesBase {
-  removeOutliers: boolean;
-  outlierMethod: OutlierMethod;
-  replaceNulls: boolean;
-  replaceNullWith: ReplaceNullWith;
-  fillValue: string;
-  modifyCase: ModifyCase | null;
-  removeWhitespace: boolean;
-  // removeDuplicates: boolean;
-  removePunctuation: boolean;
-  removeNumbers: boolean;
-  removeLetters: boolean;
-  trim: boolean;
+  missingClean: boolean;
+  missingStrategy: MissingValueStrategy;
+  missingFillValue: string;
+  missingIndicator: boolean;
+  outlierClean: boolean;
+  outlierMethod: OutlierDetectionMethod;
+  outlierThreshold: number;
+  outlierIndicator: boolean;
+  strOperations: boolean;
+  strCaseModifierMethod: CaseModifyingMethod | null;
+  strTrim: boolean;
+  strRemoveWhitespace: boolean;
+  strRemoveNumbers: boolean;
+  strRemoveLetters: boolean;
+  strRemovePunctuation: boolean;
   selectedColumns: string[];
 }
 
-export enum OutlierMethod {
-  IQR = 'iqr',
-  ZScore = 'z_score',
-}
-
-export enum ReplaceNullWith {
+export enum MissingValueStrategy {
   Mean = 'mean',
   Median = 'median',
   Mode = 'mode',
@@ -34,8 +32,16 @@ export enum ReplaceNullWith {
   Omit = 'omit',
 }
 
-export enum ModifyCase {
+export enum OutlierDetectionMethod {
+  IQR = 'iqr',
+  ZScore = 'z_score',
+}
+
+export enum CaseModifyingMethod {
   LowerCase = 'lower',
   UpperCase = 'upper',
   TitleCase = 'title',
+  Capitalize = 'capitalize',
+  SwapCase = 'swapcase',
+  Casefold = 'casefold',
 }

@@ -3,7 +3,11 @@ import { Connection } from 'reactflow';
 import NodeFactory from '../components/NodeFactory/NodeFactory';
 import { InputDataNode } from '../nodes/InputDataNode';
 import { ExportFormat, OutputDataNode } from '../nodes/OutputDataNode';
-import { DataCleansingNode, OutlierMethod, ReplaceNullWith } from '../nodes/DataCleansingNode';
+import {
+  DataCleansingNode,
+  OutlierDetectionMethod,
+  MissingValueStrategy,
+} from '../nodes/DataCleansingNode';
 import { BasicFilterNode } from '../nodes/BasicFilterNode';
 import useFlowStore from '@/stores/FlowStore';
 
@@ -11,7 +15,8 @@ export const InputNodeProps: InputDataNode = {
   type: 'inputDataNode',
   data: {
     file: undefined,
-    extension: 'csv',
+    // ToDo - add extension to data when BytesIO is implemented
+    // extension: 'csv',
   },
   inputHandles: [],
   outputHandles: [{}],
@@ -45,21 +50,21 @@ export const InputNodeProps: InputDataNode = {
       label: 'File Path',
       id: 'file',
     },
-    {
-      type: 'select',
-      label: 'Extension',
-      id: 'extension',
-      allowDeselect: true,
-      placeholder: 'Select extension',
-      defaultValue: 'csv',
-      options: [
-        { label: 'CSV', value: 'csv' },
-        { label: 'Excel (XLS)', value: 'xls' },
-        { label: 'Excel (XLSX)', value: 'xlsx' },
-        { label: 'Pickle', value: 'pickle' },
-        { label: 'Parquet', value: 'parquet' },
-      ],
-    },
+    // {
+    //   type: 'select',
+    //   label: 'Extension',
+    //   id: 'extension',
+    //   allowDeselect: true,
+    //   placeholder: 'Select extension',
+    //   defaultValue: 'csv',
+    //   options: [
+    //     { label: 'CSV', value: 'csv' },
+    //     { label: 'Excel (XLS)', value: 'xls' },
+    //     { label: 'Excel (XLSX)', value: 'xlsx' },
+    //     { label: 'Pickle', value: 'pickle' },
+    //     { label: 'Parquet', value: 'parquet' },
+    //   ],
+    // },
   ],
 };
 const InputNodeComponent = NodeFactory(InputNodeProps);
@@ -67,8 +72,9 @@ const InputNodeComponent = NodeFactory(InputNodeProps);
 export const OutputNodeProps: OutputDataNode = {
   type: 'outputDataNode',
   data: {
-    format: ExportFormat.CSV,
+    format: ExportFormat.Original,
     filename: null,
+    indexColumn: false,
   },
   inputHandles: [{}],
   outputHandles: [],
@@ -89,15 +95,22 @@ export const OutputNodeProps: OutputDataNode = {
       id: 'format',
       allowDeselect: true,
       placeholder: 'Select format',
-      defaultValue: ExportFormat.CSV,
+      defaultValue: ExportFormat.Csv,
       options: [
-        // { label: 'Original', value: ExportFormat.Original },
-        { label: 'CSV', value: ExportFormat.CSV },
+        { label: 'Original', value: ExportFormat.Original },
+        { label: 'CSV', value: ExportFormat.Csv },
         { label: 'Excel (XLS)', value: ExportFormat.XLS },
-        { label: 'Excel (XLSX)', value: ExportFormat.XLSX },
-        { label: 'Pickle', value: ExportFormat.PICKLE },
-        { label: 'Parquet', value: ExportFormat.PARQUET },
+        { label: 'Excel (XLSX)', value: ExportFormat.Xlsx },
+        { label: 'Pickle', value: ExportFormat.Pickle },
+        { label: 'Parquet', value: ExportFormat.Parquet },
       ],
+    },
+    // ToDo - hide when format is parquet
+    {
+      type: 'checkbox',
+      label: 'Index Column',
+      id: 'indexColumn',
+      defaultValue: null,
     },
   ],
 };
@@ -105,18 +118,21 @@ const OutputNodeComponent = NodeFactory(OutputNodeProps);
 
 export const DataCleansingNodeProps: DataCleansingNode = {
   data: {
-    removeOutliers: false,
-    outlierMethod: OutlierMethod.IQR,
-    replaceNulls: false,
-    replaceNullWith: ReplaceNullWith.Mean,
-    fillValue: '',
-    modifyCase: null,
-    removeWhitespace: false,
-    // removeDuplicates: false,
-    removePunctuation: false,
-    removeNumbers: false,
-    removeLetters: false,
-    trim: false,
+    missingClean: false,
+    missingStrategy: MissingValueStrategy.Mode,
+    missingFillValue: '',
+    missingIndicator: false,
+    outlierClean: false,
+    outlierMethod: OutlierDetectionMethod.ZScore,
+    outlierThreshold: 3,
+    outlierIndicator: false,
+    strOperations: false,
+    strCaseModifierMethod: null,
+    strTrim: false,
+    strRemoveWhitespace: false,
+    strRemoveNumbers: false,
+    strRemoveLetters: false,
+    strRemovePunctuation: false,
     selectedColumns: [],
   },
   type: 'dataCleansingNode',
@@ -144,10 +160,60 @@ export const DataCleansingNodeProps: DataCleansingNode = {
       placeholder: 'Select columns',
       searchable: true,
     },
-    { type: 'checkbox', label: 'Remove outliers', id: 'removeOutliers' },
+    /* Missing Values Processing */
+    {
+      type: 'checkbox',
+      label: 'Clean Missing',
+      id: 'missingClean',
+    },
     {
       type: 'select',
-      label: 'Outlier method',
+      label: 'Missing Strategy',
+      id: 'missingStrategy',
+      options: [
+        { label: 'Mean', value: 'mean' },
+        { label: 'Median', value: 'median' },
+        { label: 'Most frequent', value: 'mode' },
+        { label: 'Constant', value: 'constant' },
+        { label: 'Drop', value: 'drop' },
+      ],
+      dependencies: [
+        {
+          fieldId: 'missingClean',
+          triggerValue: true,
+          optional: false,
+        },
+      ],
+    },
+    {
+      type: 'input',
+      label: 'Missing Fill Value',
+      id: 'missingFillValue',
+      dependencies: [
+        {
+          fieldId: 'missingStrategy',
+          triggerValue: 'constant',
+          optional: false,
+        },
+      ],
+    },
+    {
+      type: 'checkbox',
+      label: 'Add Missing Indicator',
+      id: 'missingIndicator',
+      dependencies: [
+        {
+          fieldId: 'missingClean',
+          triggerValue: true,
+          optional: false,
+        },
+      ],
+    },
+    /* Outlier Processing */
+    { type: 'checkbox', label: 'Remove Outliers', id: 'outlierClean' },
+    {
+      type: 'select',
+      label: 'Outlier Detection Method',
       id: 'outlierMethod',
       defaultValue: 'iqr',
       options: [
@@ -156,7 +222,7 @@ export const DataCleansingNodeProps: DataCleansingNode = {
       ],
       dependencies: [
         {
-          fieldId: 'removeOutliers',
+          fieldId: 'outlierClean',
           triggerValue: true,
           optional: false,
         },
@@ -164,60 +230,119 @@ export const DataCleansingNodeProps: DataCleansingNode = {
     },
     {
       type: 'checkbox',
-      label: 'Replace null',
-      id: 'replaceNulls',
+      label: 'Add Outliers Indicator',
+      id: 'outlierIndicator',
+      dependencies: [
+        {
+          fieldId: 'outlierClean',
+          triggerValue: true,
+          optional: false,
+        },
+      ],
     },
+    // {
+    //   type: 'slider',
+    //   label: 'Outlier Threshold',
+    //   id: 'outlierThreshold',
+    //   defaultValue: 3,
+    //   min: 0.5,
+    //   max: 10,
+    //   step: 0.2,
+    //   dependencies: [
+    //     {
+    //       fieldId: 'outlierClean',
+    //       triggerValue: true,
+    //       optional: false,
+    //     },
+    //   ],
+    // },
+
+    /* String Operations Processing */
+    { type: 'checkbox', label: 'Operate on Strings', id: 'strOperations' },
     {
       type: 'select',
-      label: 'Replace null with',
-      id: 'replaceNullWith',
+      label: 'Modify Case',
+      id: 'strCaseModifierMethod',
+      allowDeselect: true,
+      placeholder: 'Select case',
+      defaultValue: null,
       options: [
-        { label: 'Mean', value: 'mean' },
-        { label: 'Median', value: 'median' },
-        { label: 'Mode (Most frequent)', value: 'mode' },
-        { label: 'Constant', value: 'constant' },
-        { label: 'Drop', value: 'omit' },
+        { label: 'Lowercase', value: 'lower' },
+        { label: 'Uppercase', value: 'upper' },
+        { label: 'Title Case', value: 'title' },
+        { label: 'Capitalize', value: 'capitalize' },
+        { label: 'Swap Case', value: 'swapcase' },
+        { label: 'Case Fold', value: 'casefold' },
       ],
       dependencies: [
         {
-          fieldId: 'replaceNulls',
+          fieldId: 'strOperations',
           triggerValue: true,
           optional: false,
         },
       ],
     },
     {
-      type: 'input',
-      label: 'Constant value',
-      id: 'fillValue',
+      type: 'checkbox',
+      label: 'Trim',
+      id: 'strTrim',
+
       dependencies: [
         {
-          fieldId: 'replaceNullWith',
-          triggerValue: 'constant',
+          fieldId: 'strOperations',
+          triggerValue: true,
           optional: false,
         },
       ],
     },
-    { type: 'checkbox', label: 'Remove whitespace from strings', id: 'removeWhitespace' },
-    { type: 'checkbox', label: 'Remove letters from strings', id: 'removeLetters' },
-    { type: 'checkbox', label: 'Remove numbers from strings', id: 'removeNumbers' },
-    { type: 'checkbox', label: 'Remove punctuation from strings', id: 'removePunctuation' },
-    // { type: 'checkbox', label: 'Remove duplicates', id: 'removeDuplicates' },
     {
-      type: 'select',
-      label: 'Modify case',
-      id: 'modifyCase',
-      allowDeselect: true,
-      placeholder: 'Select case',
-      defaultValue: null,
-      options: [
-        // TODO: modify ModifyCase enum
-        { label: 'Lowercase', value: 'lower' },
-        { label: 'Uppercase', value: 'upper' },
-        { label: 'Title case', value: 'title' },
+      type: 'checkbox',
+      label: 'Remove Whitespace from Strings',
+      id: 'strRemoveWhitespace',
+      dependencies: [
+        {
+          fieldId: 'strOperations',
+          triggerValue: true,
+          optional: false,
+        },
       ],
     },
-    { type: 'checkbox', label: 'Trim', id: 'trim' },
+    {
+      type: 'checkbox',
+      label: 'Remove Letters from Strings',
+      id: 'strRemoveLetters',
+      dependencies: [
+        {
+          fieldId: 'strOperations',
+          triggerValue: true,
+          optional: false,
+        },
+      ],
+    },
+    {
+      type: 'checkbox',
+      label: 'Remove Numbers from Strings',
+      id: 'strRemoveNumbers',
+      dependencies: [
+        {
+          fieldId: 'strOperations',
+          triggerValue: true,
+          optional: false,
+        },
+      ],
+    },
+    {
+      type: 'checkbox',
+      label: 'Remove Punctuation from Strings',
+      id: 'strRemovePunctuation',
+      dependencies: [
+        {
+          fieldId: 'strOperations',
+          triggerValue: true,
+          optional: false,
+        },
+      ],
+    },
   ],
 };
 const DataCleansingNodeComponent = NodeFactory(DataCleansingNodeProps);
@@ -272,16 +397,16 @@ export const BasicFilterNodeProps: BasicFilterNode = {
       allowDeselect: true,
       placeholder: 'Select operator',
       options: [
-        { label: '=', value: 'equals' },
-        { label: '!=', value: 'notequals' },
+        { label: '=', value: 'equal' },
+        { label: '!=', value: 'notequal' },
         { label: '>', value: 'greater' },
         { label: '<', value: 'less' },
         { label: '>=', value: 'greaterequal' },
         { label: '<=', value: 'lessequal' },
         { label: 'Contains', value: 'contains' },
         { label: 'Does not contain', value: 'doesnotcontain' },
-        { label: 'Is null', value: 'isnull' },
-        { label: 'Is not null', value: 'isnotnull' },
+        { label: 'Is null', value: 'null' },
+        { label: 'Is not null', value: 'notnull' },
       ],
     },
     {

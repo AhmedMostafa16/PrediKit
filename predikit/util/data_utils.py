@@ -1,5 +1,7 @@
 from pandas import DataFrame
 
+from predikit._typing import MemoryUnit
+
 # # tf currently not supported by python 3.12 | TODO: check for alternatives
 # def split_dataset(
 #     dataset: tf.Data.Dataset, validation_split: float = 0.25
@@ -156,3 +158,98 @@ def exclude_from_columns(
         return columns
 
     return [column for column in columns if column not in exclude]
+
+
+def data_memory_usage(
+    df: DataFrame, unit: MemoryUnit = "MB", deep: bool = False
+) -> int:
+    """
+    Calculate and return the memory usage of a DataFrame in a specified unit.
+
+    This function calculates the memory usage of a DataFrame and returns it
+    in the specified unit.
+    The units can be bytes (B), kilobytes (KB), megabytes (MB), or
+    gigabytes (GB).
+    The calculation can be performed deeply or not based on the `deep`
+    parameter.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The DataFrame whose memory usage is to be calculated.
+    unit : {'B', 'KB', 'MB', 'GB'}, optional
+        The unit in which to return the memory usage. By default, it is 'MB'.
+    deep : bool, optional
+        Whether to deeply introspect object dtypes for data buffers. By
+        default, it is False.
+
+    Returns
+    -------
+    int
+        The memory usage of the DataFrame in the specified unit.
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({'A': range(1, 1000000)})
+    >>> print(data_memory_usage(df, 'MB'))
+    7.63
+    """
+    if unit == "MB":
+        return df.memory_usage(deep=deep).sum() / 1024**2
+    elif unit == "GB":
+        return df.memory_usage(deep=deep).sum() / 1024**3
+    elif unit == "KB":
+        return df.memory_usage(deep=deep).sum() / 1024
+
+    return df.memory_usage(deep=deep).sum()
+
+
+def str_data_memory_usage(
+    df: DataFrame,
+    unit: MemoryUnit = "MB",
+    precision: int = 2,
+    deep: bool = False,
+) -> str:
+    """
+    Calculate and return the memory usage of a DataFrame in a specified unit
+    as a string.
+
+    This function extends the `data_memory_usage` function by returning the
+    memory usage as a string
+    with the unit of memory appended to the end. The memory usage of a
+    DataFrame is calculated and
+    returned in the specified unit. The units can be bytes (B), kilobytes (KB),
+    megabytes (MB), or gigabytes (GB). The calculation can be performed deeply
+    or not based on the `deep` parameter.
+
+    Parameters
+    ----------
+    df : DataFrame
+        The DataFrame whose memory usage is to be calculated.
+    unit : {'B', 'KB', 'MB', 'GB'}, optional
+        The unit in which to return the memory usage. By default, it is 'MB'.
+    deep : bool, optional
+        Whether to deeply introspect object dtypes for data buffers. By
+        default, it is False.
+    precision : int, optional
+        The number of decimal places to round to, by default 2.
+
+    Returns
+    -------
+    str
+        The memory usage of the DataFrame in the specified unit as a string.
+
+    Examples
+    --------
+    >>> df = pd.DataFrame({'A': range(1, 1000000)})
+    >>> print(str_data_memory_usage(df, 'MB'))
+    '7.63 MB'
+    """
+    if unit == "MB":
+        return f"{df.memory_usage(deep=deep).sum() / 1024**2:.2f} MB"
+    elif unit == "GB":
+        return f"{df.memory_usage(deep=deep).sum() / 1024**3:.2f} GB"
+    elif unit == "KB":
+        return f"{df.memory_usage(deep=deep).sum() / 1024:.2f} KB"
+
+    return f"{df.memory_usage(deep=deep).sum():.2f} B"

@@ -8,13 +8,14 @@ export interface OutputDataNode extends BaseNode {
 interface OutputDataNodeDataModel extends PropertiesBase {
   filename: string | null;
   format: ExportFormat;
+  indexColumn: boolean;
 }
 
 export enum ExportFormat {
-  // Original = 'Original',
-  CSV = 'csv',
+  Original = 'original',
+  Csv = 'csv',
   XLS = 'xls',
-  XLSX = 'xlsx',
-  PICKLE = 'pickle',
-  PARQUET = 'parquet',
+  Xlsx = 'xlsx',
+  Pickle = 'pickle',
+  Parquet = 'parquet',
 }

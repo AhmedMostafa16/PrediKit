@@ -21,7 +21,8 @@ export function PropertiesSidebar({ fields, node, onAutoSubmit }: Props) {
           <Text size="xl" fw={700}>
             {nodeTypesProps[node.type as keyof typeof nodeTypesProps].label} Properties
           </Text>
-          <Code fw={700}>{node.id}</Code>
+          {/* ToDo uncomment this if you need to debug*/}
+          {/* <Code fw={700}>{node.id}</Code> */}
         </Group>
       </div>
 

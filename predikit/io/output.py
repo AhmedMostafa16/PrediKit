@@ -7,7 +7,6 @@ from predikit.util.io_utils import (
     FileExtension,
     abs_path,
     append_to_home,
-    ext_to_str,
     init_dir,
 )
 
@@ -27,6 +26,7 @@ class DataFrameExporter:
     params : dict
         Additional parameters to pass to the exporter.
     """
+
     _EXPORTERS: dict[FileExtension, DfExporter] = {
         FileExtension.CSV: DataFrame.to_csv,
         FileExtension.JSON: DataFrame.to_json,
@@ -41,8 +41,10 @@ class DataFrameExporter:
         *,
         extension: FileExtension,
         filename: str = "out",
+        verbose: bool = False,
         **params,
     ) -> None:
+        self.verbose = verbose
         self._df = df
         self._extension = extension
         self._filename = filename
@@ -71,7 +73,7 @@ class DataFrameExporter:
         str
             The default path.
         """
-        file = self._filename + ext_to_str(self._extension)
+        file = self._filename + self._extension.to_str()
         return abs_path(self.default_dir, file)
 
     def export(self) -> None:
@@ -83,8 +85,22 @@ class DataFrameExporter:
         TypeError
             If there is no exporter for the specified file extension.
         """
+        if self._filename is None:
+            raise FileNotFoundError("No filename specified.")
+
+        if self.verbose:
+            logging.info("🚀 Preparing the default directory to export ...")
         init_dir(self.default_dir)
-        logging.info(f"Exporting to {self.default_path} ...")
+        if self.verbose:
+            logging.info(
+                "✅ Done! PrediKit's output will be found at {}".format(
+                    self.default_dir
+                )
+            )
+        self._extension = FileExtension.parse(
+            extension=self._extension, file=self._filename
+        )
+        logging.info(f"🚀 Exporting to {self.default_path} ...")
         self._get_exporter(self._extension)(
             self._df, self.default_path, **self._params
         )

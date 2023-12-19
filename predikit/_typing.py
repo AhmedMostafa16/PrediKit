@@ -1,10 +1,14 @@
 from os import PathLike
-from typing import Callable, TypeAlias
+from typing import (
+    Callable,
+    Literal,
+)
 
 from pandas import DataFrame
 
-Number: TypeAlias = int | float
+type Number = int | float
 
-PdReader: TypeAlias = Callable[..., DataFrame]
-FilePath: TypeAlias = str | PathLike[str]
-DfExporter: TypeAlias = Callable[..., str | None]
+type PdReader = Callable[..., DataFrame]
+type FilePath = str | PathLike[str]
+type DfExporter = Callable[..., str | None]
+type MemoryUnit = Literal["B", "KB", "MB", "GB"]

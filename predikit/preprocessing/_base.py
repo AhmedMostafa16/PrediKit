@@ -3,11 +3,13 @@ from abc import (
     abstractmethod,
 )
 from enum import (
-    Enum,
     StrEnum,
     auto,
 )
-from typing import Self  # override,
+from typing import (
+    Self,
+    override,
+)
 
 import numpy as np
 from pandas import DataFrame
@@ -106,7 +108,7 @@ class Encoder(BasePreprocessor, ABC):
             names of the encoded features
         """
 
-    # @override
+    @override
     def transform(self, X) -> csr_matrix:
         ...
 
@@ -405,7 +407,7 @@ class FilterOperator(StrEnum):
         """
         operator = operator.lower()
         match operator:
-            case "==" | "=" | "equal" | "eq":
+            case "==" | "=" | "equal" | "equals" | "eq":
                 return cls.EQUAL
             case "!=" | "ne" | "not_equal" | "notequal":
                 return cls.NOTEQUAL
