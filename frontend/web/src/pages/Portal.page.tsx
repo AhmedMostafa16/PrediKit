@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { shallow } from 'zustand/shallow';
 import useFlowStore, { FlowState } from '@/stores/FlowStore';
-import { CreateWorkflowDto, Workflow } from '@/models/Workflow';
+import { Workflow } from '@/models/Workflow';
 import { PortalHeader } from '@/components/PortalHeader/PortalHeader';
 
 interface WorkflowTable {

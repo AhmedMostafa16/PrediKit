@@ -7,6 +7,8 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
   ],
   parserOptions: {
+    parser: '@typescript-eslint/parser',
+    extraFileExtensions: ['.json'],
     project: './tsconfig.json',
   },
   rules: {
@@ -16,6 +18,7 @@ module.exports = {
     quotes: ['error', 'single'],
     'no-duplicate-imports': 'error',
     'no-console': 'warn',
+    '@typescript-eslint/no-explicit-any': 'off',
   },
   plugins: ['react', 'prettier', 'react-hooks', '@typescript-eslint'],
 };

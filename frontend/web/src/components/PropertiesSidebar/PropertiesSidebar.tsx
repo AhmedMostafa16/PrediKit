@@ -1,5 +1,4 @@
-import { Text, Group, ScrollArea, rem, Code } from '@mantine/core';
-import { IconCode } from '@tabler/icons-react';
+import { Text, Group, ScrollArea, Code } from '@mantine/core';
 import { Node } from 'reactflow';
 import classes from './PropertiesSidebar.module.css';
 import FormBuilder, { FormField } from '@/components/FormBuilder/FormBuilder';
@@ -16,13 +15,10 @@ export function PropertiesSidebar({ fields, node, onAutoSubmit }: Props) {
     <nav className={classes.navbar}>
       <div className={classes.header}>
         <Group justify="space-between">
-          {/* <IconCode style={{ width: rem(120) }} />
-          <Code fw={700}>v1.1.1</Code> */}
           <Text size="xl" fw={700}>
             {nodeTypesProps[node.type as keyof typeof nodeTypesProps].label} Properties
           </Text>
-          {/* ToDo uncomment this if you need to debug*/}
-          {/* <Code fw={700}>{node.id}</Code> */}
+          <Code fw={700}>{node.id}</Code>
         </Group>
       </div>
 

@@ -14,9 +14,9 @@ export default defineConfig({
     terserOptions: {
       compress: {
         drop_console: true,
-        ecma: 2015,
-        module: true,
       },
+      ecma: 2017,
+      module: true,
     },
   },
   optimizeDeps: {

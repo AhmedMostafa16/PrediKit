@@ -11,5 +11,11 @@ module.exports = {
         'mantine-breakpoint-xl': '88em',
       },
     },
+    cssnano: {
+      preset: 'default',
+      autoprefixer: true,
+      reduceIdents: true,
+      discardUnused: true,
+    },
   },
 };

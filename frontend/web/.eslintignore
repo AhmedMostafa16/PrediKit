@@ -4,3 +4,5 @@
 *.d.ts
 *.d.mts
 vite.config.ts
+tsconfig.json
+package.json
