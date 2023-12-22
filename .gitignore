@@ -642,3 +642,7 @@ cython_debug/
 
 # AppSettings
 appsettings.json
+
+# Other output files
+output/
+out/

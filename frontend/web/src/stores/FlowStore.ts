@@ -13,18 +13,18 @@ import {
   applyEdgeChanges,
   Viewport,
 } from 'reactflow';
+import { notifications } from '@mantine/notifications';
 import agent from '@/api/agent';
 import { EdgeDto, NodeDto, UpdateWorkflowDto, Workflow } from '@/models/Workflow';
 
 export type FlowState = {
   nodes: Node[];
   edges: Edge[];
-  viewPort: Viewport;
-  title: string;
-  description: string;
   workflows: Workflow[];
   currentWorkflowId: string;
+  currentWorkflow?: Workflow;
   columnNames: string[];
+  viewPort: Viewport;
 
   loadWorkflows: () => void;
   loadWorkflow: (id: string) => void;
@@ -39,22 +39,22 @@ export type FlowState = {
   setViewport: (viewport: Viewport) => void;
   updateWorkflow: (id: string) => void;
   setCurrentWorkflowId: (id: string) => void;
+  executeWorkflow: () => void;
 };
 
 const useFlowStore = create<FlowState>((set, get) => ({
   workflows: [],
   nodes: [],
   edges: [],
-  viewPort: {
-    x: 0,
-    y: 0,
-    zoom: 1,
-  },
-  title: '',
-  description: '',
   currentWorkflowId: '',
+  currentWorkflow: undefined,
   fileType: '',
   columnNames: [],
+  viewPort: {
+    zoom: 1,
+    x: 0,
+    y: 0,
+  },
 
   loadWorkflows: async () => {
     try {
@@ -72,9 +72,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
       set({
         nodes: workflow.nodes,
         edges: workflow.edges,
-        viewPort: workflow.viewport,
-        title: workflow.title,
-        description: workflow.description,
+        currentWorkflow: workflow,
       });
     } catch (error) {
       console.error('Error loading workflow:', error);
@@ -96,27 +94,39 @@ const useFlowStore = create<FlowState>((set, get) => ({
       });
   },
   updateWorkflow: async (id: string) => {
-    const { nodes } = get();
-    const { edges } = get();
+    const { nodes, edges, currentWorkflow, viewPort } = get();
 
-    const sortNodesByEdges = () => {
+    if (!currentWorkflow) return;
+
+    function sortNodesByEdges() {
       const sortedNodes: Node[] = [];
       const visited: { [id: string]: boolean } = {};
 
-      const dfs = (nodeId: string) => {
+      // Depth-first search to traverse the nodes
+      function dfs(nodeId: string) {
+        // Mark the current node as visited
         visited[nodeId] = true;
+
+        // Find the node with the given nodeId
         const node = nodes.find((n) => n.id === nodeId);
+
+        // If the node is found
         if (node) {
+          // Add the node to the sortedNodes array
           sortedNodes.push(node);
+          // Find all edges connected to the current node
           const connectedEdges = edges.filter((e) => e.source === nodeId || e.target === nodeId);
+          // Traverse each connected edge
           connectedEdges.forEach((edge) => {
+            // Determine the next node in the edge
             const nextNodeId = edge.source === nodeId ? edge.target : edge.source;
+            // If the next node has not been visited, recursively call dfs on it
             if (!visited[nextNodeId]) {
               dfs(nextNodeId);
             }
           });
         }
-      };
+      }
 
       nodes.forEach((node) => {
         if (!visited[node.id]) {
@@ -125,7 +135,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
       });
 
       return sortedNodes;
-    };
+    }
 
     const workflow: UpdateWorkflowDto = {
       id,
@@ -148,17 +158,21 @@ const useFlowStore = create<FlowState>((set, get) => ({
           animated: edge.animated ?? false,
         })
       ),
-      viewPort: get().viewPort,
-      title: get().title,
-      description: get().description,
+      viewPort,
+      title: currentWorkflow.title,
+      description: currentWorkflow.description,
       modifiedOn: new Date().toUTCString(),
     };
     console.log('Updating workflow:', workflow);
-    try {
-      await agent.Workflows.update(workflow);
-    } catch (error) {
+    await agent.Workflows.update(workflow).catch((error) => {
       console.error('Error updating workflow:', error);
-    }
+      notifications.show({
+        title: 'Error updating workflow',
+        message: error.message,
+        color: 'red',
+        autoClose: false,
+      });
+    });
   },
   setCurrentWorkflowId: (id: string) => {
     console.log('Setting current workflow id:', id);
@@ -177,25 +191,21 @@ const useFlowStore = create<FlowState>((set, get) => ({
     set({
       nodes: applyNodeChanges(changes, get().nodes),
     });
-    // get().updateWorkflow(get().currentWorkflowId);
   },
   onEdgesChange: (changes: EdgeChange[]) => {
     set({
       edges: applyEdgeChanges(changes, get().edges),
     });
-    // get().updateWorkflow(get().currentWorkflowId);
   },
   onConnect: (connection: Connection) => {
     set({
       edges: addEdge(connection, get().edges),
     });
-    // get().updateWorkflow(get().currentWorkflowId);
   },
   addNode: (node: Node) => {
     set({
       nodes: [...get().nodes, node],
     });
-    // get().updateWorkflow(get().currentWorkflowId);
   },
   updateNodeData: (nodeId: string, data: object) => {
     const nodes = [...get().nodes];
@@ -205,8 +215,76 @@ const useFlowStore = create<FlowState>((set, get) => ({
       node.data = { ...node.data, ...data };
       nodes[nodeIndex] = node;
       set({ nodes });
-      // get().updateWorkflow(get().currentWorkflowId);
     }
+  },
+  // EXPERIMENTAL
+  executeWorkflow: async () => {
+    const { currentWorkflowId, updateWorkflow } = get();
+    // Update workflow
+    updateWorkflow(currentWorkflowId);
+
+    // Create a Directed Acyclic Graph (DAG) based on the given nodes and edges.
+    function createDAG(nodes: Node[], edges: Edge[]): string[][] {
+      // Filter out start nodes that do not have any outgoing edges
+      const startNodes = nodes.filter((node) => !edges.find((edge) => edge.target === node.id));
+      const paths: string[][] = [];
+
+      // Recursive function to traverse the graph and create paths
+      function traverse(currentPath: string[]) {
+        const lastNode = currentPath[currentPath.length - 1];
+        const outgoingEdges = edges.filter((edge) => edge.source === lastNode);
+
+        // If there are no outgoing edges, add the current path to the list of paths
+        if (outgoingEdges.length === 0) {
+          paths.push(currentPath);
+          return;
+        }
+
+        // Traverse each outgoing edge and create a new path
+        for (const edge of outgoingEdges) {
+          const nextNode = nodes.find((node) => node.id === edge.target);
+          if (nextNode) {
+            const nextPath = [...currentPath, nextNode.id];
+            traverse(nextPath);
+          }
+        }
+      }
+
+      // Traverse each start node and create an initial path
+      for (const startNode of startNodes) {
+        const initialPath = [startNode.id];
+        traverse(initialPath);
+      }
+
+      return paths;
+    }
+
+    // Execute DAG
+    const { nodes, edges } = get();
+    const paths = createDAG(nodes, edges);
+    console.log('Paths:', paths);
+
+    await agent.Workflows.executePaths(currentWorkflowId, paths)
+      .then(() => {
+        console.log('Workflow executed');
+        notifications.show({
+          title: 'Workflow executed',
+          message: 'Workflow executed successfully',
+          color: 'green',
+        });
+      })
+      .catch((error) => {
+        console.error('Error executing workflow:', error);
+        notifications.show({
+          title: 'Error executing workflow',
+          message: error.message,
+          color: 'red',
+          autoClose: false,
+        });
+      })
+      .finally(() => {
+        console.log('Workflow execution finished');
+      });
   },
 }));
 

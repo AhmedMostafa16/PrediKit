@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from 'axios';
 import { Workflow, CreateWorkflowDto, UpdateWorkflowDto } from '@/models/Workflow';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
+// axios.defaults.headers.common['Accept-Encoding'] = 'gzip, br, deflate'; // EXPERIMENTAL
 
 const responseBody = (response: AxiosResponse) => response.data;
 
@@ -20,6 +21,8 @@ const Workflows = {
     requests.put<void>(`/workflows/${workflow.id}`, workflow),
   delete: (id: string) => requests.delete<void>(`/workflows/${id}`),
   execute: (id: string) => requests.post<void>(`/workflows/${id}/execute`, {}),
+  executePaths: (id: string, paths: string[][]) =>
+    requests.post<void>(`/workflows/${id}/execute`, paths),
   listColumnNames: (id: string) => requests.get<string[]>(`/workflows/${id}/get_columns_names`),
 };
 

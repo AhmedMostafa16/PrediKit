@@ -182,7 +182,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     onChange={(value) => handleChange(field.id, value)}
                     data={field.options}
                     placeholder={field.placeholder}
-                    defaultValue={field.defaultValue}
+                    defaultValue={String(field.defaultValue)}
                     value={formFieldsData[field.id]}
                     multiple={false}
                     allowDeselect={field.allowDeselect}
