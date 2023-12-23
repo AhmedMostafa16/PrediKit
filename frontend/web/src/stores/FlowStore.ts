@@ -16,6 +16,7 @@ import {
 import { notifications } from '@mantine/notifications';
 import agent from '@/api/agent';
 import { EdgeDto, NodeDto, UpdateWorkflowDto, Workflow } from '@/models/Workflow';
+import { Path } from '@/types/Path';
 
 export type FlowState = {
   nodes: Node[];
@@ -223,16 +224,16 @@ const useFlowStore = create<FlowState>((set, get) => ({
     // Update workflow
     updateWorkflow(currentWorkflowId);
 
-    // Create a Directed Acyclic Graph (DAG) based on the given nodes and edges.
-    function createDAG(nodes: Node[], edges: Edge[]): string[][] {
+    // Extract paths from the graph
+    function extractPaths(nodes: Node[], edges: Edge[]): Path[] {
       // Filter out start nodes that do not have any outgoing edges
       const startNodes = nodes.filter((node) => !edges.find((edge) => edge.target === node.id));
-      const paths: string[][] = [];
+      const paths: Path[] = [];
 
       // Recursive function to traverse the graph and create paths
-      function traverse(currentPath: string[]) {
-        const lastNode = currentPath[currentPath.length - 1];
-        const outgoingEdges = edges.filter((edge) => edge.source === lastNode);
+      function traverse(currentPath: Path): void {
+        const lastNode = currentPath.nodes[currentPath.nodes.length - 1];
+        const outgoingEdges = edges.filter((edge) => edge.source === lastNode.id);
 
         // If there are no outgoing edges, add the current path to the list of paths
         if (outgoingEdges.length === 0) {
@@ -244,7 +245,10 @@ const useFlowStore = create<FlowState>((set, get) => ({
         for (const edge of outgoingEdges) {
           const nextNode = nodes.find((node) => node.id === edge.target);
           if (nextNode) {
-            const nextPath = [...currentPath, nextNode.id];
+            const nextPath: Path = {
+              nodes: [...currentPath.nodes, nextNode],
+              edges: [...currentPath.edges, edge],
+            };
             traverse(nextPath);
           }
         }
@@ -252,16 +256,19 @@ const useFlowStore = create<FlowState>((set, get) => ({
 
       // Traverse each start node and create an initial path
       for (const startNode of startNodes) {
-        const initialPath = [startNode.id];
+        const initialPath: Path = {
+          nodes: [startNode],
+          edges: [],
+        };
         traverse(initialPath);
       }
 
       return paths;
     }
 
-    // Execute DAG
+    // Execute paths
     const { nodes, edges } = get();
-    const paths = createDAG(nodes, edges);
+    const paths = extractPaths(nodes, edges);
     console.log('Paths:', paths);
 
     await agent.Workflows.executePaths(currentWorkflowId, paths)
