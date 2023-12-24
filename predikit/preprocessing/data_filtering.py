@@ -2,7 +2,7 @@ import logging
 from typing import (
     Self,
     cast,
-    override,
+    # override,
 )
 
 from pandas import DataFrame
@@ -75,7 +75,7 @@ class BasicFilteringProcessor(BasePreprocessor):
         self._query = self._parse_query(column, self.operator, self.value)
         return self
 
-    @override
+    #@ override
     def transform(
         self, data: DataFrame, column: str | None = None
     ) -> Result[DataFrame, str]:

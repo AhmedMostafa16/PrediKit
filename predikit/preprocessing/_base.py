@@ -8,7 +8,7 @@ from enum import (
 )
 from typing import (
     Self,
-    override,
+    # override,
 )
 
 import numpy as np
@@ -108,7 +108,7 @@ class Encoder(BasePreprocessor, ABC):
             names of the encoded features
         """
 
-    @override
+    #@ override
     def transform(self, X) -> csr_matrix:
         ...
 
