@@ -5,21 +5,15 @@ import { useNavigate } from 'react-router-dom';
 import { shallow } from 'zustand/shallow';
 import classes from './PortalHeader.module.css';
 import agent from '@/api/agent';
-import useFlowStore, { FlowState } from '@/stores/FlowStore';
 import { CreateWorkflowDto } from '@/models/Workflow';
+import { useStore } from '@/stores/store';
+import { observer } from 'mobx-react-lite';
 
-const selector = (state: FlowState) => ({
-  workflows: state.workflows,
-  loadWorkflows: state.loadWorkflows,
-  loadWorkflow: state.loadWorkflow,
-  setCurrentWorkflowId: state.setCurrentWorkflowId,
-});
-
-export function PortalHeader() {
+function PortalHeader() {
   const [opened, { toggle }] = useDisclosure(false);
   const navigate = useNavigate();
-  const { setCurrentWorkflowId } = useFlowStore(selector, shallow);
-
+  const { workflowStore } = useStore();
+  const { setCurrentWorkflowId } = workflowStore;
   return (
     <header className={classes.header}>
       <Container size="md" className={classes.inner}>
@@ -63,3 +57,5 @@ export function PortalHeader() {
     </header>
   );
 }
+
+export default observer(PortalHeader);

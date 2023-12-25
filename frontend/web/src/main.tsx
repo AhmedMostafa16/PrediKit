@@ -9,12 +9,15 @@ import { MantineProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import App from './App';
 import { theme } from './theme';
+import { StoreContext, store } from './stores/store';
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <MantineProvider theme={theme} defaultColorScheme="dark">
-      <Notifications />
-      <App />
-    </MantineProvider>
+    <StoreContext.Provider value={store}>
+      <MantineProvider theme={theme} defaultColorScheme="dark">
+        <Notifications />
+        <App />
+      </MantineProvider>
+    </StoreContext.Provider>
   </React.StrictMode>
 );

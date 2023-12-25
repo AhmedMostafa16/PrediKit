@@ -47,7 +47,7 @@ namespace WorkflowService
                 {
                     return NotFound();
                 }
-                string dataframe = string.Empty;
+                byte[] dataframe = [];
 
                 foreach (var node in workflow.Nodes)
                 {
@@ -83,7 +83,7 @@ namespace WorkflowService
 
                         // System.Console.WriteLine("Dataframe: " + Encoding.UTF8.GetString(x));
 
-                        dataframe = MessagePackSerializer.Deserialize<string>(x);
+                        dataframe = MessagePackSerializer.Deserialize<byte[]>(x);
 
                         _logger.LogInformation($"Finished: {node.Id}");
                     }
@@ -127,7 +127,7 @@ namespace WorkflowService
                 }
 
                 ExecutionNode executionNode = _mapper.Map<ExecutionNode>(inputDataNode);
-                executionNode.DataFrame = string.Empty;
+                executionNode.DataFrame = [];
 
 
                 // Serialize the data to MessagePack format

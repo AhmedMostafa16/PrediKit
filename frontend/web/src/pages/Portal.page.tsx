@@ -1,10 +1,10 @@
 import { Container, Table } from '@mantine/core';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { shallow } from 'zustand/shallow';
-import useFlowStore, { FlowState } from '@/stores/FlowStore';
+import { observer } from 'mobx-react-lite';
 import { Workflow } from '@/models/Workflow';
-import { PortalHeader } from '@/components/PortalHeader/PortalHeader';
+import PortalHeader from '@/components/PortalHeader/PortalHeader';
+import { useStore } from '@/stores/store';
 
 interface WorkflowTable {
   id: string;
@@ -14,18 +14,9 @@ interface WorkflowTable {
   modifiedOn: string;
 }
 
-const selector = (state: FlowState) => ({
-  workflows: state.workflows,
-  loadWorkflows: state.loadWorkflows,
-  loadWorkflow: state.loadWorkflow,
-  setCurrentWorkflowId: state.setCurrentWorkflowId,
-});
-
 function PortalPage() {
-  const { workflows, loadWorkflows, loadWorkflow, setCurrentWorkflowId } = useFlowStore(
-    selector,
-    shallow
-  );
+  const { workflowStore } = useStore();
+  const { workflows, loadWorkflows, loadWorkflow, setCurrentWorkflowId } = workflowStore;
 
   useEffect(() => {
     loadWorkflows();
@@ -80,4 +71,4 @@ function PortalPage() {
   );
 }
 
-export default PortalPage;
+export default observer(PortalPage);

@@ -1,4 +1,4 @@
-from io import StringIO
+from io import BytesIO, StringIO
 import logging
 import traceback
 from typing import Dict
@@ -28,12 +28,12 @@ def get_all_columns():
         logging.debug("Got data")
 
         # Decode MessagePack data
-        decoded_data: str = msgpack.unpackb(data, raw=False)
+        decoded_data = msgpack.unpackb(data, raw=False)
         logging.debug("Decoded data")
 
         df = (
-            pandas.read_json(
-                orient="records", path_or_buf=StringIO(decoded_data)
+            pandas.read_parquet(
+                engine='pyarrow', path=BytesIO(decoded_data)
             )
             if decoded_data
             else pandas.DataFrame()
@@ -42,10 +42,10 @@ def get_all_columns():
         # Process the data (you can modify this part based on your requirements)
         result = list(df.columns)
 
-        print("result: ", result)
+        # print("result: ", result)
         # Encode the result in MessagePack format
         encoded_result = msgpack.packb(result)
-        print("encoded_result: ", encoded_result)
+        # print("encoded_result: ", encoded_result)
 
         return encoded_result, 200, {"Content-Type": "application/msgpack"}
 
@@ -69,10 +69,11 @@ def execute_node():
         logging.debug("Decoded data")
 
         props = decoded_data["Data"]
+
         df = (
-            pandas.read_json(
-                orient="records",
-                path_or_buf=StringIO(decoded_data["DataFrame"]),
+            pandas.read_parquet(
+                BytesIO(decoded_data["DataFrame"]),
+                engine='pyarrow',
             )
             if decoded_data["DataFrame"]
             else pandas.DataFrame()
@@ -82,7 +83,8 @@ def execute_node():
         result = executor.execute_node(
             props=props, df=df, node_type=decoded_data["Type"]
         )
-        result = result.to_json(orient="records") if result is not None else ""
+        # result = result.to_json(orient="records") if result is not None else ""
+        result = result.to_parquet(engine='pyarrow') if result is not None else b''
         # Encode the result in MessagePack format
         encoded_result = msgpack.packb(result)
 

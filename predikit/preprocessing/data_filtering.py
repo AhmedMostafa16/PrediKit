@@ -136,17 +136,17 @@ class BasicFilteringProcessor(BasePreprocessor):
             The query string.
         """
         if operator.is_comparison_operator:
-            return f"{column} {operator.to_str} {value}"
+            return f"`{column}` {operator.to_str} {value}"
 
         if operator.is_nullity_operator:
-            return f"{column}.{operator.to_str}"
+            return f"`{column}`.{operator.to_str}"
 
         if operator.is_containment_operator:
             negator = (
                 "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
             )
 
-            return "{0}{1}.str.contains('{2}', case={3})".format(
+            return "{0}`{1}`.str.contains('{2}', case={3})".format(
                 negator, column, value, self.case_sensitive
             )
 

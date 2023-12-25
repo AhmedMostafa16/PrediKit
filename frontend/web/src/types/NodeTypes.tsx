@@ -9,7 +9,10 @@ import {
   MissingValueStrategy,
 } from '../nodes/DataCleansingNode';
 import { BasicFilterNode } from '../nodes/BasicFilterNode';
-import useFlowStore from '@/stores/FlowStore';
+import { store, useStore } from '@/stores/store';
+import { ComboboxData } from '@mantine/core';
+import { useEffect } from 'react';
+// import useFlowStore from '@/stores/FlowStore';
 
 export const InputNodeProps: InputDataNode = {
   type: 'inputDataNode',
@@ -143,20 +146,18 @@ export const DataCleansingNodeProps: DataCleansingNode = {
   icon: <IconSparkles />,
   onClick: async () => {
     console.log('DataCleansingNode onClick');
-    if (
-      useFlowStore.getState().currentWorkflowId === null ||
-      !useFlowStore.getState().nodes.find((value) => value.type === 'inputDataNode')
-    )
+    const { currentWorkflowId, nodes, columnNames, loadColumnNames } = store.workflowStore;
+    if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
       return;
-    useFlowStore.getState().loadColumnNames();
-    DataCleansingNodeProps.formFields[0].options = useFlowStore.getState().columnNames;
+    loadColumnNames();
+    DataCleansingNodeProps.formFields[0].options = columnNames;
   },
   formFields: [
     {
       type: 'multiSelect',
       label: 'Selected columns',
       id: 'selectedColumns',
-      options: useFlowStore.getState().columnNames,
+      options: store.workflowStore.columnNames,
       placeholder: 'Select columns',
       searchable: true,
     },
@@ -368,26 +369,26 @@ export const BasicFilterNodeProps: BasicFilterNode = {
   outputHandles: [{}],
   color: 'blue',
   icon: <IconFilter />,
-  onClick: async () => {
-    console.log('BasicFilterNode onClick');
-    if (
-      useFlowStore.getState().currentWorkflowId === null ||
-      !useFlowStore.getState().nodes.find((value) => value.type === 'inputDataNode')
-    )
-      return;
-    useFlowStore.getState().loadColumnNames();
-    BasicFilterNodeProps.formFields[0].options = useFlowStore.getState().columnNames;
-  },
   formFields: [
     {
       type: 'select',
-      label: 'Column name',
+      label: 'Column Name',
       id: 'column',
       allowDeselect: true,
       required: true,
       placeholder: 'Select column',
       searchable: true,
-      options: useFlowStore.getState().columnNames,
+      options: () => {
+        const { currentWorkflowId, nodes, columnNames, loadColumnNames } = store.workflowStore;
+        if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
+          return [];
+        useEffect(() => {
+          loadColumnNames();
+        }, []);
+
+        if (!columnNames) return [];
+        return columnNames;
+      },
     },
     {
       type: 'select',

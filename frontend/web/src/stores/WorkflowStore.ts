@@ -1,101 +1,84 @@
-import { create } from 'zustand';
-import {
-  Connection,
-  Edge,
-  EdgeChange,
-  Node,
-  NodeChange,
-  addEdge,
-  OnNodesChange,
-  OnEdgesChange,
-  OnConnect,
-  applyNodeChanges,
-  applyEdgeChanges,
-  Viewport,
-} from 'reactflow';
-import { notifications } from '@mantine/notifications';
 import agent from '@/api/agent';
 import { EdgeDto, NodeDto, UpdateWorkflowDto, Workflow } from '@/models/Workflow';
 import { Path } from '@/types/Path';
+import { notifications } from '@mantine/notifications';
+import { makeAutoObservable, runInAction } from 'mobx';
+import {
+  Node,
+  Edge,
+  Viewport,
+  NodeChange,
+  applyEdgeChanges,
+  applyNodeChanges,
+  EdgeChange,
+  Connection,
+  addEdge,
+} from 'reactflow';
 
-export type FlowState = {
-  nodes: Node[];
-  edges: Edge[];
-  workflows: Workflow[];
-  currentWorkflowId: string;
+export default class WorkflowStore {
+  nodes: Node[] = [];
+  edges: Edge[] = [];
+  workflows: Workflow[] = [];
+  currentWorkflowId?: string;
   currentWorkflow?: Workflow;
-  columnNames: string[];
-  viewPort: Viewport;
-
-  loadWorkflows: () => void;
-  loadWorkflow: (id: string) => void;
-  loadColumnNames: () => void;
-  onNodesChange: OnNodesChange;
-  onEdgesChange: OnEdgesChange;
-  onConnect: OnConnect;
-  addNode: (node: Node) => void;
-  updateNodeData: (nodeId: string, data: object) => void;
-  setNodes: (nodes: Node[]) => void;
-  setEdges: (edges: Edge[]) => void;
-  setViewport: (viewport: Viewport) => void;
-  updateWorkflow: (id: string) => void;
-  setCurrentWorkflowId: (id: string) => void;
-  executeWorkflow: () => void;
-};
-
-const useFlowStore = create<FlowState>((set, get) => ({
-  workflows: [],
-  nodes: [],
-  edges: [],
-  currentWorkflowId: '',
-  currentWorkflow: undefined,
-  fileType: '',
-  columnNames: [],
-  viewPort: {
+  columnNames: string[] = [];
+  viewPort: Viewport = {
     zoom: 1,
     x: 0,
     y: 0,
-  },
+  };
 
-  loadWorkflows: async () => {
+  constructor() {
+    makeAutoObservable(this);
+  }
+
+  loadWorkflows = async () => {
     try {
-      const response = await agent.Workflows.list();
-      console.log('Workflows:', response);
-      set({ workflows: response });
-      // set((state) => ({ ...state, workflows: response }))
-    } catch (error) {
-      console.error('Error loading workflows:', error);
-    }
-  },
-  loadWorkflow: async (id: string) => {
-    try {
-      const workflow = await agent.Workflows.details(id);
-      set({
-        nodes: workflow.nodes,
-        edges: workflow.edges,
-        currentWorkflow: workflow,
+      const workflows = await agent.Workflows.list();
+      runInAction(() => {
+        this.workflows = workflows;
       });
     } catch (error) {
-      console.error('Error loading workflow:', error);
+      console.log(error);
     }
-  },
-  loadColumnNames: async () => {
-    if (!get().currentWorkflowId) return;
+  };
 
-    await agent.Workflows.listColumnNames(get().currentWorkflowId)
+  loadWorkflow = async (id: string) => {
+    try {
+      const workflow = await agent.Workflows.details(id);
+      runInAction(() => {
+        this.nodes = workflow.nodes;
+        this.edges = workflow.edges;
+        this.currentWorkflow = workflow;
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  loadColumnNames = async () => {
+    if (!this.currentWorkflowId) return;
+
+    await agent.Workflows.listColumnNames(this.currentWorkflowId)
       .then((response) => {
-        console.log('Column names:', response);
-        set({ columnNames: response });
+        runInAction(() => {
+          this.columnNames = [];
+          this.columnNames = response;
+        });
       })
       .catch((error) => {
+        runInAction(() => {
+          this.columnNames = [];
+        });
         console.error('Error loading column names:', error);
       })
       .finally(() => {
         console.log('Column names loaded');
       });
-  },
-  updateWorkflow: async (id: string) => {
-    const { nodes, edges, currentWorkflow, viewPort } = get();
+  };
+
+  updateWorkflow = async (id: string) => {
+    const { nodes, edges, currentWorkflow, viewPort } = this;
 
     if (!currentWorkflow) return;
 
@@ -164,6 +147,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
       description: currentWorkflow.description,
       modifiedOn: new Date().toUTCString(),
     };
+
     console.log('Updating workflow:', workflow);
     await agent.Workflows.update(workflow).catch((error) => {
       console.error('Error updating workflow:', error);
@@ -174,54 +158,73 @@ const useFlowStore = create<FlowState>((set, get) => ({
         autoClose: false,
       });
     });
-  },
-  setCurrentWorkflowId: (id: string) => {
+  };
+
+  setViewPort = (viewPort: Viewport) => {
+    this.viewPort = viewPort;
+  };
+
+  setCurrentWorkflowId = (id: string) => {
     console.log('Setting current workflow id:', id);
-    set({ currentWorkflowId: id });
-  },
-  setNodes: (nodes: Node[]) => {
-    set({ nodes });
-  },
-  setEdges: (edges: Edge[]) => {
-    set({ edges });
-  },
-  setViewport: (viewPort: Viewport) => {
-    set({ viewPort });
-  },
-  onNodesChange: (changes: NodeChange[]) => {
-    set({
-      nodes: applyNodeChanges(changes, get().nodes),
+    runInAction(() => {
+      this.currentWorkflowId = id;
     });
-  },
-  onEdgesChange: (changes: EdgeChange[]) => {
-    set({
-      edges: applyEdgeChanges(changes, get().edges),
+  };
+
+  setNodes = (nodes: Node[]) => {
+    runInAction(() => {
+      this.nodes = nodes;
     });
-  },
-  onConnect: (connection: Connection) => {
-    set({
-      edges: addEdge(connection, get().edges),
+  };
+
+  setEdges = (edges: Edge[]) => {
+    runInAction(() => {
+      this.edges = edges;
     });
-  },
-  addNode: (node: Node) => {
-    set({
-      nodes: [...get().nodes, node],
+  };
+
+  onNodesChange = (changes: NodeChange[]) => {
+    runInAction(() => {
+      this.nodes = applyNodeChanges(changes, this.nodes);
     });
-  },
-  updateNodeData: (nodeId: string, data: object) => {
-    const nodes = [...get().nodes];
-    const nodeIndex = nodes.findIndex((node) => node.id === nodeId);
+  };
+
+  onEdgesChange = (changes: EdgeChange[]) => {
+    runInAction(() => {
+      this.edges = applyEdgeChanges(changes, this.edges);
+    });
+  };
+
+  onConnect = (connection: Connection) => {
+    runInAction(() => {
+      this.edges = addEdge(connection, this.edges);
+    });
+  };
+
+  addNode = (node: Node) => {
+    runInAction(() => {
+      this.nodes.push(node);
+    });
+  };
+
+  updateNodeData = (nodeId: string, data: object) => {
+    const nodeIndex = this.nodes.findIndex((node) => node.id === nodeId);
     if (nodeIndex !== -1) {
-      const node = { ...nodes[nodeIndex] };
-      node.data = { ...node.data, ...data };
-      nodes[nodeIndex] = node;
-      set({ nodes });
+      const updatedNode = {
+        ...this.nodes[nodeIndex],
+        data: { ...this.nodes[nodeIndex].data, ...data },
+      };
+      runInAction(() => {
+        this.nodes[nodeIndex] = updatedNode;
+      });
     }
-  },
+  };
+
   // EXPERIMENTAL
-  executeWorkflow: async () => {
-    const { currentWorkflowId, updateWorkflow } = get();
+  exportWorkflow = async (id: string) => {
+    const { currentWorkflowId, updateWorkflow } = this;
     // Update workflow
+    if (!currentWorkflowId) return;
     updateWorkflow(currentWorkflowId);
 
     // Extract paths from the graph
@@ -267,7 +270,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
     }
 
     // Execute paths
-    const { nodes, edges } = get();
+    const { nodes, edges } = this;
     const paths = extractPaths(nodes, edges);
     console.log('Paths:', paths);
 
@@ -292,7 +295,5 @@ const useFlowStore = create<FlowState>((set, get) => ({
       .finally(() => {
         console.log('Workflow execution finished');
       });
-  },
-}));
-
-// export default useFlowStore;
+  };
+}

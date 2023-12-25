@@ -22,6 +22,7 @@ import {
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import { IconDownload, IconX, IconCloudUpload } from '@tabler/icons-react';
 import classes from './FormBuilder.module.css';
+import { observer } from 'mobx-react-lite';
 
 export interface FormField {
   type:
@@ -44,7 +45,7 @@ export interface FormField {
   allowNegative?: boolean;
   allowDecimal?: boolean;
   allowDeselect?: boolean;
-  options?: ComboboxData;
+  options?: ComboboxData | (() => ComboboxData);
   required?: boolean;
   description?: string;
   placeholder?: string;
@@ -180,7 +181,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     id={field.id}
                     label={field.label}
                     onChange={(value) => handleChange(field.id, value)}
-                    data={field.options}
+                    data={
+                      typeof field.options === 'function'
+                        ? field.options()
+                        : (field.options as ComboboxData)
+                    }
                     placeholder={field.placeholder}
                     defaultValue={String(field.defaultValue)}
                     value={formFieldsData[field.id]}
@@ -196,7 +201,11 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                     id={field.id}
                     label={field.label}
                     onChange={(value) => handleChange(field.id, value)}
-                    data={field.options}
+                    data={
+                      typeof field.options === 'function'
+                        ? field.options()
+                        : (field.options as ComboboxData)
+                    }
                     value={formFieldsData[field.id]}
                     placeholder={field.placeholder}
                   />
@@ -284,4 +293,4 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
   );
 };
 
-export default React.memo(FormBuilder);
+export default observer(FormBuilder);
