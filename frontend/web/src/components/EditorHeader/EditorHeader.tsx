@@ -6,8 +6,7 @@ import { shallow } from 'zustand/shallow';
 import { notifications } from '@mantine/notifications';
 import classes from './EditorHeader.module.css';
 import agent from '@/api/agent';
-import { useStore } from '@/stores/store';
-import { observer } from 'mobx-react-lite';
+import useFlowStore, { FlowState } from '@/stores/FlowStore';
 
 const links = [
   {
@@ -26,11 +25,14 @@ const links = [
   },
 ];
 
-function EditorHeader() {
+const selector = (state: FlowState) => ({
+  currentWorkflowId: state.currentWorkflowId,
+});
+
+export default function EditorHeader() {
   const [opened, { toggle }] = useDisclosure(false);
 
-  const { workflowStore } = useStore();
-  const { currentWorkflowId } = workflowStore;
+  const { currentWorkflowId } = useFlowStore(selector, shallow);
 
   const items = links.map((link) => {
     const menuItems = link.links?.map((item) => <Menu.Item key={item.id}>{item.label}</Menu.Item>);
@@ -75,7 +77,6 @@ function EditorHeader() {
           leftSection={<IconPlayerPlayFilled size={16} />}
           variant="filled"
           onClick={() => {
-            if (!currentWorkflowId) return;
             agent.Workflows.execute(currentWorkflowId)
               .then((response) => {
                 console.log(response.data);
@@ -103,5 +104,3 @@ function EditorHeader() {
     </header>
   );
 }
-
-export default observer(EditorHeader);

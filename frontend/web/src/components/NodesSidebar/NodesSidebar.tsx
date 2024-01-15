@@ -6,12 +6,13 @@ import {
   BasicFilterNodeProps,
   InputNodeProps,
   OutputNodeProps,
+  JoinNodeProps,
 } from '@/types/NodeTypes';
 import { Color } from '@/types/Color';
 
 const sidebarData = [
   {
-    label: 'Input/Output',
+    label: 'Input/Output Nodes',
     initiallyOpened: true,
     items: [
       {
@@ -30,7 +31,7 @@ const sidebarData = [
     color: 'teal' as Color,
   },
   {
-    label: 'Data Preparation',
+    label: 'Data Preparation Nodes',
     initiallyOpened: true,
     items: [
       {
@@ -47,6 +48,19 @@ const sidebarData = [
       },
     ],
     color: 'blue' as Color,
+  },
+  {
+    label: 'Join Nodes',
+    initiallyOpened: true,
+    items: [
+      {
+        label: JoinNodeProps.label,
+        icon: JoinNodeProps.icon,
+        nodeType: JoinNodeProps.type,
+        data: JoinNodeProps.data,
+      },
+    ],
+    color: 'violet' as Color,
   },
 ];
 

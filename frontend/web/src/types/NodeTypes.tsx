@@ -1,4 +1,10 @@
-import { IconFileExport, IconFileImport, IconFilter, IconSparkles } from '@tabler/icons-react';
+import {
+  IconArrowsJoin,
+  IconFileExport,
+  IconFileImport,
+  IconFilter,
+  IconSparkles,
+} from '@tabler/icons-react';
 import { Connection } from 'reactflow';
 import NodeFactory from '../components/NodeFactory/NodeFactory';
 import { InputDataNode } from '../nodes/InputDataNode';
@@ -9,9 +15,8 @@ import {
   MissingValueStrategy,
 } from '../nodes/DataCleansingNode';
 import { BasicFilterNode } from '../nodes/BasicFilterNode';
-import { store, useStore } from '@/stores/store';
-import { ComboboxData } from '@mantine/core';
-import { useEffect } from 'react';
+import { JoinNode, JoinType } from '@/nodes/JoinNode';
+import useFlowStore from '@/stores/FlowStore';
 // import useFlowStore from '@/stores/FlowStore';
 
 export const InputNodeProps: InputDataNode = {
@@ -146,7 +151,7 @@ export const DataCleansingNodeProps: DataCleansingNode = {
   icon: <IconSparkles />,
   onClick: async () => {
     console.log('DataCleansingNode onClick');
-    const { currentWorkflowId, nodes, columnNames, loadColumnNames } = store.workflowStore;
+    const { currentWorkflowId, nodes, columnNames, loadColumnNames } = useFlowStore();
     if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
       return;
     loadColumnNames();
@@ -157,7 +162,7 @@ export const DataCleansingNodeProps: DataCleansingNode = {
       type: 'multiSelect',
       label: 'Selected columns',
       id: 'selectedColumns',
-      options: store.workflowStore.columnNames,
+      options: useFlowStore.getState().columnNames,
       placeholder: 'Select columns',
       searchable: true,
     },
@@ -369,6 +374,14 @@ export const BasicFilterNodeProps: BasicFilterNode = {
   outputHandles: [{}],
   color: 'blue',
   icon: <IconFilter />,
+  onClick: async () => {
+    console.log('BasicFilterNode onClick');
+    const { currentWorkflowId, nodes, columnNames, loadColumnNames } = useFlowStore();
+    if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
+      return;
+    loadColumnNames();
+    BasicFilterNodeProps.formFields[0].options = columnNames;
+  },
   formFields: [
     {
       type: 'select',
@@ -378,17 +391,18 @@ export const BasicFilterNodeProps: BasicFilterNode = {
       required: true,
       placeholder: 'Select column',
       searchable: true,
-      options: () => {
-        const { currentWorkflowId, nodes, columnNames, loadColumnNames } = store.workflowStore;
+      /* options: () => {
+        const { currentWorkflowId, nodes, columnNames, loadColumnNames } = useFlowStore();
         if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
           return [];
-        useEffect(() => {
-          loadColumnNames();
-        }, []);
+
+        // TODO: fix hook is called at top level (not conditionally)
+        loadColumnNames();
 
         if (!columnNames) return [];
         return columnNames;
-      },
+      }, */
+      options: useFlowStore.getState().columnNames,
     },
     {
       type: 'select',
@@ -431,11 +445,38 @@ export const BasicFilterNodeProps: BasicFilterNode = {
 
 const BasicFilterNodeComponent = NodeFactory(BasicFilterNodeProps);
 
+export const JoinNodeProps: JoinNode = {
+  data: {
+    joinType: JoinType.INNER,
+  },
+  type: 'joinNode',
+  label: 'Join',
+  inputHandles: [{}, {}],
+  outputHandles: [{}],
+  color: 'violet',
+  icon: <IconArrowsJoin />,
+  formFields: [
+    {
+      type: 'select',
+      label: 'Join Type',
+      id: 'joinType',
+      options: [
+        { label: 'Inner', value: JoinType.INNER },
+        { label: 'Left', value: JoinType.LEFT },
+        { label: 'Right', value: JoinType.RIGHT },
+      ],
+    },
+  ],
+};
+
+const JoinNodeComponent = NodeFactory(JoinNodeProps);
+
 export const nodeTypes = {
   inputDataNode: InputNodeComponent,
   outputDataNode: OutputNodeComponent,
   dataCleansingNode: DataCleansingNodeComponent,
   basicFilterNode: BasicFilterNodeComponent,
+  joinNode: JoinNodeComponent,
 };
 
 export const nodeTypesProps = {
@@ -443,4 +484,5 @@ export const nodeTypesProps = {
   outputDataNode: OutputNodeProps,
   dataCleansingNode: DataCleansingNodeProps,
   basicFilterNode: BasicFilterNodeProps,
+  joinNode: JoinNodeProps,
 };

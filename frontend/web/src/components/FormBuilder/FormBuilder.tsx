@@ -22,7 +22,6 @@ import {
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import { IconDownload, IconX, IconCloudUpload } from '@tabler/icons-react';
 import classes from './FormBuilder.module.css';
-import { observer } from 'mobx-react-lite';
 
 export interface FormField {
   type:
@@ -293,4 +292,4 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
   );
 };
 
-export default observer(FormBuilder);
+export default FormBuilder;

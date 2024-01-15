@@ -11,39 +11,54 @@ import ReactFlow, {
   Viewport,
   getOutgoers,
   ControlButton,
+  getIncomers,
 } from 'reactflow';
+import { shallow } from 'zustand/shallow';
 import { IconDeviceFloppy } from '@tabler/icons-react';
 import { v4 as uuidv4 } from 'uuid';
 import { FormField } from '@/components/FormBuilder/FormBuilder';
 import { NodeSidebar } from '@/components/NodesSidebar/NodesSidebar';
 import { PropertiesSidebar } from '@/components/PropertiesSidebar/PropertiesSidebar';
+import useFlowStore, { FlowState } from '@/stores/FlowStore';
 import { nodeTypesProps, nodeTypes } from '@/types/NodeTypes';
 import 'reactflow/dist/style.css';
 import EditorHeader from '@/components/EditorHeader/EditorHeader';
-import { useStore } from '@/stores/store';
-import { observer } from 'mobx-react-lite';
 
 const proOptions = { hideAttribution: true };
 const defaultViewport: Viewport = { x: 0, y: 0, zoom: 1.0 };
 
-function Workflow() {
+const selector = (state: FlowState) => ({
+  nodes: state.nodes,
+  edges: state.edges,
+  currentWorkflowId: state.currentWorkflowId,
+  onNodesChange: state.onNodesChange,
+  onEdgesChange: state.onEdgesChange,
+  onConnect: state.onConnect,
+  addNode: state.addNode,
+  updateNodeData: state.updateNodeData,
+  setNodes: state.setNodes,
+  setEdges: state.setEdges,
+  setViewport: state.setViewport,
+  updateWorkflow: state.updateWorkflow,
+});
+
+export default function Workflow() {
   const reactFlowWrapper: React.MutableRefObject<HTMLDivElement | null> = useRef(null);
 
-  const { workflowStore } = useStore();
   const {
-    currentWorkflowId,
-    updateWorkflow,
     nodes,
     edges,
-    setNodes,
-    setEdges,
-    addNode,
+    currentWorkflowId,
     onNodesChange,
     onEdgesChange,
-    updateNodeData,
     onConnect,
-    setViewPort,
-  } = workflowStore;
+    addNode,
+    updateNodeData,
+    setNodes,
+    setEdges,
+    setViewport,
+    updateWorkflow,
+  } = useFlowStore(selector, shallow);
 
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const [fields, setFields] = useState<FormField[]>([]);
@@ -51,7 +66,6 @@ function Workflow() {
   const [showPropertiesSidebar, setShowPropertiesSidebar] = useState<boolean>(false);
 
   const autosave = useCallback(async () => {
-    if (!currentWorkflowId) return;
     await updateWorkflow(currentWorkflowId);
     console.log('Autosaving...');
   }, []);
@@ -155,7 +169,12 @@ function Workflow() {
         return false;
       };
 
-      return !hasCycle(target);
+      const targetProps = nodeTypesProps[target.type as keyof typeof nodeTypesProps];
+
+      const hasMultipleSources =
+        getIncomers(target, nodes, edges).length > targetProps.inputHandles.length - 1;
+
+      return !hasCycle(target) && !hasMultipleSources;
     },
     [nodes, edges]
   );
@@ -178,12 +197,12 @@ function Workflow() {
         const { x = 0, y = 0, zoom = 1 } = flow.viewport;
         setNodes(flow.nodes || []);
         setEdges(flow.edges || []);
-        setViewPort({ x, y, zoom });
+        setViewport({ x, y, zoom });
       }
     };
 
     restoreFlow();
-  }, [setNodes, setViewPort]);
+  }, [setNodes, setViewport]);
   return (
     <div
       style={{
@@ -226,7 +245,7 @@ function Workflow() {
                 <ControlButton
                   onClick={() => {
                     onSave();
-                    if (currentWorkflowId) updateWorkflow(currentWorkflowId);
+                    updateWorkflow(currentWorkflowId);
                   }}
                   title="Save"
                 >
@@ -306,5 +325,3 @@ function Workflow() {
     </ReactFlowProvider>
   ); */
 }
-
-export default observer(Workflow);

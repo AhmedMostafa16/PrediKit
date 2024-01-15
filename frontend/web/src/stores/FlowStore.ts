@@ -138,6 +138,32 @@ const useFlowStore = create<FlowState>((set, get) => ({
       return sortedNodes;
     }
 
+    function scheduleTasks(): string[] {
+      const result: string[] = [];
+      const visited: { [key: string]: boolean } = {};
+
+      const visitNode = (nodeId: string) => {
+        if (!visited[nodeId]) {
+          visited[nodeId] = true;
+
+          const edgesFromNode = edges.filter((edge) => edge.source === nodeId);
+
+          edgesFromNode.forEach((edge) => {
+            visitNode(edge.target);
+          });
+
+          result.push(nodeId);
+        }
+      };
+
+      nodes.forEach((node) => {
+        visitNode(node.id);
+      });
+      return result.reverse(); // Reverse the result to get the correct order
+    }
+
+    console.log('Scheduled tasks:', scheduleTasks());
+
     const workflow: UpdateWorkflowDto = {
       id,
       nodes: sortNodesByEdges().map(
@@ -295,4 +321,4 @@ const useFlowStore = create<FlowState>((set, get) => ({
   },
 }));
 
-// export default useFlowStore;
+export default useFlowStore;
