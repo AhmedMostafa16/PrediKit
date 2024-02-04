@@ -80,7 +80,7 @@ const InputNodeComponent = NodeFactory(InputNodeProps);
 export const OutputNodeProps: OutputDataNode = {
   type: 'outputDataNode',
   data: {
-    format: ExportFormat.Original,
+    format: ExportFormat.Csv,
     filename: null,
     indexColumn: false,
   },
@@ -105,20 +105,19 @@ export const OutputNodeProps: OutputDataNode = {
       placeholder: 'Select format',
       defaultValue: ExportFormat.Csv,
       options: [
-        { label: 'Original', value: ExportFormat.Original },
+        // { label: 'Original', value: ExportFormat.Original },
         { label: 'CSV', value: ExportFormat.Csv },
-        { label: 'Excel (XLS)', value: ExportFormat.XLS },
+        { label: 'Excel (XLS)', value: ExportFormat.Xls },
         { label: 'Excel (XLSX)', value: ExportFormat.Xlsx },
         { label: 'Pickle', value: ExportFormat.Pickle },
         { label: 'Parquet', value: ExportFormat.Parquet },
       ],
     },
-    // ToDo - hide when format is parquet
+    // TODO: hide when format is parquet
     {
       type: 'checkbox',
       label: 'Index Column',
       id: 'indexColumn',
-      defaultValue: null,
     },
   ],
 };
@@ -150,7 +149,7 @@ export const DataCleansingNodeProps: DataCleansingNode = {
   color: 'blue',
   icon: <IconSparkles />,
   onClick: async () => {
-    console.log('DataCleansingNode onClick');
+    console.debug('DataCleansingNode onClick');
     const { currentWorkflowId, nodes, columnNames, loadColumnNames } = useFlowStore();
     if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
       return;
@@ -365,9 +364,9 @@ export const BasicFilterNodeProps: BasicFilterNode = {
   inputHandles: [
     {
       onConnect: async (connection: Connection) => {
-        console.log('onConnect');
-        console.log(connection.source);
-        console.log(connection.target);
+        console.debug('onConnect');
+        console.debug(connection.source);
+        console.debug(connection.target);
       },
     },
   ],
@@ -375,16 +374,17 @@ export const BasicFilterNodeProps: BasicFilterNode = {
   color: 'blue',
   icon: <IconFilter />,
   onClick: async () => {
-    console.log('BasicFilterNode onClick');
-    const { currentWorkflowId, nodes, columnNames, loadColumnNames } = useFlowStore();
-    if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
-      return;
-    loadColumnNames();
-    BasicFilterNodeProps.formFields[0].options = columnNames;
+    // console.debug('BasicFilterNode onClick');
+    // const { currentWorkflowId, nodes, columnNames, loadColumnNames } = useFlowStore();
+    // if (currentWorkflowId === null || !nodes.find((value) => value.type === 'inputDataNode'))
+    //   return;
+    // loadColumnNames();
+    // BasicFilterNodeProps.formFields[0].options = columnNames;
   },
   formFields: [
     {
-      type: 'select',
+      // type: 'select',
+      type: 'input',
       label: 'Column Name',
       id: 'column',
       allowDeselect: true,

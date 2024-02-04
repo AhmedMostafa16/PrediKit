@@ -13,6 +13,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddSignalR();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
@@ -24,11 +25,10 @@ builder.Services.AddSingleton(LoggerConfig.ConfigureLogger());
 builder.Host.UseSerilog(LoggerConfig.ConfigureLogger());
 
 // Register Redis as a distributed cache
-// builder.Services.AddStackExchangeRedisCache(options =>
-// {
-//     options.Configuration = "localhost:6379";
-//     options.InstanceName = "WorkflowService";
-// });
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("RedisDefaultConnection");
+});
 
 // builder.Services.AddScoped<GrpcExecutionClient>();
 builder.Services.AddHttpClient();
@@ -54,12 +54,15 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.UseCors(builder => builder
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
-    .AllowAnyHeader());
+app.UseCors(x => x
+        .AllowAnyMethod()
+        .AllowAnyHeader()
+        .SetIsOriginAllowed(origin => true) // allow any origin
+        .AllowCredentials()); // allow credentials
 
 
 app.MapControllers();
+
+app.MapHub<WorkflowNotificationHub>("/workflows");
 
 app.Run();

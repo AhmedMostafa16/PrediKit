@@ -17,6 +17,7 @@ import { notifications } from '@mantine/notifications';
 import agent from '@/api/agent';
 import { EdgeDto, NodeDto, UpdateWorkflowDto, Workflow } from '@/models/Workflow';
 import { Path } from '@/types/Path';
+import { IDictionary } from '@/interfaces/IDictionary';
 
 export type FlowState = {
   nodes: Node[];
@@ -24,11 +25,13 @@ export type FlowState = {
   workflows: Workflow[];
   currentWorkflowId: string;
   currentWorkflow?: Workflow;
+  selectedNode: Node | null;
   columnNames: string[];
   viewPort: Viewport;
+  isExecuting: boolean;
 
-  loadWorkflows: () => void;
-  loadWorkflow: (id: string) => void;
+  loadWorkflows: () => Promise<void>;
+  loadWorkflow: (id: string) => Promise<void>;
   loadColumnNames: () => void;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
@@ -38,9 +41,10 @@ export type FlowState = {
   setNodes: (nodes: Node[]) => void;
   setEdges: (edges: Edge[]) => void;
   setViewport: (viewport: Viewport) => void;
-  updateWorkflow: (id: string) => void;
+  setSelectedNode: (id: Node | null) => void;
+  updateWorkflow: (id: string) => Promise<void>;
   setCurrentWorkflowId: (id: string) => void;
-  executeWorkflow: () => void;
+  executeWorkflow: () => Promise<void>;
 };
 
 const useFlowStore = create<FlowState>((set, get) => ({
@@ -49,6 +53,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
   edges: [],
   currentWorkflowId: '',
   currentWorkflow: undefined,
+  selectedNode: null,
   fileType: '',
   columnNames: [],
   viewPort: {
@@ -56,11 +61,12 @@ const useFlowStore = create<FlowState>((set, get) => ({
     x: 0,
     y: 0,
   },
+  isExecuting: false,
 
-  loadWorkflows: async () => {
+  loadWorkflows: async (): Promise<void> => {
     try {
       const response = await agent.Workflows.list();
-      console.log('Workflows:', response);
+      console.debug('Workflows:', response);
       set({ workflows: response });
       // set((state) => ({ ...state, workflows: response }))
     } catch (error) {
@@ -74,6 +80,8 @@ const useFlowStore = create<FlowState>((set, get) => ({
         nodes: workflow.nodes,
         edges: workflow.edges,
         currentWorkflow: workflow,
+        currentWorkflowId: id,
+        viewPort: workflow.viewPort ?? get().viewPort,
       });
     } catch (error) {
       console.error('Error loading workflow:', error);
@@ -84,14 +92,14 @@ const useFlowStore = create<FlowState>((set, get) => ({
 
     await agent.Workflows.listColumnNames(get().currentWorkflowId)
       .then((response) => {
-        console.log('Column names:', response);
+        console.debug('Column names:', response);
         set({ columnNames: response });
       })
       .catch((error) => {
         console.error('Error loading column names:', error);
       })
       .finally(() => {
-        console.log('Column names loaded');
+        console.debug('Column names loaded');
       });
   },
   updateWorkflow: async (id: string) => {
@@ -102,6 +110,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
     function sortNodesByEdges() {
       const sortedNodes: Node[] = [];
       const visited: { [id: string]: boolean } = {};
+      const localEdges: Edge[] = edges.reverse();
 
       // Depth-first search to traverse the nodes
       function dfs(nodeId: string) {
@@ -116,7 +125,9 @@ const useFlowStore = create<FlowState>((set, get) => ({
           // Add the node to the sortedNodes array
           sortedNodes.push(node);
           // Find all edges connected to the current node
-          const connectedEdges = edges.filter((e) => e.source === nodeId || e.target === nodeId);
+          const connectedEdges = localEdges.filter(
+            (e) => e.source === nodeId || e.target === nodeId
+          );
           // Traverse each connected edge
           connectedEdges.forEach((edge) => {
             // Determine the next node in the edge
@@ -138,32 +149,6 @@ const useFlowStore = create<FlowState>((set, get) => ({
       return sortedNodes;
     }
 
-    function scheduleTasks(): string[] {
-      const result: string[] = [];
-      const visited: { [key: string]: boolean } = {};
-
-      const visitNode = (nodeId: string) => {
-        if (!visited[nodeId]) {
-          visited[nodeId] = true;
-
-          const edgesFromNode = edges.filter((edge) => edge.source === nodeId);
-
-          edgesFromNode.forEach((edge) => {
-            visitNode(edge.target);
-          });
-
-          result.push(nodeId);
-        }
-      };
-
-      nodes.forEach((node) => {
-        visitNode(node.id);
-      });
-      return result.reverse(); // Reverse the result to get the correct order
-    }
-
-    console.log('Scheduled tasks:', scheduleTasks());
-
     const workflow: UpdateWorkflowDto = {
       id,
       nodes: sortNodesByEdges().map(
@@ -182,7 +167,6 @@ const useFlowStore = create<FlowState>((set, get) => ({
           target: edge.target,
           sourceHandle: edge.sourceHandle!,
           targetHandle: edge.targetHandle!,
-          animated: edge.animated ?? false,
         })
       ),
       viewPort,
@@ -190,7 +174,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
       description: currentWorkflow.description,
       modifiedOn: new Date().toUTCString(),
     };
-    console.log('Updating workflow:', workflow);
+    console.debug('Updating workflow:', workflow);
     await agent.Workflows.update(workflow).catch((error) => {
       console.error('Error updating workflow:', error);
       notifications.show({
@@ -202,7 +186,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
     });
   },
   setCurrentWorkflowId: (id: string) => {
-    console.log('Setting current workflow id:', id);
+    console.debug('Setting current workflow id:', id);
     set({ currentWorkflowId: id });
   },
   setNodes: (nodes: Node[]) => {
@@ -213,6 +197,9 @@ const useFlowStore = create<FlowState>((set, get) => ({
   },
   setViewport: (viewPort: Viewport) => {
     set({ viewPort });
+  },
+  setSelectedNode: (node: Node | null) => {
+    set({ selectedNode: node });
   },
   onNodesChange: (changes: NodeChange[]) => {
     set({
@@ -234,9 +221,9 @@ const useFlowStore = create<FlowState>((set, get) => ({
       nodes: [...get().nodes, node],
     });
   },
-  updateNodeData: (nodeId: string, data: object) => {
-    const nodes = [...get().nodes];
-    const nodeIndex = nodes.findIndex((node) => node.id === nodeId);
+  updateNodeData: (nodeId: string, data: any) => {
+    const nodes = get().nodes;
+    const nodeIndex: number = nodes.findIndex((node) => node.id == nodeId);
     if (nodeIndex !== -1) {
       const node = { ...nodes[nodeIndex] };
       node.data = { ...node.data, ...data };
@@ -244,69 +231,96 @@ const useFlowStore = create<FlowState>((set, get) => ({
       set({ nodes });
     }
   },
+
   // EXPERIMENTAL
   executeWorkflow: async () => {
-    const { currentWorkflowId, updateWorkflow } = get();
+    const { currentWorkflowId, updateWorkflow, nodes, edges } = get();
     // Update workflow
-    updateWorkflow(currentWorkflowId);
+    await updateWorkflow(currentWorkflowId);
+
+    set({ isExecuting: true });
 
     // Extract paths from the graph
-    function extractPaths(nodes: Node[], edges: Edge[]): Path[] {
-      // Filter out start nodes that do not have any outgoing edges
-      const startNodes = nodes.filter((node) => !edges.find((edge) => edge.target === node.id));
-      const paths: Path[] = [];
+    async function extractPaths(): Promise<string[][]> {
+      const result: string[][] = [];
+      const visited: { [key: string]: boolean } = {};
+      const localEdges: Edge[] = edges.reverse();
 
-      // Recursive function to traverse the graph and create paths
-      function traverse(currentPath: Path): void {
-        const lastNode = currentPath.nodes[currentPath.nodes.length - 1];
-        const outgoingEdges = edges.filter((edge) => edge.source === lastNode.id);
+      // Depth-first search to traverse the nodes
+      const visitNode = (nodeId: string) => {
+        if (!visited[nodeId]) {
+          visited[nodeId] = true;
 
-        // If there are no outgoing edges, add the current path to the list of paths
-        if (outgoingEdges.length === 0) {
-          paths.push(currentPath);
-          return;
+          // Find all edges connected to the current node
+          const edgesFromNode = localEdges.filter((edge) => edge.source === nodeId);
+
+          edgesFromNode.forEach((edge) => {
+            visitNode(edge.target);
+          });
+
+          result[result.length - 1].push(nodeId);
         }
+      };
 
-        // Traverse each outgoing edge and create a new path
-        for (const edge of outgoingEdges) {
-          const nextNode = nodes.find((node) => node.id === edge.target);
-          if (nextNode) {
-            const nextPath: Path = {
-              nodes: [...currentPath.nodes, nextNode],
-              edges: [...currentPath.edges, edge],
-            };
-            traverse(nextPath);
-          }
+      nodes.forEach((node) => {
+        if (!visited[node.id]) {
+          result.push([]);
+          visitNode(node.id);
         }
-      }
+      });
 
-      // Traverse each start node and create an initial path
-      for (const startNode of startNodes) {
-        const initialPath: Path = {
-          nodes: [startNode],
-          edges: [],
-        };
-        traverse(initialPath);
-      }
+      result.forEach((path) => path.reverse());
 
-      return paths;
+      return result;
     }
 
-    // Execute paths
-    const { nodes, edges } = get();
-    const paths = extractPaths(nodes, edges);
-    console.log('Paths:', paths);
+    const paths = await extractPaths();
 
-    await agent.Workflows.executePaths(currentWorkflowId, paths)
+    console.debug('Extracted paths: ', paths);
+
+    // Get dependencies for a node
+    async function getDependencies(): Promise<IDictionary> {
+      const dependencies: IDictionary = {};
+
+      edges.forEach((edge) => {
+        const sourceId = edge.source;
+        const targetId = edge.target;
+
+        // Check if the target node is already in the dictionary, if not, add it
+        if (!dependencies[targetId]) {
+          dependencies[targetId] = [];
+        }
+
+        // Add the source node as a dependency for the target node
+        dependencies[targetId].push(sourceId);
+      });
+
+      return dependencies;
+    }
+
+    const dependencies = await getDependencies();
+
+    console.debug('Dependencies: ', dependencies);
+
+    // Set all edges to animated
+    set({ edges: edges.map((edge) => ({ ...edge, animated: true })) });
+
+    // Execute paths
+    await agent.Workflows.execute(currentWorkflowId, paths, nodes, dependencies)
       .then(() => {
-        console.log('Workflow executed');
+        set({ isExecuting: false });
+
+        console.debug('Workflow executed');
         notifications.show({
           title: 'Workflow executed',
           message: 'Workflow executed successfully',
           color: 'green',
+          autoClose: 5000,
         });
       })
       .catch((error) => {
+        set({ isExecuting: false });
+
         console.error('Error executing workflow:', error);
         notifications.show({
           title: 'Error executing workflow',
@@ -316,7 +330,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
         });
       })
       .finally(() => {
-        console.log('Workflow execution finished');
+        console.debug('Workflow execution finished');
       });
   },
 }));

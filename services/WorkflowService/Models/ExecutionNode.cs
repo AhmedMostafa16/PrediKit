@@ -1,7 +1,18 @@
-﻿namespace WorkflowService;
+﻿using System.Text.Json;
+using System.Text.Json.Serialization;
+using MessagePack;
+using MessagePack.Formatters;
+using MongoDB.Bson.Serialization.Attributes;
+using WorkflowService.Helpers;
 
-public class ExecutionNode : Node
+namespace WorkflowService;
+
+public class ExecutionNode
 {
-    public byte[] DataFrame { get; set; } = [];
-
+    public string[] Dependencies { get; set; } = [];
+    public string CurrentId { get; set; } = string.Empty;
+    public string NodeType { get; set; } = string.Empty;
+    [BsonSerializer(typeof(CustomDictionarySerializer))]
+    [JsonConverter(typeof(CustomDictionaryJsonConverter))]
+    public Dictionary<string, object> Data { get; set; } = new();
 }

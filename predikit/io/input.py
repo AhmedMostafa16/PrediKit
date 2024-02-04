@@ -7,6 +7,7 @@ from os import PathLike
 from typing import (
     Any,
     Callable,
+    LiteralString,
     Self,
     cast,
     # override,
@@ -160,7 +161,7 @@ class DataFrameParser(DataFrame):
         df: DataFrame
 
         if self.verbose:
-            logging.info("Starting data ingestion process ...")
+            logging.info("Starting data ingestion process...")
 
         if isinstance(path_or_buf, (np.ndarray, dict, list)):
             df = self._buf_loader(path_or_buf, **properties)
@@ -186,8 +187,8 @@ class DataFrameParser(DataFrame):
             )
             shape = df.shape
             # logging.info(f"DataFrame columns: {shape[0]} | rows: {shape[1]}")
-            tab = "\t" * 7
-            logging.info(
+            tab: LiteralString = "\t" * 7
+            logging.debug(
                 "DataFrame Shape\t 🔻"
                 f"\n{tab} _______\n{tab}"
                 f"|columns| {shape[0]:>1}"

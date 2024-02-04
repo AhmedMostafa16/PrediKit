@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// FormBuilder.tsx
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import {
   Container,
@@ -86,7 +85,7 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
       const updatedFormData = { ...formFieldsData, [id]: value };
       setFormData(updatedFormData);
       onAutoSubmit(updatedFormData);
-      // console.log(updatedFormData);
+      // console.debug(updatedFormData);
     },
     [formFieldsData, onAutoSubmit]
   );
@@ -150,11 +149,9 @@ const FormBuilder: React.FC<FormBuilderProps> = ({
                   <Checkbox
                     id={field.id}
                     label={field.label}
-                    checked={formFieldsData[field.id] || false}
-                    required={field.required}
-                    onChange={(event) =>
-                      handleChange(field.id, event.currentTarget.checked as boolean)
-                    }
+                    checked={(formFieldsData[field.id] as boolean) || false}
+                    defaultChecked={field.defaultValue as boolean | undefined}
+                    onChange={(event) => handleChange(field.id, event.currentTarget.checked)}
                   />
                 )}
 

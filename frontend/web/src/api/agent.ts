@@ -1,6 +1,7 @@
 import axios, { AxiosResponse } from 'axios';
 import { Workflow, CreateWorkflowDto, UpdateWorkflowDto } from '@/models/Workflow';
-import { Path } from '@/types/Path';
+import { Node } from 'reactflow';
+import { IDictionary } from '@/interfaces/IDictionary';
 
 axios.defaults.baseURL = 'http://localhost:5000/api';
 // axios.defaults.headers.common['Accept-Encoding'] = 'gzip, br, deflate'; // EXPERIMENTAL
@@ -21,9 +22,12 @@ const Workflows = {
   update: (workflow: UpdateWorkflowDto) =>
     requests.put<void>(`/workflows/${workflow.id}`, workflow),
   delete: (id: string) => requests.delete<void>(`/workflows/${id}`),
-  execute: (id: string) => requests.post<void>(`/workflows/${id}/execute`, {}),
-  executePaths: (id: string, paths: Path[]) =>
-    requests.post<void>(`/workflows/${id}/execute`, paths),
+  execute: (
+    id: string,
+    paths: string[][],
+    nodes: Node[],
+    dependencies: IDictionary
+  ) => requests.post<void>(`/workflows/execute`, { id, nodes, paths, dependencies }),
   listColumnNames: (id: string) => requests.get<string[]>(`/workflows/${id}/get_columns_names`),
 };
 

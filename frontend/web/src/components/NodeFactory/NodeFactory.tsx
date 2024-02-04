@@ -4,8 +4,8 @@ import { Handle, Position } from 'reactflow';
 import { BaseNode } from '../../nodes/BaseNode';
 
 export default function NodeFactory(props: BaseNode) {
-  // console.log(props.inputHandles.length);
-  // console.log(props.outputHandles.length);
+  // console.debug(props.inputHandles.length);
+  // console.debug(props.outputHandles.length);
 
   const node = () => (
     <div>

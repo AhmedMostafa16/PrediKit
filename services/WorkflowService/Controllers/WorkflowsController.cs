@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Diagnostics;
+using System.Text;
 using System.Text.Json;
 using AutoMapper;
 using MediatR;
@@ -6,8 +7,12 @@ using MessagePack;
 using MessagePack.Resolvers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Entities;
+using NetMQ;
+using NetMQ.Sockets;
 
 
 namespace WorkflowService
@@ -36,8 +41,8 @@ namespace WorkflowService
             _logger = logger;
         }
 
-        [HttpPost("{id}/execute")]
-        public async Task<IActionResult> ExecuteWorkflow(string id)
+        // [HttpPost("{id}/execute")]
+        private async Task<IActionResult> ExecuteWorkflow(string id)
         {
             try
             {
@@ -59,7 +64,7 @@ namespace WorkflowService
                     }
 
                     ExecutionNode executionNode = _mapper.Map<ExecutionNode>(node);
-                    executionNode.DataFrame = dataframe;
+                    // executionNode.DataFrame = dataframe;
 
                     // System.Console.WriteLine("Dataframe: " + dataframe);
 
@@ -67,7 +72,7 @@ namespace WorkflowService
                     var serializedData = MessagePackSerializer.Serialize(executionNode, ContractlessStandardResolver.Options);
 
                     // Create HttpContent with MessagePack data
-                    ByteArrayContent content = new ByteArrayContent(serializedData);
+                    ByteArrayContent content = new(serializedData);
                     content.Headers.Add("Content-Type", "application/msgpack");
 
                     // Send POST request to the execution API endpoint
@@ -127,14 +132,14 @@ namespace WorkflowService
                 }
 
                 ExecutionNode executionNode = _mapper.Map<ExecutionNode>(inputDataNode);
-                executionNode.DataFrame = [];
+                // executionNode.DataFrame = [];
 
 
                 // Serialize the data to MessagePack format
                 var serializedData = MessagePackSerializer.Serialize(executionNode, ContractlessStandardResolver.Options);
 
                 // Create HttpContent with MessagePack data
-                ByteArrayContent content = new ByteArrayContent(serializedData);
+                ByteArrayContent content = new(serializedData);
                 content.Headers.Add("Content-Type", "application/msgpack");
 
                 // Send POST request to the execution API endpoint
@@ -146,7 +151,7 @@ namespace WorkflowService
 
                     var x = await response.Content.ReadAsByteArrayAsync();
 
-                    ByteArrayContent content2 = new ByteArrayContent(x);
+                    ByteArrayContent content2 = new(x);
                     content2.Headers.Add("Content-Type", "application/msgpack");
 
                     var response2 = await _httpClient.PostAsync($"http://localhost:5501/get_all_columns", content2);
@@ -210,7 +215,7 @@ namespace WorkflowService
         }
 
         [HttpPost]
-        public async Task<ActionResult<Workflow>> CreateWorkflow(WorkflowDto workflowDto)
+        public async Task<ActionResult<Workflow>> CreateWorkflow([FromBody] WorkflowDto workflowDto)
         {
             var result = await _mediator.Send(new CreateWorkflowCommand { WorkflowDto = workflowDto });
 
@@ -269,5 +274,88 @@ namespace WorkflowService
 
             return Ok();
         }
+
+        public class ExecutionWorkflow
+        {
+            public required string Id { get; set; }
+            public required List<Node> Nodes { get; set; }
+            public required List<string[]> Paths { get; set; }
+            public required Dictionary<string, string[]> Dependencies { get; set; }
+        }
+
+        static bool isServerOnline(RequestSocket client)
+        {
+            // Send a ping message for health check
+            client.SendFrame(MessagePackSerializer.Serialize("Ping", ContractlessStandardResolver.Options));
+
+            // Receive the response from the server
+            string response = client.ReceiveFrameString();
+
+            // Check if the server responded with "Pong"
+            return response.Equals("Pong", StringComparison.OrdinalIgnoreCase);
+        }
+
+        [HttpPost("execute")]
+        public async Task<IActionResult> ExecuteWorkflow([FromBody] ExecutionWorkflow executionWorkflow)
+        {
+            List<Node> nodes = executionWorkflow.Nodes;
+            Dictionary<string, string[]> dependencies = executionWorkflow.Dependencies;
+
+            using (RequestSocket client = new(">tcp://127.0.0.1:5555"))
+            {
+                // Check if the server is online
+                if (!isServerOnline(client))
+                {
+                    _logger.LogError("Data science microservice is not reachable");
+                    return BadRequest("Connection with the server failed");
+                }
+
+                Stopwatch stopwatch = new Stopwatch();
+                stopwatch.Start();
+
+                // Send the paths to the Data Science microservice
+                foreach (string[] path in executionWorkflow.Paths)
+                {
+                    foreach (string item in path)
+                    {
+                        Node node = nodes.First(n => n.Id == item);
+
+                        // Map the node to ExecutionNode
+                        ExecutionNode executionNode = new()
+                        {
+                            CurrentId = node.Id,
+                            NodeType = node.Type,
+                            Data = node.Data,
+                            Dependencies = dependencies.GetValueOrDefault(node.Id, Array.Empty<string>()),
+                        };
+
+                        // Serialize the data to MessagePack format
+                        byte[] serializedNode = MessagePackSerializer.Serialize(executionNode, ContractlessStandardResolver.Options);
+
+                        // Send MessagePack data to the server
+                        client.SendFrame(serializedNode);
+
+                        // Receive response from the server
+                        string? response = client.ReceiveFrameString();
+
+                        // Check if the server responded with "Ok"
+                        if (!response.Equals("Ok", StringComparison.OrdinalIgnoreCase) || response.IsNullOrEmpty())
+                        {
+                            return BadRequest("Execution of a node with id: " + node.Id + " failed");
+                        }
+
+                        // Send to the notification service that uses SignalR that the node has been executed to update the edges
+                        await _mediator.Send(new UpdateEdgesNotificationCommand { UpdateEdgesNotificationDto = new UpdateEdgesNotificationDto { WorkflowId = executionWorkflow.Id, NodeId = node.Id } });
+                    }
+                    stopwatch.Stop();
+                    Console.WriteLine("Time elapsed: {0} ms", stopwatch.ElapsedMilliseconds);
+                    Console.WriteLine("Time elapsed: {0} ticks", stopwatch.ElapsedTicks);
+                }
+
+            }
+
+            return Ok();
+        }
+
     }
 }

@@ -1,53 +1,47 @@
+from io import BytesIO
 import logging
 import os
 import sys
-from typing import Any
-
+from typing import Any, List
 import pandas as pd
+from result import Ok, Result, Err
+
+from redis_utils import cache_dataframe_in_redis, redis_client
 
 root = os.path.dirname(os.path.abspath("../../predikit/"))
 sys.path.append(root)
-from workflow_state import WorkflowState
 
 import predikit as pk
 from predikit.util import export_index_correction
 
 
-def execute_node(
-    props: dict[str, Any], df: pd.DataFrame, node_type: str
-) -> pd.DataFrame | None:
-    VERBOSE = True
-    logging.debug("entered execute_node")
+async def execute_node(
+    props: dict[str, Any],
+    dfs: list[pd.DataFrame],
+    node_type: str,
+    node_id: str,
+) -> Result[None, str]:
+    VERBOSE = False
 
     match node_type:
         case "inputDataNode":
-            logging.debug("entered inputDataNode")
-
+            # logging.debug("entered inputDataNode")
+            # TODO: Add threading
             ext: pk.FileExtension = pk.FileExtension.from_file(props["file"])
             df = pk.DataFrameParser(
                 path_or_buf=props["file"],
                 extension=ext,
                 verbose=VERBOSE,
             )
-
-            WorkflowState.original_file_extension = ext
-            return df
+            logging.debug("Input Node: parsed dataframe")
+            await cache_dataframe_in_redis(df, redis_client, node_id)
+            logging.debug("Input Node: cached dataframe in Redis")
+            return Ok(None)
 
         case "outputDataNode":
-            logging.info("entered outputDataNode")
-            logging.debug(
-                f"Original Extension {WorkflowState.original_file_extension}"
-            )
+            # logging.info("entered outputDataNode")
 
             ext = props["format"]
-
-            if ext == "original":
-                if WorkflowState.original_file_extension is None:
-                    raise ValueError(
-                        "Cannot infer file extension from original file."
-                    )
-
-                ext = WorkflowState.original_file_extension
 
             kwargs = {}
             if not ext == pk.FileExtension.PICKLE:
@@ -56,17 +50,19 @@ def execute_node(
                 }
 
             dfe = pk.DataFrameExporter(
-                df=df,
+                df=dfs[0],
                 extension=ext,
                 filename=props["filename"],
                 verbose=VERBOSE,
                 **kwargs,
             )
 
-            return dfe.export()
+            dfe.export()
+
+            return Ok(None)
 
         case "dataCleansingNode":
-            logging.debug("entered dataCleaningNode")
+            # logging.debug("entered dataCleaningNode")
 
             result = pk.DataCleanser(
                 missing_clean=props["missingClean"],
@@ -85,23 +81,44 @@ def execute_node(
                 str_remove_letters=props["strRemoveLetters"],
                 str_remove_punctuation=props["strRemovePunctuation"],
                 verbose=VERBOSE,
-            ).fit_transform(df, columns=props["selectedColumns"])
+            ).fit_transform(dfs[0], columns=props["selectedColumns"])
 
             if result.is_err():
-                return None
+                return Err(result.unwrap_err())
 
-            return result.unwrap()
+            dataframe = result.unwrap()
+
+            logging.debug(msg="Data Cleansing Node: parsed dataframe")
+            await cache_dataframe_in_redis(
+                df=dataframe, redis_client=redis_client, key_prefix=node_id
+            )
+            logging.debug("Data Cleansing Node: cached dataframe in Redis")
+
+            return Ok(None)
 
         case "basicFilterNode":
-            logging.debug("entered basicFilterNode")
+            # logging.debug("entered basicFilterNode")
             result = pk.BasicFilteringProcessor(
                 operator=props["operator"],
                 value=props["value"],
                 case_sensitive=props["caseSensitive"],
                 verbose=VERBOSE,
-            ).fit_transform(df, column=props["column"])
+            ).fit_transform(dfs[0], column=props["column"])
 
             if result.is_err():
-                return None
+                return Err(result.unwrap_err())
 
-            return result.unwrap()
+            dataframe = result.unwrap()
+
+            logging.debug("Basic Filter Node: parsed dataframe")
+            await cache_dataframe_in_redis(
+                df=dataframe, redis_client=redis_client, key_prefix=node_id
+            )
+            logging.debug("Basic Filter Node: cached dataframe in Redis")
+
+            return Ok(None)
+
+        case "joinNode":
+            return Err("Join node is not yet implemented")
+
+    return Err("Invalid node type")

@@ -1,105 +1,91 @@
-from io import BytesIO, StringIO
+import asyncio
 import logging
-import traceback
-from typing import Dict
-
-import executor
-from flask import (
-    Flask,
-    jsonify,
-    request,
-)
+import multiprocessing
+import zmq.asyncio
+from multiprocessing import Process, cpu_count
 import msgpack
-import pandas
 
-app = Flask(__name__)
-
-
-@app.route("/")
-def hello_world():  # put application's code here
-    return "Hello World!"
+from process_data import process_data
 
 
-@app.route("/get_all_columns", methods=["POST"])  # type: ignore
-def get_all_columns():
+def worker_function(
+    worker_id: int,
+    input_queue: multiprocessing.Queue,
+    output_queue: multiprocessing.Queue,
+):
+    # logging.debug(f"Starting worker {worker_id}")
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    while True:
+        task = input_queue.get()
+        # logging.debug(f"Worker {worker_id} received task {task}")
+        if task is None:
+            break
+        # Process the task
+        if task == "Ping":
+            result = "Pong"
+        else:
+            result: str = loop.run_until_complete(process_data(task))
+        output_queue.put(result)
+        # logging.debug(f"Worker {worker_id} sent result {result}")
+    # logging.debug(f"Worker {worker_id} finished")
+
+
+async def main():
+    context = zmq.asyncio.Context()
+    socket = context.socket(zmq.REP)
+    socket.bind("tcp://127.0.0.1:5555")
+
+    num_workers = cpu_count() if cpu_count() > 4 else 4
+    input_queue = multiprocessing.Queue()
+    output_queue = multiprocessing.Queue()
+
+    # Start worker tasks concurrently
+    workers = [
+        Process(
+            target=worker_function,
+            args=(i, input_queue, output_queue),
+        )
+        for i in range(num_workers)
+    ]
+
+    for worker in workers:
+        worker.start()
+
     try:
-        # Get MessagePack-encoded data from the request
-        data = request.get_data()
-        logging.debug("Got data")
+        while True:
+            # Receive request
+            request = await socket.recv()
+            message = msgpack.unpackb(request, raw=False)
+            # logging.debug(f"Received request: {request}")
 
-        # Decode MessagePack data
-        decoded_data = msgpack.unpackb(data, raw=False)
-        logging.debug("Decoded data")
+            # Distribute tasks among workers
+            input_queue.put(message)
+            # logging.debug(f"Sent task {message} to worker")
 
-        df = (
-            pandas.read_parquet(
-                engine='pyarrow', path=BytesIO(decoded_data)
-            )
-            if decoded_data
-            else pandas.DataFrame()
-        )
+            # Collect results from workers
+            result = output_queue.get()
+            # logging.debug(f"Received result from worker: {result}")
 
-        # Process the data (you can modify this part based on your requirements)
-        result = list(df.columns)
+            # Send response
+            response = result
+            await socket.send_string(response)
+            # logging.debug(f"Sent response to client: {response}")
 
-        # print("result: ", result)
-        # Encode the result in MessagePack format
-        encoded_result = msgpack.packb(result)
-        # print("encoded_result: ", encoded_result)
+    except KeyboardInterrupt:
+        print("Shutting down...")
+    finally:
+        # Send stop signal to workers
+        for _ in range(num_workers):
+            input_queue.put(None)
 
-        return encoded_result, 200, {"Content-Type": "application/msgpack"}
-
-    except Exception as e:
-        # Handle exceptions appropriately
-        error_message = {"error": str(e)}
-        encoded_error = jsonify(error_message)
-
-        traceback.print_exc()
-
-
-@app.route("/execute_node", methods=["POST"])  # type: ignore
-def execute_node():
-    try:
-        # Get MessagePack-encoded data from the request
-        data = request.get_data()
-        logging.debug("Got data")
-
-        # Decode MessagePack data
-        decoded_data: Dict = msgpack.unpackb(data, raw=False)
-        logging.debug("Decoded data")
-
-        props = decoded_data["Data"]
-
-        df = (
-            pandas.read_parquet(
-                BytesIO(decoded_data["DataFrame"]),
-                engine='pyarrow',
-            )
-            if decoded_data["DataFrame"]
-            else pandas.DataFrame()
-        )
-
-        # Process the data (you can modify this part based on your requirements)
-        result = executor.execute_node(
-            props=props, df=df, node_type=decoded_data["Type"]
-        )
-        # result = result.to_json(orient="records") if result is not None else ""
-        result = result.to_parquet(engine='pyarrow') if result is not None else b''
-        # Encode the result in MessagePack format
-        encoded_result = msgpack.packb(result)
-
-        return encoded_result, 200, {"Content-Type": "application/msgpack"}
-
-    except Exception as e:
-        # Handle exceptions appropriately
-        error_message = {"error": str(e)}
-        encoded_error = jsonify(error_message)
-
-        traceback.print_exc()  # Print the stack trace
-
-        print("error: ", error_message)
-        return encoded_error, 500, {"Content-Type": "application/msgpack"}
+        # Wait for workers to finish
+        for worker in workers:
+            worker.join()
+        socket.close()
+        context.term()
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5501)
+    logging.basicConfig(level=logging.DEBUG)
+    asyncio.run(main())

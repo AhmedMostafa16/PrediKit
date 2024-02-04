@@ -17,7 +17,7 @@ export function ItemsGroup({ color, label, initiallyOpened, items }: ItemsGroupP
   const onDragStart = (event: React.DragEvent<HTMLAnchorElement>, node: any): void => {
     event.dataTransfer.setData('application/reactflow', JSON.stringify(node));
     event.dataTransfer.effectAllowed = 'move';
-    console.log(`Started dragging: ${node.label}`);
+    console.debug(`Started dragging: ${node.label}`);
   };
 
   const elements = (hasItems ? items : []).map((item) => (

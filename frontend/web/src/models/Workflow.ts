@@ -15,7 +15,6 @@ export interface EdgeDto {
   target: string;
   sourceHandle: string;
   targetHandle: string;
-  animated: boolean;
 }
 
 export interface CreateWorkflowDto {

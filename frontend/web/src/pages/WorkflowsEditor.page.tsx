@@ -12,6 +12,10 @@ import ReactFlow, {
   getOutgoers,
   ControlButton,
   getIncomers,
+  ProOptions,
+  Edge,
+  DefaultEdgeOptions,
+  ConnectionMode,
 } from 'reactflow';
 import { shallow } from 'zustand/shallow';
 import { IconDeviceFloppy } from '@tabler/icons-react';
@@ -23,14 +27,21 @@ import useFlowStore, { FlowState } from '@/stores/FlowStore';
 import { nodeTypesProps, nodeTypes } from '@/types/NodeTypes';
 import 'reactflow/dist/style.css';
 import EditorHeader from '@/components/EditorHeader/EditorHeader';
+import { useSignalRStore } from '@/stores/SignalrStore';
+import { useNavigate } from 'react-router-dom';
+import { UpdateEdgesNotificationDto } from '@/models/UpdateEdgesNotificationDto';
+import { Color } from '@/types/Color';
+import { useMantineColorScheme, useMantineTheme } from '@mantine/core';
+import signalrService from '@/services/signalrService';
 
-const proOptions = { hideAttribution: true };
+const proOptions: ProOptions = { hideAttribution: true };
 const defaultViewport: Viewport = { x: 0, y: 0, zoom: 1.0 };
 
 const selector = (state: FlowState) => ({
   nodes: state.nodes,
   edges: state.edges,
   currentWorkflowId: state.currentWorkflowId,
+  selectedNode: state.selectedNode,
   onNodesChange: state.onNodesChange,
   onEdgesChange: state.onEdgesChange,
   onConnect: state.onConnect,
@@ -39,6 +50,7 @@ const selector = (state: FlowState) => ({
   setNodes: state.setNodes,
   setEdges: state.setEdges,
   setViewport: state.setViewport,
+  setSelectedNode: state.setSelectedNode,
   updateWorkflow: state.updateWorkflow,
 });
 
@@ -49,6 +61,7 @@ export default function Workflow() {
     nodes,
     edges,
     currentWorkflowId,
+    selectedNode,
     onNodesChange,
     onEdgesChange,
     onConnect,
@@ -57,8 +70,13 @@ export default function Workflow() {
     setNodes,
     setEdges,
     setViewport,
+    setSelectedNode,
     updateWorkflow,
   } = useFlowStore(selector, shallow);
+
+  const navigate = useNavigate();
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
 
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance>();
   const [fields, setFields] = useState<FormField[]>([]);
@@ -67,10 +85,25 @@ export default function Workflow() {
 
   const autosave = useCallback(async () => {
     await updateWorkflow(currentWorkflowId);
-    console.log('Autosaving...');
+    console.debug('Autosaving...');
   }, []);
 
+
   useEffect(() => {
+    if (currentWorkflowId === null) navigate('/workflows');
+    const { events } = signalrService();
+
+    events((notification) => {
+      const edgeIndex: number = edges.findIndex((edge) => edge.target == notification.nodeId);
+      if (edgeIndex != -1) {
+        const edge = { ...edges[edgeIndex] };
+        edge.animated = false;
+        edges[edgeIndex] = edge;
+        useFlowStore.setState({ edges });
+      }
+    });
+
+    // Autosave every 1000ms
     let timeoutId: NodeJS.Timeout | null = null;
 
     const handleAutosave = () => {
@@ -88,7 +121,7 @@ export default function Workflow() {
         clearTimeout(timeoutId);
       }
     };
-  }, [nodes, edges, autosave]);
+  }, [nodes, edges, autosave, navigate, signalrService]);
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
@@ -183,7 +216,7 @@ export default function Workflow() {
     if (reactFlowInstance) {
       const flow = JSON.stringify(reactFlowInstance.toObject());
       localStorage.setItem('flow', flow);
-      console.log(flow);
+      console.debug(flow);
     }
   }, [reactFlowInstance]);
 
@@ -203,6 +236,24 @@ export default function Workflow() {
 
     restoreFlow();
   }, [setNodes, setViewport]);
+
+  const onEdgeUpdate = useCallback(
+    (oldEdge: Edge, newConnection: Connection) => {
+      const newEdge: Edge = {
+        id: oldEdge.id,
+        source: newConnection.source ?? '',
+        target: newConnection.target ?? '',
+        sourceHandle: newConnection.sourceHandle ?? '',
+        targetHandle: newConnection.targetHandle ?? '',
+      };
+      // update the old edge with the new connection
+      const newEdges = edges.map((edge) => (edge.id === oldEdge.id ? newEdge : edge));
+
+      setEdges(newEdges);
+    },
+    [setEdges, edges]
+  );
+
   return (
     <div
       style={{
@@ -233,27 +284,58 @@ export default function Workflow() {
               onDrop={onDrop}
               onNodeClick={onNodeClick}
               onPaneClick={() => setShowPropertiesSidebar(false)}
+              onEdgeUpdate={onEdgeUpdate}
               isValidConnection={isValidConnection}
+              connectionMode={ConnectionMode.Loose}
               nodesDraggable
               zoomOnDoubleClick
               elementsSelectable
+              deleteKeyCode={'Delete'}
             >
-              <Background gap={32} />
+              <Background
+                gap={32}
+                style={{
+                  backgroundColor:
+                    colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
+                }}
+              />
 
-              <MiniMap style={{ background: 'var(--mantine-color-default)' }} />
+              <MiniMap
+                style={{ background: 'var(--mantine-color-default)' }}
+                nodeColor={(node) => {
+                  switch (node.type) {
+                    case 'inputDataNode':
+                      return theme.colors.teal[5];
+                    case 'outputDataNode':
+                      return theme.colors.teal[5];
+                    case 'basicFilterNode':
+                      return theme.colors.blue[5];
+                    case 'dataCleaningNode':
+                      return theme.colors.blue[5];
+                    case 'joinNode':
+                      return theme.colors.violet[5];
+                    default:
+                      return theme.colors.gray[5];
+                  }
+                }}
+              />
               <Controls>
-                <ControlButton
-                  onClick={() => {
-                    onSave();
-                    updateWorkflow(currentWorkflowId);
-                  }}
-                  title="Save"
-                >
-                  <IconDeviceFloppy size={12} stroke={1} />
-                </ControlButton>
-                <ControlButton onClick={onRestore} title="Restore">
-                  <IconDeviceFloppy size={12} stroke={1} />
-                </ControlButton>
+                {process.env.NODE_ENV === 'development' && (
+                  <>
+                    <ControlButton
+                      onClick={async () => {
+                        onSave();
+                        await updateWorkflow(currentWorkflowId);
+                      }}
+                      title="Save"
+                    >
+                      <IconDeviceFloppy size={12} stroke={1} />
+                    </ControlButton>
+                    <ControlButton onClick={onRestore} title="Restore">
+                      <IconDeviceFloppy size={12} stroke={1} />
+                    </ControlButton>
+                  </>
+                )}
               </Controls>
             </ReactFlow>
           </div>
