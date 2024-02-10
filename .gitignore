@@ -646,4 +646,4 @@ appsettings.json
 # Other output files
 output/
 out/
-./tests/wrk_stress_test_script.lua
+tests/*.lua

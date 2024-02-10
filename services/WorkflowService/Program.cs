@@ -30,7 +30,6 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.Configuration = builder.Configuration.GetConnectionString("RedisDefaultConnection");
 });
 
-// builder.Services.AddScoped<GrpcExecutionClient>();
 builder.Services.AddHttpClient();
 // Register MongoDB
 var mongoSettings = MongoClientSettings.FromConnectionString(
@@ -51,6 +50,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// app.UseAntiforgery();
 
 app.UseAuthorization();
 

@@ -1,120 +1,121 @@
-import msgpack
-import logging
-import zmq
 import asyncio
+
+import multiprocessing
+import sys
+import msgpack
 import zmq.asyncio
 from process_data import process_data
-import logging
-from process_data import process_data
-import multiprocessing
 
 
-async def worker(queue_in, queue_out):
+NUMBER_OF_WORKERS: int = multiprocessing.cpu_count() * 2  # Number of workers
+
+
+def tprint(msg):
+    """like print(), but won't get newlines confused with multiple threads"""
+    sys.stdout.write(msg + "\n")
+    sys.stdout.flush()
+
+
+async def worker_task(ident):
+    """Worker task, using a REQ socket to do load-balancing."""
+    socket = zmq.asyncio.Context().socket(zmq.REQ)
+    socket.identity = "Worker-{}".format(ident).encode("ascii")
+    socket.connect("ipc://backend.ipc")
+
+    # Tell broker that the worker is ready for work
+    await socket.send(b"READY")
+
     while True:
-        data = await queue_in.get()
-        response: str = ""
-        if data == "Ping":
-            response = "Pong"
+        address, empty, request = (
+            await socket.recv_multipart()
+        )  # Receive a request from the broker
+        message = msgpack.unpackb(request)  # Decode the message
+        # tprint("Received request: %s" % message)
+
+        # Do some 'work'
+        if message == b"Ping":
+            response = b"Pong"
         else:
-            response = await process_data(data)
-        await queue_out.put(response)
+            response = await process_data(
+                message
+            )  # TODO: Get rid of Zombie processes
+            # response = b"Ok"
+
+        # tprint("{}: {}".format(socket.identity.decode("ascii"), message))
+        await socket.send_multipart(
+            [address, b"", response]
+        )  # Send the reply back to the broker
 
 
-async def server(address):
-    context = zmq.asyncio.Context()
-    socket = context.socket(zmq.REP)
-    socket.bind(address)
+async def main():
+    """Load balancer main loop."""
+    # Prepare context and sockets
+    context = zmq.asyncio.Context().instance()
+    frontend = context.socket(zmq.ROUTER)
+    frontend.bind("tcp://*:5555")
+    backend = context.socket(zmq.ROUTER)
+    backend.bind("ipc://backend.ipc")
 
-    # Get the number of CPU cores
-    pool_size = multiprocessing.cpu_count()
-    logging.info(f"Started {pool_size} processes")
+    # Start background tasks
+    worker_processes: list[multiprocessing.Process] = []
+    for i in range(NUMBER_OF_WORKERS):
+        process = multiprocessing.Process(
+            target=asyncio.run,
+            args=(worker_task(i),),
+            daemon=True,
+            name=f"Worker-{i}",
+        )
+        worker_processes.append(process)
+        process.start()
 
-    # Create asyncio queues for communication between worker and server
-    queue_in = asyncio.Queue()
-    queue_out = asyncio.Queue()
-    # logging.info("Created asyncio queues")
+    # Initialize main loop state
+    backend_ready = False
+    workers: list[bytes] = []
+    poller = zmq.asyncio.Poller()
 
-    # Start worker processes
-    workers = [
-        asyncio.create_task(worker(queue_in, queue_out))
-        for _ in range(pool_size)
-    ]
-    logging.info("Started worker tasks")
+    # Only poll for requests from backend until workers are available
+    poller.register(backend, zmq.POLLIN)
 
-    # Define a coroutine to monitor the number of active asyncio tasks and processes
-    # and write the information to a log file
-    # This is a simple but useful way for debugging and monitoring the server
-    async def monitor_tasks():
-        log_file = "/tmp/monitor.log"
-        previous_task_count = 0
-        previous_process_count = 0
-        previous_queue_in_size = 0
-        previous_queue_out_size = 0
+    while True:
+        sockets = dict(await poller.poll())
 
-        while True:
-            # Get the current number of active asyncio tasks and processes
-            task_count = len(asyncio.all_tasks())
-            process_count = len(multiprocessing.active_children())
-            queue_in_size = queue_in.qsize()
-            queue_out_size = queue_out.qsize()
+        if backend in sockets:
+            # Handle worker activity on the backend
+            request = await backend.recv_multipart()
+            worker, _, client = request[:3]
+            workers.append(worker)
+            if workers and not backend_ready:
+                # Poll for clients now that a worker is available and backend was not ready
+                poller.register(frontend, zmq.POLLIN)
+                backend_ready = True
+            if client != b"READY" and len(request) > 3:
+                # If client reply is not just a READY message, route it to the frontend
+                _, reply = request[3:]
+                await frontend.send_multipart([client, reply])
 
-            # Check if there is a change in the monitoring information
-            if (
-                task_count != previous_task_count
-                or process_count != previous_process_count
-                or queue_in_size != previous_queue_in_size
-                or queue_out_size != previous_queue_out_size
-            ):
-                # Write the monitoring information to the log file
-                with open(log_file, "a") as f:
-                    f.write(
-                        f"Active asyncio tasks: {task_count}, Active processes: {process_count}\n"
-                    )
-                    f.write(
-                        f"Queue in size: {queue_in_size}, Queue out size: {queue_out_size}\n"
-                    )
-                    f.write("\n")
+        if frontend in sockets:
+            # Get next client request, route to last-used worker
+            client, request = await frontend.recv_multipart()
+            worker = workers.pop(0)  # Pop the first worker from the list
+            await backend.send_multipart(
+                [worker, b"", client, b"", request]
+            )  # Send the client's message to the worker
+            if not workers:
+                # If no workers are available, unregister the frontend
+                # Don't poll clients if no workers are available and set backend_ready flag to false
+                poller.unregister(frontend)
+                backend_ready = False
 
-                # Update the previous values
-                previous_task_count = task_count
-                previous_process_count = process_count
-                previous_queue_in_size = queue_in_size
-                previous_queue_out_size = queue_out_size
+    # Clean up
+    backend.close()
+    frontend.close()
+    context.term()
+    for process in worker_processes:
+        process.join()
 
-            await asyncio.sleep(0.5)
-
-    # monitor_task = asyncio.create_task(monitor_tasks())
-
-    try:
-        while True:
-            # Receive request from client
-            request = await socket.recv()
-
-            # Deserialize request
-            decoded = msgpack.unpackb(request, raw=False)
-
-            # Put the request into the queue for processing
-            await queue_in.put(decoded)
-
-            # Get the result from the queue and send it to the client
-            response: str = await queue_out.get()
-            await socket.send_string(response)
-
-    except asyncio.CancelledError:
-        logging.error("Asyncio Cancelled")
-        pass
-    except Exception as e:
-        logging.error(f"Exception: {e}")
-        pass
-    finally:
-        # Clean up
-        for worker_task in workers:
-            worker_task.cancel()
-        # monitor_task.cancel()
-        await asyncio.gather(*workers, return_exceptions=True)
+    for process in multiprocessing.active_children():
+        process.terminate()
 
 
 if __name__ == "__main__":
-    server_address = "tcp://127.0.0.1:5555"
-    logging.basicConfig(level=logging.INFO)
-    asyncio.run(server(server_address))
+    asyncio.run(main())

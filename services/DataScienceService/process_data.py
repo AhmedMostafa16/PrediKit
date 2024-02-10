@@ -5,7 +5,19 @@ from redis_utils import get_all_chunks, redis_client
 import executor
 
 
-async def process_data(props: Dict):
+async def process_data(props: Dict) -> bytes:
+    """
+    Process the data based on the provided properties.
+
+    Args:
+        props (Dict): A dictionary containing the properties for data processing.
+
+    Returns:
+        bytes: The result of the data processing as bytes.
+
+    Raises:
+        Exception: If an error occurs during data processing.
+    """
     dfs: list[pandas.DataFrame] = []
     logging.debug("Processing data")
     # logging.debug("Props: " + props) # type: ignore
@@ -20,12 +32,11 @@ async def process_data(props: Dict):
             logging.debug("Got Dataframe with name: " + dep + " from Redis")
             if df is not None:
                 logging.debug("Dataframe is not None")
-
                 dfs.append(df)
             else:
                 msg = "The dependency nodes are not found in the cache, please execute the previous nodes first"
                 logging.debug(msg)
-                return msg
+                return msg.encode("ascii")
                 # TODO: Execute the dependency nodes then wait for the result of the execution
 
     else:
@@ -42,11 +53,11 @@ async def process_data(props: Dict):
         )
     except Exception as e:
         logging.error(e)
-        return "Error: " + str(e)
+        return str(e).encode("ascii")
 
     logging.debug("Result: " + str(True if result.is_ok() else False))
 
     if result.is_ok():
-        return "Ok"
+        return b"Ok"
     else:
-        return result.unwrap_err()
+        return result.unwrap_err().encode("ascii")

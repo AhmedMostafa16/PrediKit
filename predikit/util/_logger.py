@@ -28,7 +28,10 @@ def init_logging_config():
             return formatter.format(record)
 
     logger = logging.getLogger()
-    logger.setLevel(logging.DEBUG)
+    if __debug__:
+        logger.setLevel(logging.DEBUG)
+    else:
+        logger.setLevel(logging.WARNING)
 
     stderr_handler = logging.StreamHandler()
     stderr_handler.setLevel(logging.DEBUG)
