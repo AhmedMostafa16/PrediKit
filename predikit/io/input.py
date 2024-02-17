@@ -161,7 +161,7 @@ class DataFrameParser(DataFrame):
         df: DataFrame
 
         if self.verbose:
-            logging.info("Starting data ingestion process...")
+            logging.debug("Starting data ingestion process...")
 
         if isinstance(path_or_buf, (np.ndarray, dict, list)):
             df = self._buf_loader(path_or_buf, **properties)
@@ -181,12 +181,12 @@ class DataFrameParser(DataFrame):
             )
 
         if self.verbose:
-            logging.info(
+            logging.debug(
                 f"✅ Done! Data ingestion process completed. DataFrame is "
                 "ready for use."
             )
             shape = df.shape
-            # logging.info(f"DataFrame columns: {shape[0]} | rows: {shape[1]}")
+            # logging.debug(f"DataFrame columns: {shape[0]} | rows: {shape[1]}")
             tab: LiteralString = "\t" * 7
             logging.debug(
                 "DataFrame Shape\t 🔻"
@@ -197,8 +197,8 @@ class DataFrameParser(DataFrame):
             )
 
             mem = str_data_memory_usage(df, unit="KB", deep=True)
-            logging.info(f"DataFrame size in memory: {mem} ")
-            logging.info(f"DataFrame dtypes\n{df.dtypes} ")
+            logging.debug(f"DataFrame size in memory: {mem} ")
+            logging.debug(f"DataFrame dtypes\n{df.dtypes} ")
             print(f"DataFrame head: {df.head(3)} ")
 
         return df
@@ -264,7 +264,7 @@ class DataFrameParser(DataFrame):
             raise FileNotFoundError(f"File {path} does not exist.")
 
         if self.verbose:
-            logging.info(f"Loading DataFrame from {path} ...")
+            logging.debug(f"Loading DataFrame from {path} ...")
 
         if extension:
             FileExtension.parse(extension=extension, file=path)

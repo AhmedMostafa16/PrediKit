@@ -103,7 +103,7 @@ class BasicFilteringProcessor(BasePreprocessor):
         self.operator = cast(FilterOperator, self.operator)
 
         if self.verbose:
-            logging.info(f"Filtering data by => [{self._query}]")
+            logging.debug(f"Filtering data by => [{self._query}]")
 
         if self.operator.is_containment_operator and self._numeric:
             data = data.astype(str)

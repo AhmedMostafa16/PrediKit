@@ -89,10 +89,10 @@ class DataFrameExporter:
             raise FileNotFoundError("No filename specified.")
 
         if self.verbose:
-            logging.info("🚀 Preparing the default directory to export ...")
+            logging.debug("🚀 Preparing the default directory to export ...")
         init_dir(self.default_dir)
         if self.verbose:
-            logging.info(
+            logging.debug(
                 "✅ Done! PrediKit's output will be found at {}".format(
                     self.default_dir
                 )
@@ -100,7 +100,7 @@ class DataFrameExporter:
         self._extension = FileExtension.parse(
             extension=self._extension, file=self._filename
         )
-        logging.info(f"🚀 Exporting to {self.default_path} ...")
+        logging.debug(f"🚀 Exporting to {self.default_path} ...")
         self._get_exporter(self._extension)(
             self._df, self.default_path, **self._params
         )

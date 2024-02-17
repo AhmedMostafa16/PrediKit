@@ -57,7 +57,19 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
         data: DataFrame,
         columns: list[str] | None = None,
     ) -> Self | Err[str]:
+        """
+        Fit the preprocessing transformer to the given data.
+
+        Parameters:
+            data (DataFrame): The input data to fit the transformer on.
+            columns (list[str] | None): Optional. The subset of columns to fit the transformer on.
+                                        If None, all columns will be used.
+
+        Returns:
+            Self | Err[str]: The fitted transformer if successful, otherwise an error message.
+        """
         ...
+        pass 
 
     @abstractmethod
     def transform(
@@ -65,6 +77,16 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
         data: DataFrame,
         columns: list[str] | None = None,
     ) -> Result[DataFrame, str]:
+        """
+        Apply the transformation to the given data.
+
+        Args:
+            data (DataFrame): The input data to be transformed.
+            columns (list[str] | None, optional): The columns to be transformed. If None, all columns will be transformed. Defaults to None.
+
+        Returns:
+            Result[DataFrame, str]: The transformed data if successful, otherwise an error message.
+        """
         ...
 
     def fit_transform(
@@ -73,12 +95,25 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
         columns: list[str] | None = None,
         **fit_params,
     ) -> Result[DataFrame, str]:
-        # ToDO: move this to fit methods.
+        """
+        Fit the transformer to the data and transform it.
+
+        Parameters:
+            data (DataFrame): The input data to fit and transform.
+            columns (list[str] | None, optional): The columns to apply the transformation on. If None, all columns are transformed. Defaults to None.
+            **fit_params: Additional parameters to be passed to the fit method.
+
+        Returns:
+            Result[DataFrame, str]: The transformed data if successful, otherwise an error message.
+
+        Raises:
+            ValueError: If the input data is empty.
+        """
         if data.empty:
             exc = ValueError(
                 """
-                data: DataFrame cannot be empty in fit_transform process.
-                """
+                    data: DataFrame cannot be empty in fit_transform process.
+                    """
             )
             return Err(str(exc))
 
@@ -108,9 +143,8 @@ class Encoder(BasePreprocessor, ABC):
             names of the encoded features
         """
 
-    #@ override
-    def transform(self, X) -> csr_matrix:
-        ...
+    # @ override
+    def transform(self, X) -> csr_matrix: ...
 
 
 class MissingValueStrategy(StrEnum):

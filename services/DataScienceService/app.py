@@ -1,87 +1,85 @@
-import asyncio
-
+import gc
+import logging
 import multiprocessing
 import sys
 import msgpack
-import zmq.asyncio
+import zmq
 from process_data import process_data
 
 
-NUMBER_OF_WORKERS: int = multiprocessing.cpu_count() * 2  # Number of workers
+NUMBER_OF_WORKERS: int = multiprocessing.cpu_count()
 
 
-def tprint(msg):
+def tprint(msg) -> None:
     """like print(), but won't get newlines confused with multiple threads"""
     sys.stdout.write(msg + "\n")
     sys.stdout.flush()
 
 
-async def worker_task(ident):
+def worker_task(id) -> None:
     """Worker task, using a REQ socket to do load-balancing."""
-    socket = zmq.asyncio.Context().socket(zmq.REQ)
-    socket.identity = "Worker-{}".format(ident).encode("ascii")
+    socket = zmq.Context().instance().socket(zmq.REQ)
+    socket.identity = "Worker-{}".format(id).encode("ascii")
     socket.connect("ipc://backend.ipc")
+    # logging.info(f"Worker-{id} is ready")
 
     # Tell broker that the worker is ready for work
-    await socket.send(b"READY")
+    socket.send(b"READY")
+    try:
+        while True:
+            address, empty, request = (
+                socket.recv_multipart()
+            )  # Receive a request from the broker
+            message = msgpack.unpackb(request)  # Decode the message
+            # tprint("Received request: %s" % message)
 
-    while True:
-        address, empty, request = (
-            await socket.recv_multipart()
-        )  # Receive a request from the broker
-        message = msgpack.unpackb(request)  # Decode the message
-        # tprint("Received request: %s" % message)
+            # Do some 'work'
+            if message == b"Ping":
+                response = b"Pong"
+            else:
+                response = process_data(message)
+                # response = b"Ok"
 
-        # Do some 'work'
-        if message == b"Ping":
-            response = b"Pong"
-        else:
-            response = await process_data(
-                message
-            )  # TODO: Get rid of Zombie processes
-            # response = b"Ok"
-
-        # tprint("{}: {}".format(socket.identity.decode("ascii"), message))
-        await socket.send_multipart(
-            [address, b"", response]
-        )  # Send the reply back to the broker
+            # tprint("{}: {}".format(socket.identity.decode("ascii"), message))
+            socket.send_multipart(
+                [address, b"", response]
+            )  # Send the reply back to the broker
+    except Exception as e:
+        logging.error(e)
+        socket.close()
 
 
-async def main():
+def broker() -> None:
     """Load balancer main loop."""
     # Prepare context and sockets
-    context = zmq.asyncio.Context().instance()
+    context = zmq.Context().instance()
     frontend = context.socket(zmq.ROUTER)
     frontend.bind("tcp://*:5555")
     backend = context.socket(zmq.ROUTER)
     backend.bind("ipc://backend.ipc")
 
-    # Start background tasks
-    worker_processes: list[multiprocessing.Process] = []
-    for i in range(NUMBER_OF_WORKERS):
-        process = multiprocessing.Process(
-            target=asyncio.run,
-            args=(worker_task(i),),
-            daemon=True,
-            name=f"Worker-{i}",
-        )
-        worker_processes.append(process)
-        process.start()
+    # logging.info("Load balancer is ready")
 
     # Initialize main loop state
     backend_ready = False
     workers: list[bytes] = []
-    poller = zmq.asyncio.Poller()
+    poller = zmq.Poller()
 
     # Only poll for requests from backend until workers are available
     poller.register(backend, zmq.POLLIN)
+    # logging.info("Polling for requests from backend")
 
     while True:
-        sockets = dict(await poller.poll())
+        try:
+            sockets = dict(poller.poll())
+        except Exception as e:
+            logging.error(e)
+            break
 
         if backend in sockets:
+            # logging.info("Received request from backend")
             # Handle worker activity on the backend
-            request = await backend.recv_multipart()
+            request = backend.recv_multipart()
             worker, _, client = request[:3]
             workers.append(worker)
             if workers and not backend_ready:
@@ -91,13 +89,14 @@ async def main():
             if client != b"READY" and len(request) > 3:
                 # If client reply is not just a READY message, route it to the frontend
                 _, reply = request[3:]
-                await frontend.send_multipart([client, reply])
+                frontend.send_multipart([client, reply])
 
         if frontend in sockets:
+            # logging.info("Received request from frontend")
             # Get next client request, route to last-used worker
-            client, request = await frontend.recv_multipart()
+            client, request = frontend.recv_multipart()
             worker = workers.pop(0)  # Pop the first worker from the list
-            await backend.send_multipart(
+            backend.send_multipart(
                 [worker, b"", client, b"", request]
             )  # Send the client's message to the worker
             if not workers:
@@ -110,12 +109,47 @@ async def main():
     backend.close()
     frontend.close()
     context.term()
-    for process in worker_processes:
-        process.join()
+    gc.collect()
 
-    for process in multiprocessing.active_children():
-        process.terminate()
+
+def main():
+    worker_processes: list = []
+    try:
+        # Start broker
+        broker_process = multiprocessing.Process(target=broker, daemon=True)
+        logging.info("Started the server")
+        broker_process.start()
+
+        # Start background tasks
+        for i in range(NUMBER_OF_WORKERS):
+            process = multiprocessing.Process(
+                target=worker_task,
+                args=(i,),
+                daemon=True,
+                name=f"P-{i}",
+            )
+            worker_processes.append(process)
+            process.start()
+        # logging.info(f"Started {NUMBER_OF_WORKERS} worker processes")
+
+    except KeyboardInterrupt:
+        pass
+    finally:
+        # Clean up
+        broker_process.join()
+        
+        # Wait for the broker process to finish
+        for process in worker_processes:
+            process.join()
+
+        # Terminate all the worker processes
+        for process in multiprocessing.active_children():
+            process.terminate()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    if __debug__:
+        logging.basicConfig(level=logging.DEBUG)
+    else:
+        logging.basicConfig(level=logging.INFO)
+    main()
