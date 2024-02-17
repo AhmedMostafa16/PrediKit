@@ -60,8 +60,8 @@ class DataPreparer(BasePreprocessor):
         data: pd.DataFrame,
         columns: list[str] | None = None,
     ) -> pd.DataFrame:
-        logging.info("#" * 50)
-        logging.info("! START Preprocessing Data")
+        logging.debug("#" * 50)
+        logging.debug("! START Preprocessing Data")
         if self._clean_missing:
             self._clean_missing_enc = MissingValuesProcessor(
                 strategy=self._clean_strategy,
@@ -69,7 +69,7 @@ class DataPreparer(BasePreprocessor):
                 fill_value=None,
                 verbose=self.verbose,
             )
-            logging.info("> Cleansing")
+            logging.debug("> Cleansing")
             data = self._clean_missing_enc.fit_transform(data, columns)
 
         return data
@@ -78,7 +78,7 @@ class DataPreparer(BasePreprocessor):
         self, data: pd.DataFrame, columns: list[str] | None = None
     ) -> pd.DataFrame:
         if self._clean_missing_enc:
-            logging.info("> Cleansing")
+            logging.debug("> Cleansing")
             data = self._clean_missing_enc.transform(data, columns)
 
         return data

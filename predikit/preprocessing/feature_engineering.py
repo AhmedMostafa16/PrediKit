@@ -136,7 +136,7 @@ class EncodingProcessor(BasePreprocessor):
         self.encoded_names = self._encoder.get_feature_names_out()
 
         if self.encoded_names.size == 0:
-            logging.info("No columns to be encoded")
+            logging.debug("No columns to be encoded")
 
         return self
 

@@ -172,7 +172,7 @@ class MissingValuesProcessor(BasePreprocessor):
         self.na_cols = data.columns[data.isna().any()].tolist()
 
         if not self.na_cols:
-            logging.info("No missing values in features.")
+            logging.debug("No missing values in features.")
             return self
 
         strategy_fill = {
@@ -608,11 +608,11 @@ class OutliersProcessor(BasePreprocessor):
     def _log_outliers_num_percent(
         self, outliers_num: int, data: DataFrame, column: str
     ) -> None:
-        logging.info(
+        logging.debug(
             f"Number of outliers detected: {outliers_num} in Feature {column}"
         )
 
-        logging.info(
+        logging.debug(
             "Proportion of outlier detected: {}%".format(
                 round((100 / (len(data) / outliers_num)), 1)
             )
@@ -974,7 +974,7 @@ class DataCleanser(BasePreprocessor):
                 add_indicator=self.missing_indicator,
                 verbose=self.verbose,
             )
-            logging.info("> Cleansing")
+            logging.debug("> Cleansing")
             result = cme.fit_transform(data)
             if result.is_err():
                 return result
@@ -988,12 +988,12 @@ class DataCleanser(BasePreprocessor):
                 add_indicator=self.outlier_indicator,
                 verbose=self.verbose,
             )
-            logging.info("> Outliers")
+            logging.debug("> Outliers")
             missing_labels = None
 
             # ToDo optimize this to be created while creating labels
             if self._clean_missing_enc is not None and self.missing_indicator:
-                logging.info("Post-cleansing column correction")
+                logging.debug("Post-cleansing column correction")
                 na_cols = self._clean_missing_enc.na_cols
                 # undesired for outliers detection and treatment
                 missing_labels = self._clean_missing_enc._missing_value_labels(
@@ -1001,7 +1001,7 @@ class DataCleanser(BasePreprocessor):
                 )
 
             na_cols = exclude_from_columns(columns, missing_labels)
-            logging.info(na_cols)
+            logging.debug(na_cols)
             result = coe.fit_transform(data, columns=na_cols)
 
             if result.is_err():
@@ -1022,7 +1022,7 @@ class DataCleanser(BasePreprocessor):
                 remove_punctuation=self.remove_punctuation,
                 verbose=self.verbose,
             )
-            logging.info("> String Operations")
+            logging.debug("> String Operations")
             result = soe.fit_transform(data)
             if result.is_err():
                 return result
@@ -1046,14 +1046,14 @@ class DataCleanser(BasePreprocessor):
             data = data[columns]
 
         if self._clean_missing_enc:
-            logging.info("> Cleansing")
+            logging.debug("> Cleansing")
             result = self._clean_missing_enc.transform(data)
             if result.is_err():
                 return result
             data = result.unwrap()
 
         if self._clean_outliers_enc:
-            logging.info("> Outliers")
+            logging.debug("> Outliers")
             result = self._clean_outliers_enc.transform(data)
             if result.is_err():
                 return result
@@ -1061,7 +1061,7 @@ class DataCleanser(BasePreprocessor):
             data = result.unwrap()
 
         if self._string_operations_enc:
-            logging.info("> String Operations")
+            logging.debug("> String Operations")
             result = self._string_operations_enc.transform(data)
             if result.is_err():
                 return result

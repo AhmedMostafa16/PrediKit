@@ -1,11 +1,11 @@
 import logging
 from typing import Dict
 import pandas
-from redis_utils import get_all_chunks, redis_client
+from redis_utils import redis_client
 import executor
 
 
-async def process_data(props: Dict) -> bytes:
+def process_data(props: Dict) -> bytes:
     """
     Process the data based on the provided properties.
 
@@ -28,8 +28,7 @@ async def process_data(props: Dict) -> bytes:
         # If it does, use that as the input
         # If it doesn't, execute the previous node then wait for the result of the previous node
         for dep in dependencies:
-            df = await get_all_chunks(redis_client, dep)
-            logging.debug("Got Dataframe with name: " + dep + " from Redis")
+            df = redis_client.get_all_chunks(dep)
             if df is not None:
                 logging.debug("Dataframe is not None")
                 dfs.append(df)
@@ -37,15 +36,14 @@ async def process_data(props: Dict) -> bytes:
                 msg = "The dependency nodes are not found in the cache, please execute the previous nodes first"
                 logging.debug(msg)
                 return msg.encode("ascii")
-                # TODO: Execute the dependency nodes then wait for the result of the execution
 
     else:
         logging.debug("No dependency nodes")
         dfs.append(pandas.DataFrame())
 
+    logging.debug("Executing node")
     try:
-        logging.debug("Executing node")
-        result = await executor.execute_node(
+        result = executor.execute_node(
             props=props["Data"],
             dfs=dfs,
             node_type=props["NodeType"],

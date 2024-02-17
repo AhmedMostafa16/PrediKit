@@ -1,12 +1,10 @@
-from io import BytesIO
 import logging
 import os
 import sys
-from typing import Any, List
+from typing import Any
 import pandas as pd
 from result import Ok, Result, Err
-
-from redis_utils import cache_dataframe_in_redis, redis_client
+from redis_utils import redis_client
 
 root = os.path.dirname(os.path.abspath("../../predikit/"))
 sys.path.append(root)
@@ -15,7 +13,7 @@ import predikit as pk
 from predikit.util import export_index_correction
 
 
-async def execute_node(
+def execute_node(
     props: dict[str, Any],
     dfs: list[pd.DataFrame],
     node_type: str,
@@ -26,7 +24,6 @@ async def execute_node(
     match node_type:
         case "inputDataNode":
             # logging.debug("entered inputDataNode")
-            # TODO: Add threading
             ext: pk.FileExtension = pk.FileExtension.from_file(props["file"])
             df = pk.DataFrameParser(
                 path_or_buf=props["file"],
@@ -34,7 +31,7 @@ async def execute_node(
                 verbose=VERBOSE,
             )
             logging.debug("Input Node: parsed dataframe")
-            await cache_dataframe_in_redis(df, redis_client, node_id)
+            redis_client.cache_dataframe_in_redis(df, node_id)
             logging.debug("Input Node: cached dataframe in Redis")
             return Ok(None)
 
@@ -89,9 +86,7 @@ async def execute_node(
             dataframe = result.unwrap()
 
             logging.debug(msg="Data Cleansing Node: parsed dataframe")
-            await cache_dataframe_in_redis(
-                df=dataframe, redis_client=redis_client, key_prefix=node_id
-            )
+            redis_client.cache_dataframe_in_redis(dataframe, node_id)
             logging.debug("Data Cleansing Node: cached dataframe in Redis")
 
             return Ok(None)
@@ -111,8 +106,8 @@ async def execute_node(
             dataframe = result.unwrap()
 
             logging.debug("Basic Filter Node: parsed dataframe")
-            await cache_dataframe_in_redis(
-                df=dataframe, redis_client=redis_client, key_prefix=node_id
+            redis_client.cache_dataframe_in_redis(
+                df=dataframe, key_prefix=node_id
             )
             logging.debug("Basic Filter Node: cached dataframe in Redis")
 

@@ -31,7 +31,7 @@ def init_logging_config():
     if __debug__:
         logger.setLevel(logging.DEBUG)
     else:
-        logger.setLevel(logging.WARNING)
+        logger.setLevel(logging.INFO)
 
     stderr_handler = logging.StreamHandler()
     stderr_handler.setLevel(logging.DEBUG)
