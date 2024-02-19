@@ -1,7 +1,6 @@
 ﻿using System.Text.Json;
 using MediatR;
 using Microsoft.Extensions.Caching.Distributed;
-using MongoDB.Entities;
 using StackExchange.Redis;
 
 namespace WorkflowService;

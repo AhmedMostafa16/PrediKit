@@ -2,10 +2,12 @@ using System.Reflection;
 using MongoDB.Driver;
 using MongoDB.Entities;
 using Serilog;
+using StackExchange.Redis;
 using WorkflowService;
 
 
 var builder = WebApplication.CreateBuilder(args);
+ConfigurationManager configuration = builder.Configuration;
 
 // Add services to the container.
 
@@ -25,10 +27,11 @@ builder.Services.AddSingleton(LoggerConfig.ConfigureLogger());
 builder.Host.UseSerilog(LoggerConfig.ConfigureLogger());
 
 // Register Redis as a distributed cache
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = builder.Configuration.GetConnectionString("RedisDefaultConnection");
-});
+// builder.Services.AddStackExchangeRedisCache(options =>
+// {
+//     options.Configuration = configuration["RedisDefaultConnection"];
+// });
+builder.Services.AddSingleton<IConnectionMultiplexer>(ConnectionMultiplexer.Connect(configuration["RedisDefaultConnection"] ?? "localhost:6379"));
 
 builder.Services.AddHttpClient();
 // Register MongoDB

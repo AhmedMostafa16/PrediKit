@@ -25,6 +25,7 @@
     <PackageReference Include="MongoDB.Entities" Version="23.0.0" />
     <PackageReference Include="NetMQ" Version="4.0.1.13" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+    <PackageReference Include="Parquet.Net" Version="4.23.4" />
     <PackageReference Include="Polly" Version="8.2.0" />
     <PackageReference Include="Serilog" Version="3.1.1" />
     <PackageReference Include="Serilog.AspNetCore" Version="8.0.0" />

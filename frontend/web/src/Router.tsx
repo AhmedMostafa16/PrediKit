@@ -14,7 +14,7 @@ const router = createBrowserRouter([
     element: <PortalPage />,
   },
   {
-    path: '/workflows/:id',
+    path: '/workflows/:workflowId',
     element: <WorkflowEditorPage />,
     action: async (args) => {
       useFlowStore.getState().loadWorkflow(args.params.id!);

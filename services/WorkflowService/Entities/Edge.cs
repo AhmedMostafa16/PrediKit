@@ -1,6 +1,4 @@
-﻿using MessagePack;
-
-namespace WorkflowService;
+﻿namespace WorkflowService;
 
 public class Edge
 {

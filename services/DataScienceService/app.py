@@ -2,6 +2,7 @@ import gc
 import logging
 import multiprocessing
 import sys
+import threading
 import msgpack
 import zmq
 from process_data import process_data
@@ -19,7 +20,7 @@ def tprint(msg) -> None:
 def worker_task(id) -> None:
     """Worker task, using a REQ socket to do load-balancing."""
     socket = zmq.Context().instance().socket(zmq.REQ)
-    socket.identity = "Worker-{}".format(id).encode("ascii")
+    socket.identity = "W-{}".format(id).encode("ascii")
     socket.connect("ipc://backend.ipc")
     # logging.info(f"Worker-{id} is ready")
 
@@ -116,9 +117,11 @@ def main():
     worker_processes: list = []
     try:
         # Start broker
-        broker_process = multiprocessing.Process(target=broker, daemon=True)
+        broker_thread = threading.Thread(
+            target=broker, daemon=True, name="Broker"
+        )
         logging.info("Started the server")
-        broker_process.start()
+        broker_thread.start()
 
         # Start background tasks
         for i in range(NUMBER_OF_WORKERS):
@@ -133,11 +136,13 @@ def main():
         # logging.info(f"Started {NUMBER_OF_WORKERS} worker processes")
 
     except KeyboardInterrupt:
-        pass
+        logging.info("Interrupted")
+    except Exception as e:
+        logging.error(e)
     finally:
         # Clean up
-        broker_process.join()
-        
+        broker_thread.join()
+
         # Wait for the broker process to finish
         for process in worker_processes:
             process.join()
@@ -145,6 +150,10 @@ def main():
         # Terminate all the worker processes
         for process in multiprocessing.active_children():
             process.terminate()
+
+        logging.info("Terminated all the worker processes")
+        logging.info("Stopped the server")
+        gc.collect(2)
 
 
 if __name__ == "__main__":

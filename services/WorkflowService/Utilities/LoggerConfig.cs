@@ -1,6 +1,5 @@
 ﻿using Serilog;
 using Serilog.Events;
-using Serilog.Formatting.Compact;
 
 namespace WorkflowService;
 

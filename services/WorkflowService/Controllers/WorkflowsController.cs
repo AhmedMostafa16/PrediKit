@@ -2,16 +2,12 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Text.Json;
 using AutoMapper;
 using MediatR;
 using MessagePack;
 using MessagePack.Resolvers;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.IdentityModel.Tokens;
 using MongoDB.Bson;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Entities;
 using NetMQ;
 using NetMQ.Sockets;
@@ -26,10 +22,8 @@ namespace WorkflowService
         private readonly byte[] PING = [80, 105, 110, 103,]; // Ping
         private readonly byte[] PONG = [80, 111, 110, 103,]; // Pong
         private readonly byte[] OK = [79, 107,]; // Ok
-        private readonly IMapper _mapper;
         private readonly IMediator _mediator;
         // private readonly IDistributedCache _distributedCache;
-        private readonly HttpClient _httpClient;
         private readonly ILogger<WorkflowsController> _logger;
 
         public WorkflowsController(IMapper mapper,
@@ -39,16 +33,17 @@ namespace WorkflowService
                                    ILogger<WorkflowsController> logger
                                    )
         {
-            _mapper = mapper;
             _mediator = mediator;
             // _distributedCache = distributedCache;
-            _httpClient = httpClientFactory.CreateClient();
             _logger = logger;
         }
 
         [HttpGet("{id}/get_columns_names")]
         public async Task<ActionResult<List<string>>> GetColumnsNames(string id)
         {
+            // Return unimplemented status code
+            return StatusCode(501, "Not Implemented");
+            /*
             try
             {
                 var workflow = await DB.Find<Workflow>().OneAsync(id);
@@ -121,6 +116,7 @@ namespace WorkflowService
                 // Handle exceptions
                 return StatusCode(500, $"Internal Server Error: {ex.Message}");
             }
+            */
         }
 
 
@@ -128,7 +124,7 @@ namespace WorkflowService
         [HttpGet]
         public async Task<ActionResult<List<Workflow>>> GetAllWorkflows()
         {
-            var workflows = await DB.Find<Workflow>().ManyAsync(_ => true);
+            List<Workflow> workflows = await DB.Find<Workflow>().ManyAsync(_ => true) ?? [];
             return Ok(workflows);
         }
 
@@ -168,11 +164,13 @@ namespace WorkflowService
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateWorkflow(UpdateWorkflowDto workflowDto)
+        public async Task<IActionResult> UpdateWorkflow(string Id, UpdateWorkflowDto workflowDto)
         {
-            var workflow = await DB.Find<Workflow>().OneAsync(workflowDto.Id);
-            _logger.LogInformation($"Updating workflow with Id: {workflowDto.Id}");
+            var workflow = await DB.Find<Workflow>().OneAsync(Id);
+
+            _logger.LogInformation($"Updating workflow with Id: {Id}");
             _logger.LogInformation($"Workflow: {workflow}");
+
             if (workflow is null)
             {
                 return NotFound();
@@ -199,7 +197,7 @@ namespace WorkflowService
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteWorkflow(Guid id)
         {
-            var workflow = await DB.Find<Workflow>().OneAsync(id);
+            Workflow? workflow = await DB.Find<Workflow>().OneAsync(id);
 
             if (workflow is null)
             {
@@ -211,13 +209,6 @@ namespace WorkflowService
             return Ok();
         }
 
-        public class ExecutionWorkflow
-        {
-            public required string Id { get; set; }
-            public required List<Node> Nodes { get; set; }
-            public required List<string[]> Paths { get; set; }
-            public required Dictionary<string, string[]> Dependencies { get; set; }
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveOptimization)]
         private bool isServerOnline(INetMQSocket client)
@@ -304,7 +295,7 @@ namespace WorkflowService
                         // Check if the server responded with "Ok"
                         if (!byteArrayCompare(response, OK))
                         {
-                            return BadRequest("Execution of a node with id: " + node.Id + " failed. \n" + response);
+                            return BadRequest("Execution of a node with id: " + node.Id + " failed. \n" + Encoding.ASCII.GetString(response));
                         }
 
                         // Send to the notification service that uses SignalR that the node has been executed to update the edges
