@@ -3,7 +3,7 @@ import numbers
 from string import punctuation
 from typing import (
     Self,
-    # override,
+    override,
 )
 
 import numpy as np
@@ -95,7 +95,7 @@ class MissingValuesProcessor(BasePreprocessor):
     def __init__(
         self,
         *,
-        strategy: MissingValueStrategy | str = MissingValueStrategy.MEAN,
+        strategy: MissingValueStrategy | str = MissingValueStrategy.MEDIAN,
         fill_value: str | int | float | None = None,
         add_indicator: bool = False,
         verbose: bool = False,
@@ -192,7 +192,6 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return self
 
-    #@ override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -443,7 +442,6 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    #@ override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -958,7 +956,7 @@ class DataCleanser(BasePreprocessor):
     ) -> Self | Err[str]:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    #@ override
+    @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> Result[DataFrame, str]:
@@ -1006,10 +1004,7 @@ class DataCleanser(BasePreprocessor):
 
             if result.is_err():
                 return result
-            if result.is_err():
-                return result
 
-            data = result.unwrap()
             data = result.unwrap()
 
         if self.string_operations:
@@ -1031,7 +1026,6 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return Ok(data)
 
-    #@ override
     def transform(
         self,
         data: DataFrame,

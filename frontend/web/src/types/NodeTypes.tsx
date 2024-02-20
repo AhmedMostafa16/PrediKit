@@ -102,7 +102,7 @@ export const OutputNodeProps: OutputDataNode = {
       options: [
         { label: 'Original', value: ExportFormat.Original },
         { label: 'CSV', value: ExportFormat.Csv },
-        { label: 'Excel (XLS)', value: ExportFormat.XLS },
+        { label: 'Excel (XLS)', value: ExportFormat.Xls },
         { label: 'Excel (XLSX)', value: ExportFormat.Xlsx },
         { label: 'Pickle', value: ExportFormat.Pickle },
         { label: 'Parquet', value: ExportFormat.Parquet },

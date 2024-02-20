@@ -7,4 +7,4 @@ logging.info("😸 Welcome to PrediKit <3")
 
 print(pk.FilterOperator("notequal"))
 
-print(pk.FileExtension.PICKLE.to_str())
+print(pk.FileExtension.PICKLE)

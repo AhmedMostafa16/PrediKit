@@ -6,10 +6,7 @@ from enum import (
     StrEnum,
     auto,
 )
-from typing import (
-    Self,
-    # override,
-)
+from typing import Self  # override,
 
 import numpy as np
 from pandas import DataFrame
@@ -108,7 +105,7 @@ class Encoder(BasePreprocessor, ABC):
             names of the encoded features
         """
 
-    #@ override
+    # @ override
     def transform(self, X) -> csr_matrix:
         ...
 
@@ -329,8 +326,7 @@ class FilterOperator(StrEnum):
     CONTAINS = auto()
     DOES_NOT_CONTAIN = auto()
 
-    @property
-    def to_str(self) -> str:
+    def __str__(self) -> str:
         """
         Returns the string representation of the operator.
 

@@ -40,7 +40,7 @@ def get_all_columns():
         )
 
         # Process the data (you can modify this part based on your requirements)
-        result = list(df.columns)
+        result = df.columns.tolist()
 
         # print("result: ", result)
         # Encode the result in MessagePack format

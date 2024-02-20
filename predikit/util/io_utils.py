@@ -139,7 +139,7 @@ class FileExtension(Enum):
 
         return cls.from_file(file)
 
-    def to_str(self) -> str:
+    def __str__(self) -> str:
         """
         Converts the FileExtension enum member to a string.
 
@@ -205,10 +205,7 @@ def export_index_correction(
     if isinstance(ext, str):
         ext = FileExtension.from_str(extension=ext)
 
-    if not index_columns:
-        return False
-
-    if ext == FileExtension.PICKLE:
+    if not index_columns or ext == FileExtension.PICKLE:
         return False
 
     return True

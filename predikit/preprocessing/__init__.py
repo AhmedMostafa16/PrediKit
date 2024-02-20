@@ -2,8 +2,8 @@
 The :mod:`predikit.preprocessing` module includes data cleansing,
 filtering and feature engineering methods.
 """
-# ToDo: replace feature engineering with scaling, centering, normalization
-# , methods.
+# ToDo: replace feature engineering with scaling, centering,
+# Normalization, methods.
 
 __all__ = [
     "MissingValueStrategy",

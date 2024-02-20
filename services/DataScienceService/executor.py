@@ -102,6 +102,7 @@ def execute_node(
             ).fit_transform(df, column=props["column"])
 
             if result.is_err():
+                logging.debug(result.unwrap_err())
                 return None
 
             return result.unwrap()

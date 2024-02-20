@@ -14,7 +14,7 @@ interface OutputDataNodeDataModel extends PropertiesBase {
 export enum ExportFormat {
   Original = 'original',
   Csv = 'csv',
-  XLS = 'xls',
+  Xls = 'xls',
   Xlsx = 'xlsx',
   Pickle = 'pickle',
   Parquet = 'parquet',

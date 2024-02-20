@@ -73,7 +73,7 @@ class DataFrameExporter:
         str
             The default path.
         """
-        file = self._filename + self._extension.to_str()
+        file = self._filename + str(self._extension)
         return abs_path(self.default_dir, file)
 
     def export(self) -> None:

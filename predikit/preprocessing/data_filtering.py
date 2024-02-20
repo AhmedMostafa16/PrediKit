@@ -2,7 +2,7 @@ import logging
 from typing import (
     Self,
     cast,
-    # override,
+    override,
 )
 
 from pandas import DataFrame
@@ -37,7 +37,7 @@ class BasicFilteringProcessor(BasePreprocessor):
     def __init__(
         self,
         operator: FilterOperator | str,
-        value: str | None = None,
+        value: str,
         case_sensitive: bool = True,
         verbose: bool = False,
     ) -> None:
@@ -46,6 +46,7 @@ class BasicFilteringProcessor(BasePreprocessor):
         self.case_sensitive = case_sensitive
         self.verbose = verbose
 
+    @override
     def fit(
         self, data: DataFrame, column: str | None = None
     ) -> Self | Err[str]:
@@ -75,7 +76,6 @@ class BasicFilteringProcessor(BasePreprocessor):
         self._query = self._parse_query(column, self.operator, self.value)
         return self
 
-    #@ override
     def transform(
         self, data: DataFrame, column: str | None = None
     ) -> Result[DataFrame, str]:
@@ -108,6 +108,8 @@ class BasicFilteringProcessor(BasePreprocessor):
         if self.operator.is_containment_operator and self._numeric:
             data = data.astype(str)
 
+        # ToDo create a function to increase querying perf by using eval()
+        # for datasets with rows > 100k
         data = data.query(self._query)
 
         return Ok(data)
@@ -116,7 +118,7 @@ class BasicFilteringProcessor(BasePreprocessor):
         self,
         column: str,
         operator: FilterOperator,
-        value: str | None = None,
+        value: str,
     ) -> str:
         """
         Generate the query string based on the operator and value.
@@ -135,18 +137,22 @@ class BasicFilteringProcessor(BasePreprocessor):
         str
             The query string.
         """
+        logging.debug("OK IM HERE in _parse_query")
+
         if operator.is_comparison_operator:
-            return f"`{column}` {operator.to_str} {value}"
+            if self._numeric:
+                return f"{column} {str(operator)} {value}"
+            logging.debug("CANNOT PARSE STRINGS RIGHT NOW IN COMPARISON OPS")
 
         if operator.is_nullity_operator:
-            return f"`{column}`.{operator.to_str}"
+            return f"`{column}`.{str(operator)}"
 
         if operator.is_containment_operator:
             negator = (
                 "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
             )
 
-            return "{0}`{1}`.str.contains('{2}', case={3})".format(
+            return "{0}`{1}`.str.contains('{2}', case={3}, na=False)".format(
                 negator, column, value, self.case_sensitive
             )
 
@@ -170,8 +176,8 @@ class BasicFilteringProcessor(BasePreprocessor):
         """
         return data[column].dtype.kind in "biufc"
 
-    # def fit_transform(self, data, column=None):
-    #     # TODO: fix this Result workaround
-    #     bfp = self.fit(data, column)
-    #     bfp = bfp.unwrap()
-    #     return bfp.transform(data, column).unwrap()
+    @override
+    def fit_transform(
+        self, data: DataFrame, column: str
+    ) -> Result[DataFrame, str]:
+        return super().fit_transform(data, column)  # type: ignore

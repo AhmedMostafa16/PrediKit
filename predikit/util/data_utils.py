@@ -34,7 +34,7 @@ def get_dataframe_column_names(dataframe: DataFrame) -> list[str]:
     list[str]
         The column names of the DataFrame.
     """
-    return list(dataframe.columns)
+    return dataframe.columns.tolist()
 
 
 def select_numeric_columns(
@@ -61,7 +61,7 @@ def select_numeric_columns(
 
     numeric_columns = dataframe.select_dtypes(include="number").columns
 
-    return None if numeric_columns.empty else list(numeric_columns)
+    return None if numeric_columns.empty else numeric_columns.tolist()
 
 
 def select_non_numeric_columns(
@@ -87,7 +87,7 @@ def select_non_numeric_columns(
         dataframe = dataframe[columns]
 
     non_numeric_columns = dataframe.select_dtypes(exclude="number").columns
-    return None if non_numeric_columns.empty else list(non_numeric_columns)
+    return None if non_numeric_columns.empty else non_numeric_columns.tolist()
 
 
 def get_non_numeric_data(
@@ -154,24 +154,66 @@ def exclude_from_columns(
     list[str]
         The list of columns excluding the excluded columns.
     """
-    if exclude is None:
-        return columns
+    return (
+        columns
+        if not exclude
+        else [column for column in columns if column not in exclude]
+    )
 
-    return [column for column in columns if column not in exclude]
 
+def convert_memory_size(size: int, unit: MemoryUnit) -> float:
+    """
+    Convert a memory size from bytes to the specified unit.
+
+    This function takes a memory size in bytes and a unit of memory, and
+    returns the memory size converted to the specified unit. The units can be
+    bytes (B), kilobytes (KB), megabytes (MB), or gigabytes (GB).
+
+    If an invalid unit is provided, a ValueError is raised.
+
+    Parameters
+    ----------
+    size : int
+        The memory size in bytes.
+    unit : {'B', 'KB', 'MB', 'GB'}
+        The unit to which the memory size should be converted.
+
+    Returns
+    -------
+    float
+        The memory size converted to the specified unit.
+
+    Raises
+    ------
+    ValueError
+        If the specified unit is not one of 'B', 'KB', 'MB', or 'GB'.
+ode
+    Examples
+    --------
+    >>> print(convert_memory_size(1024, 'KB'))
+    1.0
+    """
+    conversion_factors = {"B": 1, "KB": 1024, "MB": 1024**2, "GB": 1024**3}
+    try:
+        return size / conversion_factors[unit]
+    except KeyError:
+        valid_units = ", ".join(conversion_factors.keys())
+        raise ValueError(
+            f"Invalid unit: {unit}. Valid units are {valid_units}."
+        )
 
 def data_memory_usage(
     df: DataFrame, unit: MemoryUnit = "MB", deep: bool = False
-) -> int:
+) -> float:
     """
     Calculate and return the memory usage of a DataFrame in a specified unit.
 
-    This function calculates the memory usage of a DataFrame and returns it
-    in the specified unit.
-    The units can be bytes (B), kilobytes (KB), megabytes (MB), or
-    gigabytes (GB).
-    The calculation can be performed deeply or not based on the `deep`
-    parameter.
+    This function calculates the total memory usage of a DataFrame, including
+    all columns and indices, and returns it in the specified unit. The units
+    can be bytes (B), kilobytes (KB), megabytes (MB), or gigabytes (GB).
+
+    If `deep` is True, the memory usage of data buffers for objects is
+    inspected deeply and may be more accurate.
 
     Parameters
     ----------
@@ -180,28 +222,23 @@ def data_memory_usage(
     unit : {'B', 'KB', 'MB', 'GB'}, optional
         The unit in which to return the memory usage. By default, it is 'MB'.
     deep : bool, optional
-        Whether to deeply introspect object dtypes for data buffers. By
-        default, it is False.
+        If True, introspect data buffers of object columns, which can be more
+        accurate. By default, it is False.
 
     Returns
     -------
-    int
+    float
         The memory usage of the DataFrame in the specified unit.
 
     Examples
     --------
     >>> df = pd.DataFrame({'A': range(1, 1000000)})
+    >>> # Here, df is a DataFrame with 1 million rows and one column 'A'.
     >>> print(data_memory_usage(df, 'MB'))
     7.63
     """
-    if unit == "MB":
-        return df.memory_usage(deep=deep).sum() / 1024**2
-    elif unit == "GB":
-        return df.memory_usage(deep=deep).sum() / 1024**3
-    elif unit == "KB":
-        return df.memory_usage(deep=deep).sum() / 1024
-
-    return df.memory_usage(deep=deep).sum()
+    memory_usage = df.memory_usage(deep=deep).sum()
+    return convert_memory_size(memory_usage, unit)
 
 
 def str_data_memory_usage(
@@ -215,12 +252,10 @@ def str_data_memory_usage(
     as a string.
 
     This function extends the `data_memory_usage` function by returning the
-    memory usage as a string
-    with the unit of memory appended to the end. The memory usage of a
-    DataFrame is calculated and
-    returned in the specified unit. The units can be bytes (B), kilobytes (KB),
-    megabytes (MB), or gigabytes (GB). The calculation can be performed deeply
-    or not based on the `deep` parameter.
+    memory usage as a string with the unit of memory appended to the end.
+
+    If `deep` is True, the memory usage of data buffers for objects is
+    inspected deeply and may be more accurate.
 
     Parameters
     ----------
@@ -229,8 +264,8 @@ def str_data_memory_usage(
     unit : {'B', 'KB', 'MB', 'GB'}, optional
         The unit in which to return the memory usage. By default, it is 'MB'.
     deep : bool, optional
-        Whether to deeply introspect object dtypes for data buffers. By
-        default, it is False.
+        If True, introspect data buffers of object columns, which can be more
+        accurate. By default, it is False.
     precision : int, optional
         The number of decimal places to round to, by default 2.
 
@@ -242,14 +277,9 @@ def str_data_memory_usage(
     Examples
     --------
     >>> df = pd.DataFrame({'A': range(1, 1000000)})
+    >>> # Here, df is a DataFrame with 1 million rows and one column 'A'.
     >>> print(str_data_memory_usage(df, 'MB'))
     '7.63 MB'
     """
-    if unit == "MB":
-        return f"{df.memory_usage(deep=deep).sum() / 1024**2:.2f} MB"
-    elif unit == "GB":
-        return f"{df.memory_usage(deep=deep).sum() / 1024**3:.2f} GB"
-    elif unit == "KB":
-        return f"{df.memory_usage(deep=deep).sum() / 1024:.2f} KB"
-
-    return f"{df.memory_usage(deep=deep).sum():.2f} B"
+    memory_usage = data_memory_usage(df, unit, deep)
+    return f"{memory_usage:.{precision}f} {unit.upper()}"

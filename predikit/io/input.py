@@ -79,7 +79,7 @@ class DataFrameParser(DataFrame):
         FileExtension.JSON: read_json,
         FileExtension.PARQUET: read_parquet,
         FileExtension.EXCEL: read_excel,
-        FileExtension.PICKLE: read_pickle,
+        FileExtension.PICKLE: read_pickle,  # type: ignore
     }
 
     # ToDo add support for reading specific amount of columns and rows.
@@ -181,7 +181,7 @@ class DataFrameParser(DataFrame):
 
         if self.verbose:
             logging.info(
-                f"✅ Done! Data ingestion process completed. DataFrame is "
+                "✅ Done! Data ingestion process completed. DataFrame is "
                 "ready for use."
             )
             shape = df.shape

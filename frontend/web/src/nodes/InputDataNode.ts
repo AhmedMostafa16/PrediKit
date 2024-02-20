@@ -7,7 +7,9 @@ export interface InputDataNode extends BaseNode {
 
 interface InputDataNodeDataModel extends PropertiesBase {
   file?: string;
-  // ToDo uncomment whenever you decide to switch from passing
-  // a file path to a BytesIO Object
+
+  // ToDo
+  /* uncomment whenever you decide to switch from passing
+      a file path to a BytesIO Object */
   // extension?: string;
 }
