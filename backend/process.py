@@ -311,7 +311,7 @@ class Executor:
 
         # Cache the output of the node
         # If we are executing a free node from within an iterator,
-        # we want to store the result in the cache of the parent executor
+        # I want to store the result in the cache of the parent executor
         write_cache = (
             self.parent_executor.cache
             if self.parent_executor and node.parent is None
@@ -401,7 +401,7 @@ class Executor:
     def __get_output_nodes(self) -> List[NodeId]:
         output_nodes: List[NodeId] = []
         for node in self.chain.nodes.values():
-            # we assume that iterator node always have side effects
+            # I assume that iterator node always have side effects
             side_effects = (
                 isinstance(node, IteratorNode) or node.has_side_effects()
             )

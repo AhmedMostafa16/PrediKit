@@ -4,7 +4,7 @@ from .chain import Chain, IteratorNode, Node, EdgeSource
 
 def __has_side_effects(node: Node) -> bool:
     if isinstance(node, IteratorNode) or node.is_helper:
-        # we assume that both iterators and their helper nodes always have side effects
+        # I assume that both iterators and their helper nodes always have side effects
         return True
     return node.has_side_effects()
 
@@ -17,7 +17,7 @@ def __outline_child_nodes(chain: Chain) -> bool:
     changed = False
 
     for node in chain.nodes.values():
-        # we try to outline child nodes that are not iterator helper nodes
+        # I try to outline child nodes that are not iterator helper nodes
         if node.parent is not None and not node.is_helper:
 
             def has_no_parent(source: EdgeSource) -> bool:
@@ -25,7 +25,7 @@ def __outline_child_nodes(chain: Chain) -> bool:
                 assert n is not None
                 return n.parent is None
 
-            # we can only outline if all of its inputs are independent of the iterator
+            # I can only outline if all of its inputs are independent of the iterator
             can_outline = all(has_no_parent(n.source) for n in chain.edges_to(node.id))
             if can_outline:
                 node.parent = None
