@@ -19,8 +19,8 @@ from sklearn.preprocessing import (
 from ._base import EncodingStrategies
 
 class OneHotEncoder:
-    def __init__(self, columns: list[str] = None, drop: str =None) -> None:
-        self.columns: list[str] = columns
+    def __init__(self, cols: list[str] = None, drop: str =None) -> None:
+        self.columns: list[str] = cols
         self.encodings: dict[str, int] = {}
         self.drop: str = drop
         self.feature_names_out: list[str] = []
