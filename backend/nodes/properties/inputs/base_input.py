@@ -1,39 +1,63 @@
-from typing import Any, Union
+from typing import Union, Literal
+from base_types import InputId
+from .. import expression
+
+InputKind = Literal[
+    "number",
+    "slider",
+    "dropdown",
+    "text",
+    "text-line",
+    "file",
+    "generic",
+]
 
 
 class BaseInput:
-    def __init__(self, input_type: str, label: str, has_handle=True):
-        self.input_type = input_type
-        self.label = label
+    def __init__(
+        self,
+        input_type: expression.ExpressionJson,
+        label: str,
+        kind: InputKind = "generic",
+        has_handle=True,
+    ):
+        self.input_type: expression.ExpressionJson = input_type
+        self.input_conversion: Union[expression.ExpressionJson, None] = None
+        self.kind: InputKind = kind
+        self.label: str = label
         self.optional: bool = False
-        self.has_handle = has_handle
-        self.id: Union[int, None] = None
+        self.has_handle: bool = has_handle
+        self.id: InputId = InputId(-1)
 
     # This is the method that should be created by each input
-    def enforce(self, value) -> Any:
+    def enforce(self, value):
         """Enforce the input type"""
         return value
 
     # This is the method that should be called by the processing code
-    def enforce_(self, value) -> Any | None:
+    def enforce_(self, value):
         if self.optional and value is None:
             return None
-        assert (
-            value is not None
-        ), f"Expected value to exist, but does not exist for type {self.input_type} with label {self.label}"
+        assert value is not None, (
+            f"Expected value to exist, "
+            f"but does not exist for {self.kind} input with type {self.input_type} and label {self.label}"
+        )
         return self.enforce(value)
 
-    def toDict(self) -> dict[str, Any]:
+    def toDict(self):
+        actual_type = [self.input_type, "null"] if self.optional else self.input_type
         return {
             "id": self.id,
-            "type": self.input_type,
+            "type": actual_type,
+            "conversion": self.input_conversion,
+            "kind": self.kind,
             "label": self.label,
             "optional": self.optional,
             "hasHandle": self.has_handle,
         }
 
-    def with_id(self, input_id: int):
-        self.id = input_id
+    def with_id(self, input_id: Union[InputId, int]):
+        self.id = InputId(input_id)
         return self
 
     def make_optional(self):

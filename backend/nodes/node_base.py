@@ -1,95 +1,62 @@
 from abc import ABCMeta, abstractmethod
-from typing import Any, List, Literal, NewType, Union
+from typing import Any, List, Literal
+
+from base_types import InputId, OutputId
+
+from .category import Category
 
 from .properties.inputs.base_input import BaseInput
 from .properties.outputs.base_output import BaseOutput
 
 
-def assign_implicit_ids(l: Union[List[BaseInput], List[BaseOutput]]):
-    for i, inout in enumerate(l):
-        if inout.id is None:
-            inout.id = i
-
-
-FeatureId = NewType("FeatureId", str)
-NodeKind = Literal["regularNode", "newIterator", "collector"]
+NodeType = Literal["regularNode", "iterator", "iteratorHelper"]
 
 
 class NodeBase(metaclass=ABCMeta):
     """Base class for a node"""
 
     def __init__(self):
-        """Constructor"""
-        self.inputs: List[BaseInput] = []
-        self.outputs: List[BaseOutput] = []
-        self.description = ""
+        self.__inputs: List[BaseInput] = []
+        self.__outputs: List[BaseOutput] = []
+        self.description: str = ""
 
-        self.category: str = ""
+        self.category: Category = Category(
+            "Unknown", "Unknown category", "BsQuestionDiamond", "#718096"
+        )
         self.name: str = ""
         self.icon: str = ""
-        self.sub = "Miscellaneous"
-        self.type = "regularNode"
-        self.see_also: list[str] = []
-        self.kind: NodeKind
-        self.deprecated: bool = False
-        self.features: list[FeatureId] = []
+        self.sub: str = "Miscellaneous"
+        self.type: NodeType = "regularNode"
 
-        self.side_effects = False
+        self.side_effects: bool = False
+        self.deprecated: bool = False
+
+    @property
+    def inputs(self) -> List[BaseInput]:
+        return self.__inputs
+
+    @inputs.setter
+    def inputs(self, value: List[BaseInput]):
+        for i, input_value in enumerate(value):
+            if input_value.id == -1:
+                input_value.id = InputId(i)
+        self.__inputs = value
+
+    @property
+    def outputs(self) -> List[BaseOutput]:
+        return self.__outputs
+
+    @outputs.setter
+    def outputs(self, value: List[BaseOutput]):
+        for i, output_value in enumerate(value):
+            if output_value.id == -1:
+                output_value.id = OutputId(i)
+        self.__outputs = value
 
     @abstractmethod
     def run(self) -> Any:
-        """
-        Abstract method to run a node's logic.
-        It is expected that this method will return the output of the node.
-        """
+        """Abstract method to run a node's logic"""
         return
-
-    def get_extra_data(self) -> Any:
-        """Abstract method for getting extra data the frontend needs"""
-        return
-
-    def get_inputs(self, with_implicit_ids=False):
-        if with_implicit_ids:
-            assign_implicit_ids(self.inputs)
-        return self.inputs
-
-    def get_outputs(self, with_implicit_ids=False):
-        if with_implicit_ids:
-            assign_implicit_ids(self.outputs)
-        return self.outputs
-
-    def get_description(self):
-        return self.description
-
-    def get_name(self):
-        return self.name
-
-    def get_category(self):
-        return self.category
-
-    def get_icon(self):
-        return self.icon
-
-    def get_sub_category(self):
-        return self.sub
-
-    def get_type(self):
-        return self.type
-
-    def get_has_side_effects(self):
-        return self.side_effects
-
-    def get_see_also(self):
-        return self.see_also
-
-    def get_kind(self):
-        return self.kind
-
-    def get_deprecated(self):
-        return self.deprecated
-
-    def get_features(self):
-        return self.features
 
 
 # pylint: disable=abstract-method
@@ -97,7 +64,6 @@ class IteratorNodeBase(NodeBase):
     """Base class for an iterator node"""
 
     def __init__(self):
-        """Constructor"""
         super().__init__()
         self.icon = "MdLoop"
         self.sub = "Iteration"

@@ -3,7 +3,6 @@ from concurrent.futures import ThreadPoolExecutor
 import functools
 import gc
 import logging
-import multiprocessing
 import sys
 import traceback
 from json import dumps as stringify
@@ -12,14 +11,15 @@ import importlib
 import os
 
 # pylint: disable=unused-import
+import cv2
 from sanic import Sanic
 from sanic.log import logger, access_logger
 from sanic.request import Request
 from sanic.response import json
 from sanic_cors import CORS
-from asyncio_locked_dict import AsyncioLockedDict
 
 from nodes.node_factory import NodeFactory
+from nodes.utils.exec_options import set_execution_options, ExecutionOptions
 
 from base_types import NodeId, InputId, OutputId
 from chain.cache import OutputCache
@@ -61,9 +61,7 @@ for root, dirs, files in os.walk(
                 init_module[-1] = "__init__"
                 init_module = ".".join(init_module)
                 try:
-                    category = getattr(
-                        importlib.import_module(init_module), "category"
-                    )
+                    category = getattr(importlib.import_module(init_module), "category")
                     missing_categories.add(category.name)
                 except ImportError as ie:
                     logger.warning(ie)
@@ -87,25 +85,13 @@ categories = sorted(
 
 
 class AppContext:
-    """
-    Represents the application context.
-
-    Attributes:
-        executors (Dict[str, Executor]): A dictionary of executors.
-        cache (Dict[NodeId, Any]): A dictionary used for caching.
-        queue (EventQueue): An event queue.
-        pool (ThreadPoolExecutor): A thread pool executor.
-    """
-
     def __init__(self):
-        self.executors: Dict[str, Executor] = AsyncioLockedDict()
-        self.cache: Dict[NodeId, Any] = AsyncioLockedDict()
+        self.executor: Optional[Executor] = None
+        self.cache: Dict[NodeId, Any] = dict()
         # This will be initialized by setup_queue.
         # This is necessary because we don't know Sanic's event loop yet.
         self.queue: EventQueue = None  # type: ignore
-        self.pool = ThreadPoolExecutor(
-            max_workers=multiprocessing.cpu_count() // 2
-        )
+        self.pool = ThreadPoolExecutor(max_workers=4)
 
     @staticmethod
     def get(app_instance: Sanic) -> "AppContext":
@@ -125,47 +111,27 @@ class SSEFilter(logging.Filter):
 
 
 class ZeroCounter:
-    """
-    A class that keeps track of the number of times it has been entered and exited.
-
-    This class is used to keep track of the number of times it has been entered and exited.
-    It is used to ensure that the count is zero before continuing. This is useful for ensuring
-    that all previews have been completed before running the nodes. It is also useful for
-    ensuring that all nodes have been run before continuing. This class is used as a context
-    manager and can be used with the `with` statement.
-    """
-
     def __init__(self) -> None:
         self.count = 0
 
     async def wait_zero(self) -> None:
-        """
-        Asynchronously waits until the count becomes zero.
-        """
         while self.count != 0:
             await asyncio.sleep(0.01)
 
     def __enter__(self):
-        """
-        Increments the count when entering a context.
-        """
         self.count += 1
 
     def __exit__(self, _exc_type, _exc_value, _exc_traceback):
-        """
-        Decrements the count when exiting a context.
-        """
         self.count -= 1
 
 
-# This counter is used to ensure that all previews have been completed before running the nodes.
 runIndividualCounter = ZeroCounter()
 
-# Add a filter to the access logger to filter out successful SSE requests
+
 access_logger.addFilter(SSEFilter())
 
 
-@app.route("/workflows/<workflow_id:str>/nodes")
+@app.route("/nodes")
 async def nodes(_):
     """Gets a list of all nodes as well as the node information"""
     registry = NodeFactory.get_registry()
@@ -174,9 +140,7 @@ async def nodes(_):
     # sort nodes in category order
     sorted_registry = sorted(
         registry.items(),
-        key=lambda x: category_order.index(
-            NodeFactory.get_node(x[0]).category.name
-        ),
+        key=lambda x: category_order.index(NodeFactory.get_node(x[0]).category.name),
     )
     node_list = []
     for schema_id, _node_class in sorted_registry:
@@ -208,23 +172,23 @@ async def nodes(_):
 
 class RunRequest(TypedDict):
     data: List[JsonNode]
+    isCpu: bool
+    isFp16: bool
+    pytorchGPU: int
+    ncnnGPU: int
+    onnxGPU: int
+    onnxExecutionProvider: str
 
 
-@app.route("/workflows/<workflow_id:str>/run", methods=["POST"])
-async def run(request: Request, workflow_id: str):
+@app.route("/run", methods=["POST"])
+async def run(request: Request):
     """Runs the provided nodes"""
     ctx = AppContext.get(request.app)
-    if workflow_id in ctx.executors:
-        if ctx.executors[workflow_id].is_running():
-            return json(
-                alreadyRunningResponse("Workflow is already running!"),
-                status=400,
-            )
-        if ctx.executors[workflow_id].is_paused():
-            ctx.executors[workflow_id].resume()
-            return json(
-                successResponse("Successfully resumed execution!"), status=201
-            )
+
+    if ctx.executor:
+        message = "Cannot run another executor while the first one is still running."
+        logger.warning(message)
+        return json(alreadyRunningResponse(message), status=500)
 
     try:
         # wait until all previews are done
@@ -236,7 +200,16 @@ async def run(request: Request, workflow_id: str):
         optimize(chain)
 
         logger.info("Running new executor...")
-
+        exec_opts = ExecutionOptions(
+            device="cpu" if full_data["isCpu"] else "cuda",
+            fp16=full_data["isFp16"],
+            pytorch_gpu_index=full_data["pytorchGPU"],
+            ncnn_gpu_index=full_data["ncnnGPU"],
+            onnx_gpu_index=full_data["onnxGPU"],
+            onnx_execution_provider=full_data["onnxExecutionProvider"],
+        )
+        set_execution_options(exec_opts)
+        logger.info(f"Using device: {exec_opts.device}")
         executor = Executor(
             chain,
             inputs,
@@ -246,13 +219,13 @@ async def run(request: Request, workflow_id: str):
             parent_cache=OutputCache(static_data=ctx.cache.copy()),
         )
         try:
-            ctx.executors[workflow_id] = executor
+            ctx.executor = executor
             await executor.run()
         except Aborted:
             pass
         finally:
-            del ctx.executors[workflow_id]
-            # gc.collect()
+            ctx.executor = None
+            gc.collect()
 
         await ctx.queue.put(
             {"event": "finish", "data": {"message": "Successfully ran nodes!"}}
@@ -275,18 +248,22 @@ async def run(request: Request, workflow_id: str):
             }
 
         await ctx.queue.put({"event": "execution-error", "data": error})
-        return json(
-            errorResponse("Error running nodes!", exception), status=500
-        )
+        return json(errorResponse("Error running nodes!", exception), status=500)
 
 
 class RunIndividualRequest(TypedDict):
     id: NodeId
     inputs: List[Any]
+    isCpu: bool
+    isFp16: bool
+    pytorchGPU: int
+    ncnnGPU: int
+    onnxGPU: int
+    onnxExecutionProvider: str
     schemaId: str
 
 
-@app.route("/workflows/<workflow_id:str>/run/individual", methods=["POST"])
+@app.route("/run/individual", methods=["POST"])
 async def run_individual(request: Request):
     """Runs a single node"""
     ctx = AppContext.get(request.app)
@@ -295,7 +272,16 @@ async def run_individual(request: Request):
         if ctx.cache.get(full_data["id"], None) is not None:
             del ctx.cache[full_data["id"]]
         logger.info(full_data)
-
+        exec_opts = ExecutionOptions(
+            device="cpu" if full_data["isCpu"] else "cuda",
+            fp16=full_data["isFp16"],
+            pytorch_gpu_index=full_data["pytorchGPU"],
+            ncnn_gpu_index=full_data["ncnnGPU"],
+            onnx_gpu_index=full_data["onnxGPU"],
+            onnx_execution_provider=full_data["onnxExecutionProvider"],
+        )
+        set_execution_options(exec_opts)
+        logger.info(f"Using device: {exec_opts.device}")
         # Create node based on given category/name information
         node_instance = NodeFactory.get_node(full_data["schemaId"])
 
@@ -310,9 +296,7 @@ async def run_individual(request: Request):
 
         with runIndividualCounter:
             # Run the node and pass in inputs as args
-            run_func = functools.partial(
-                node_instance.run, *full_data["inputs"]
-            )
+            run_func = functools.partial(node_instance.run, *full_data["inputs"])
             output, execution_time = await app.loop.run_in_executor(
                 None, timed_supplier(run_func)
             )
@@ -327,8 +311,8 @@ async def run_individual(request: Request):
             output_idxable = [output] if len(node_outputs) == 1 else output
             for idx, node_output in enumerate(node_outputs):
                 try:
-                    broadcast_data[node_output.id] = (
-                        node_output.get_broadcast_data(output_idxable[idx])
+                    broadcast_data[node_output.id] = node_output.get_broadcast_data(
+                        output_idxable[idx]
                     )
                 except Exception as error:
                     logger.error(f"Error broadcasting output: {error}")
@@ -344,16 +328,14 @@ async def run_individual(request: Request):
                 }
             )
         del node_instance, run_func
-        # gc.collect()
+        gc.collect()
         return json({"success": True, "data": None})
     except Exception as exception:
         logger.error(exception, exc_info=True)
         return json({"success": False, "error": str(exception)})
 
 
-@app.route(
-    "/workflows/<workflow_id:str>/clearcache/individual", methods=["POST"]
-)
+@app.route("/clearcache/individual", methods=["POST"])
 async def clear_cache_individual(request: Request):
     ctx = AppContext.get(request.app)
     try:
@@ -370,9 +352,7 @@ async def clear_cache_individual(request: Request):
 async def sse(request: Request):
     ctx = AppContext.get(request.app)
     headers = {"Cache-Control": "no-cache"}
-    response = await request.respond(
-        headers=headers, content_type="text/event-stream"
-    )
+    response = await request.respond(headers=headers, content_type="text/event-stream")
     while True:
         message = await ctx.queue.get()
         if response is not None:
@@ -385,94 +365,84 @@ async def setup_queue(sanic_app: Sanic, _):
     AppContext.get(sanic_app).queue = EventQueue()
 
 
-@app.route("/workflows/<workflow_id:str>/pause", methods=["POST"])
-async def pause(request: Request, workflow_id: str):
+@app.route("/pause", methods=["POST"])
+async def pause(request: Request):
     """Pauses the current execution"""
     ctx = AppContext.get(request.app)
 
-    if not workflow_id in ctx.executors:
+    if not ctx.executor:
         message = "No executor to pause"
         logger.warning(message)
         return json(noExecutorResponse(message), status=400)
 
     try:
         logger.info("Executor found. Attempting to pause...")
-        ctx.executors[workflow_id].pause()
-        return json(
-            successResponse("Successfully paused execution!"), status=201
-        )
+        ctx.executor.pause()
+        return json(successResponse("Successfully paused execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error pausing execution!", exception), status=500
-        )
+        return json(errorResponse("Error pausing execution!", exception), status=500)
 
 
-@app.route("/workflows/<workflow_id:str>/resume", methods=["POST"])
-async def resume(request: Request, workflow_id: str):
+@app.route("/resume", methods=["POST"])
+async def resume(request: Request):
     """Pauses the current execution"""
     ctx = AppContext.get(request.app)
 
-    if not workflow_id in ctx.executors:
+    if not ctx.executor:
         message = "No executor to resume"
         logger.warning(message)
         return json(noExecutorResponse(message), status=400)
 
     try:
         logger.info("Executor found. Attempting to resume...")
-        ctx.executors[workflow_id].resume()
-        return json(
-            successResponse("Successfully resumed execution!"), status=201
-        )
+        ctx.executor.resume()
+        return json(successResponse("Successfully resumed execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error resuming execution!", exception), status=500
-        )
+        return json(errorResponse("Error resuming execution!", exception), status=500)
 
 
-@app.route("/workflows/<workflow_id:str>/kill", methods=["POST"])
-async def kill(request: Request, workflow_id: str):
+@app.route("/kill", methods=["POST"])
+async def kill(request: Request):
     """Kills the current execution"""
     ctx = AppContext.get(request.app)
 
-    if not workflow_id in ctx.executors:
+    if not ctx.executor:
         message = "No executor to kill"
         logger.warning("No executor to kill")
         return json(noExecutorResponse(message), status=400)
 
     try:
         logger.info("Executor found. Attempting to kill...")
-        ctx.executors[workflow_id].kill()
-        return json(
-            successResponse("Successfully killed execution!"), status=201
-        )
+        ctx.executor.kill()
+        return json(successResponse("Successfully killed execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error killing execution!", exception), status=500
-        )
+        return json(errorResponse("Error killing execution!", exception), status=500)
+
+
+@app.route("/listgpus/ncnn", methods=["GET"])
+async def list_ncnn_gpus(_request: Request):
+    """Lists the available GPUs for NCNN"""
+    try:
+        # pylint: disable=import-outside-toplevel
+        from ncnn_vulkan import ncnn
+
+        result = []
+        for i in range(ncnn.get_gpu_count()):
+            result.append(ncnn.get_gpu_info(i).device_name())
+        return json(result)
+    except Exception as exception:
+        logger.error(exception, exc_info=True)
+        return json([])
 
 
 if __name__ == "__main__":
-    host: str = os.getenv("HOST", "localhost")
-    port = int(os.getenv("PORT", 5001))
-    workers = int(os.getenv("WORKERS", multiprocessing.cpu_count()))
-    is_production: bool = (
-        os.environ.get("Production", "True").lower() == "true"
-    )
+    try:
+        port = int(sys.argv[1]) or 8000
+    except:
+        port = 8000
 
-    # Ensure at least one worker is running
-    if workers < 1 and not is_production:
-        workers = 1
-    else:
-        workers = multiprocessing.cpu_count()
-
-    app.run(
-        host=host,
-        port=port,
-        workers=workers,
-        debug=not is_production,
-        access_log=is_production,
-        auto_reload=not is_production,
-    )
+    if sys.argv[1] != "--no-run":
+        app.run(port=port)

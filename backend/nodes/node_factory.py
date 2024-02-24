@@ -1,45 +1,66 @@
-from typing import Callable, Dict
+from typing import Callable, Dict, TypeVar
 
 from sanic.log import logger
 
 from .node_base import NodeBase
 
+T = TypeVar("T", bound=NodeBase)
+
 
 # Implementation based on https://medium.com/@geoffreykoh/implementing-the-factory-pattern-via-dynamic-registry-and-python-decorators-479fc1537bbe
 class NodeFactory:
-    """
-    The factory class for creating nodes.
-    """
+    """The factory class for creating nodes"""
 
-    registry = {}  # Internal registry for available nodes
+    registry: Dict[str, Callable[[], NodeBase]] = {}
+    """ Internal registry for available nodes """
+
+    __node_cache: Dict[str, NodeBase] = {}
 
     @classmethod
-    def create_node(cls, schema_id: str) -> NodeBase:
-        """Factory command to create the node"""
-        node_class = cls.registry[schema_id]
-        node = node_class()
+    def get_node(cls, schema_id: str) -> NodeBase:
+        """
+        Retrieves a node instance based on the given schema ID and caches it if it doesn't exist.
+
+        Args:
+            schema_id (str): The ID of the schema.
+
+        Returns:
+            NodeBase: An instance of the node class corresponding to the schema ID.
+        """
+
+        node = cls.__node_cache.get(schema_id)
+        if node is None:
+            node_class = cls.registry[schema_id]
+            node = node_class()
+            cls.__node_cache[schema_id] = node
         return node
 
     @classmethod
-    def register(cls, schema_id: str) -> Callable:
-        """
-        Decorator function to register a node class with a schema ID.
+    def register(cls, schema_id: str):
+        """Decorator to register a node class with a schema ID.
+
+        Args:
+            cls (Type): The class to be registered.
+            schema_id (str): The schema ID associated with the class.
+
+        Returns:
+            Callable: The decorated class.
         """
 
-        def inner_wrapper(wrapped_class: NodeBase) -> Callable:
+        def inner_wrapper(wrapped_class: Callable[[], T]) -> Callable[[], T]:
             if schema_id not in cls.registry:
                 cls.registry[schema_id] = wrapped_class
             else:
                 logger.warning(
                     f"Node {schema_id} already exists. Will replace it"
                 )
-            return wrapped_class  # type: ignore
+            return wrapped_class
 
         return inner_wrapper
 
     @classmethod
-    def get_registry(cls) -> Dict:
+    def get_registry(cls):
         """
-        Returns the registry of registered schema IDs and their corresponding node classes.
+        Returns the registry of the NodeFactory class.
         """
         return cls.registry

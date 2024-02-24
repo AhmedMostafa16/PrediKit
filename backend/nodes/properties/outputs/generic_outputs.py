@@ -1,16 +1,20 @@
-from .base_output import BaseOutput
+from .base_output import BaseOutput, OutputKind
+from .. import expression
 
 
-def NumberOutput(label: str):
+def NumberOutput(label: str, output_type: expression.ExpressionJson = "number"):
     """Output for arbitrary number"""
-    return BaseOutput("number::any", label)
+    return BaseOutput(expression.intersect("number", output_type), label)
 
 
-def IntegerOutput(label: str):
-    """Output for integer number"""
-    return BaseOutput("number::integer", label)
+class TextOutput(BaseOutput):
+    def __init__(
+        self,
+        label: str,
+        output_type: expression.ExpressionJson = "string",
+        kind: OutputKind = "text",
+    ):
+        super().__init__(expression.intersect("string", output_type), label, kind=kind)
 
-
-def TextOutput(label: str):
-    """Output for arbitrary text"""
-    return BaseOutput("text::any", label)
+    def get_broadcast_data(self, value: str):
+        return value

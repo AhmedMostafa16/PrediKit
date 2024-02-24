@@ -1,11 +1,15 @@
 from __future__ import annotations
+from typing import Literal, Union
 
 import os
 
 # pylint: disable=relative-beyond-top-level
-from ...utils.file_utils import get_available_dataset_formats
+from ...utils.dataset_utils import get_available_dataset_formats
+from .. import expression
 from .base_input import BaseInput
 from .generic_inputs import DropDownInput
+
+FileInputKind = Literal["dataset"]  # later it will be a Union
 
 
 class FileInput(BaseInput):
@@ -13,48 +17,47 @@ class FileInput(BaseInput):
 
     def __init__(
         self,
-        input_type: str,
+        input_type: expression.ExpressionJson,
         label: str,
+        file_kind: FileInputKind,
         filetypes: list[str],
         has_handle: bool = False,
     ):
-        super().__init__(f"file::{input_type}", label, has_handle)
+        super().__init__(input_type, label, kind="file", has_handle=has_handle)
         self.filetypes = filetypes
+        self.file_kind = file_kind
 
     def toDict(self):
         return {
             **super().toDict(),
             "filetypes": self.filetypes,
+            "fileKind": self.file_kind,
         }
 
-    def enforce(self, value):
-        assert os.path.exists(value), f"{value} does not exist"
-        # TODO: assert if the file exists on Azure Blob Storage instead of local file system
+    def enforce(self, value) -> str:
+        assert isinstance(value, str)
+        assert os.path.exists(value), f"File {value} does not exist"
+        assert os.path.isfile(value), f"The path {value} is not a file"
         return value
 
 
 def DatasetFileInput() -> FileInput:
-    """Input for submitting a local image file"""
+    """Input for submitting a local dataset file"""
     return FileInput(
-        "image",
-        "Image File",
-        get_available_dataset_formats(),
+        input_type="DatasetFile",
+        label="Dataset File",
+        file_kind="dataset",
+        filetypes=get_available_dataset_formats(),
         has_handle=False,
     )
 
 
-def DirectoryInput(
-    label: str = "Base Directory", has_handle: bool = False
-) -> FileInput:
-    """Input for submitting a local directory"""
-    return FileInput("directory", label, ["directory"], has_handle)
-
-
-def FileExtensionDropdown() -> DropDownInput:
+def DatasetExtensionDropdown() -> DropDownInput:
     """Input for selecting file type from dropdown"""
     return DropDownInput(
-        "File Extension",
-        [
+        input_type="DatasetExtension",
+        label="Dataset Extension",
+        options=[
             {
                 "option": "CSV",
                 "value": "csv",
@@ -76,13 +79,16 @@ def FileExtensionDropdown() -> DropDownInput:
                 "value": "hdf5",
             },
             {
-                "option": "Excel (XLS)",
+                "option": "Pickle",
+                "value": "pickle",
+            },
+            {
+                "option": "XLS",
                 "value": "xls",
             },
             {
-                "option": "Excel (XLSX)",
+                "option": "XLSX",
                 "value": "xlsx",
             },
         ],
-        input_type="image-extensions",
     )
