@@ -19,6 +19,7 @@ from ._base import (
     FeatureType,
 )
 from ._encoders import init_encoder
+from ._base import EncodingStrategies
 
 
 class FeatureSelection(BasePreprocessor):
@@ -125,41 +126,24 @@ class EncodingProcessor(BasePreprocessor):
         self.verbose = verbose
         self.strategy = strategy
         self._encoder_params = encoder_params
+        self._encoder = init_encoder(strategy, **encoder_params)
 
     #@ override
-    def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
-        if columns is not None:
-            data = data[columns]
-
-        self._encoder = init_encoder(self.strategy, **self._encoder_params)
+    def fit(self, data: DataFrame, 
+            ) -> None:
         self._encoder.fit(data)
-        self.encoded_names = self._encoder.get_feature_names_out()
-
-        if self.encoded_names.size == 0:
-            logging.debug("No columns to be encoded")
-
-        return self
 
     #@ override
     def transform(
-        self, data: DataFrame, columns: list[str] | None = None
+        self, data: DataFrame, 
     ) -> Result[DataFrame, str]:
-        masked_data = data[columns] if columns else data
+        return self._encoder.transform(data)
 
-        if self.encoded_names.size == 0:
-            return Err("No columns to be encoded")
+    def fit_transform(self, data: DataFrame) -> list[str]:
+        return self._encoder.fit_transform(data)
 
-        encoded_values = self._encoder.transform(masked_data)
-
-        data[self.encoded_names] = encoded_values.toarray()
-
-        if columns:
-            data.drop(columns, axis=1, inplace=True)
-
-        return Ok(data)
-
-    #@ override
-    def fit_transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> Result[DataFrame, str]:
-        return self.fit(data, columns).transform(data, columns)
+    def get_feature_names_out(self):
+        if self.strategy in [EncodingStrategies.OneHotEncoder,]:
+            return self._encoder.get_features_names_out()
+        else:
+            raise ValueError('This Encoder does not support get_features_names_out.')
