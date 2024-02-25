@@ -1,6 +1,5 @@
 import numpy as np
 from pandas import DataFrame
-import pandas as pd
 import hashlib
 from collections import defaultdict
 
@@ -19,7 +18,7 @@ from sklearn.preprocessing import (
     OrdinalEncoder,
 )
 
-from ._base import EncodingStrategies
+from ._base import EncodingStrategies, Encoder
 
 
 class OneHotEncoder:
@@ -68,7 +67,7 @@ class OneHotEncoder:
         return self.feature_names_out
 
 class EncoderFetch:
-    _ENCODERS = {
+    _ENCODERS: dict[EncodingStrategies, Encoder] = {
         EncodingStrategies.HashingEncoder: HashingEncoder,
         EncodingStrategies.SumEncoder: SumEncoder,
         EncodingStrategies.BackwardDifferenceEncoder: BackwardDifferenceEncoder,
