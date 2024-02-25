@@ -98,7 +98,8 @@ class EncoderFetch:
             df.drop(self.columns, axis= 1, inplace= True)
             df[df_encoded.columns] = df_encoded
         else:
-            cat_col = df_encoded.select_dtypes(include=['category', 'object'])
+            cat_col = [col for col in self.columns 
+                        if col in df_encoded.select_dtypes(include=['category', 'object'])]
             df_encoded = self._encoder.transform(df_encoded[self.columns])
             df[df_encoded.columns] = df_encoded
             df.drop(cat_col, axis= 1, inplace= True)
