@@ -19,7 +19,7 @@ class MathNode(NodeBase):
         self.description = "Perform mathematical operations on numbers."
         self.inputs = [
             NumberInput(
-                "Operand A",
+                "First Operand",
                 minimum=None,
                 maximum=None,
                 precision=100,
@@ -27,7 +27,7 @@ class MathNode(NodeBase):
             ),
             MathOpsDropdown(),
             NumberInput(
-                "Operand B",
+                "Second Operand",
                 minimum=None,
                 maximum=None,
                 precision=100,

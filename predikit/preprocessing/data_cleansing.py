@@ -105,9 +105,7 @@ class MissingValuesProcessor(BasePreprocessor):
         self.add_indicator = add_indicator
         self.verbose = verbose
 
-    def fit(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> Self | Err[str]:
+    def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         """
         Fit the MissingValuesProcessor to the data.
 
@@ -135,14 +133,12 @@ class MissingValuesProcessor(BasePreprocessor):
             MissingValueStrategy.MODE,
         ):
             if (num_data := get_numeric_data(data)) is None:
-                exc = NoNumericColumnsError(
+                raise NoNumericColumnsError(
                     "Selected columns are of non-numeric type. "
                     "Unable to process missing values on non-numeric columns."
                     f" When using {self.strategy} strategy, only numeric "
                     "columns are allowed."
                 )
-
-                return Err(str(exc))
 
             data = num_data
 
@@ -163,11 +159,10 @@ class MissingValuesProcessor(BasePreprocessor):
             and data.dtypes.apply(lambda x: x.kind in ("u", "i", "f")).all()
             and not isinstance(fill_value, numbers.Real)
         ):
-            exc = ValueError(
+            raise ValueError(
                 f"'fill_value'={fill_value} is invalid. Expected a "
                 "numerical value when imputing numerical data"
             )
-            return Err(str(exc))
 
         self.na_cols = data.columns[data.isna().any()].tolist()
 
@@ -192,10 +187,10 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return self
 
-    #@ override
+    # @ override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         """
         Apply the MissingValuesProcessor to the dataset.
 
@@ -218,7 +213,7 @@ class MissingValuesProcessor(BasePreprocessor):
             )
 
         if not self.na_cols:
-            return Ok(data)
+            return data
 
         if self.strategy != MissingValueStrategy.OMIT and self.add_indicator:
             self._add_missing_value_indicator(data, self.na_cols)
@@ -228,7 +223,7 @@ class MissingValuesProcessor(BasePreprocessor):
         else:
             data[self.na_cols] = self._fill_missing_values(data[self.na_cols])
 
-        return Ok(data)
+        return data
 
     def _fill_missing_values(self, data: DataFrame) -> DataFrame:
         data = data.fillna(value=self.fill_value)
@@ -363,7 +358,7 @@ class OutliersProcessor(BasePreprocessor):
         self,
         data: DataFrame,
         columns: list[str] | None = None,
-    ) -> Self | Err[str]:
+    ) -> Self:
         """
         Fit the OutliersProcessor on the dataset.
 
@@ -386,21 +381,19 @@ class OutliersProcessor(BasePreprocessor):
             columns = get_dataframe_column_names(data)
 
         if (selection := select_numeric_columns(data, columns)) is None:
-            exc = NoNumericColumnsError(
-                "Selected columns are of non-numeric type. "
+            raise NoNumericColumnsError(
+                "Selected columns are of non-numeric type."
                 "Unable to process outliers on non-numeric columns."
             )
-            return Err(str(exc))
 
         numeric_notna_columns = [s for s in selection if data[s].notna().all()]
 
         if not numeric_notna_columns:
-            exc = ValueError(
+            raise ValueError(
                 "All numeric columns has missing values, can't "
                 "process outliers, skipping Outliers Processing... "
                 "You should run the Missing Values Processor first."
             )
-            return Err(str(exc))
 
         if isinstance(self.method, str):
             self.method = OutlierDetectionMethod.from_str(self.method)
@@ -443,10 +436,10 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    #@ override
+    # @ override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         """
         Transform the dataset by processing outliers.
 
@@ -505,7 +498,7 @@ class OutliersProcessor(BasePreprocessor):
                     f"Wrong Outlier Detection Method {self.method}"
                 )
 
-        return Ok(data)
+        return data
 
     def _fit_z_score(
         self, data: DataFrame, column: str
@@ -667,9 +660,7 @@ class StringOperationsProcessor(BasePreprocessor):
         self.remove_punctuation = remove_punctuation
         self.verbose = verbose
 
-    def fit(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> Self | Err[str]:
+    def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         """
         Fits the processor to the data.
 
@@ -714,7 +705,7 @@ class StringOperationsProcessor(BasePreprocessor):
 
         return self
 
-    def transform(self, data: DataFrame) -> Result[DataFrame, str]:
+    def transform(self, data: DataFrame) -> DataFrame:
         """
         Transforms the data using the fitted operations.
 
@@ -749,8 +740,7 @@ class StringOperationsProcessor(BasePreprocessor):
             )
 
         if not self._operations:
-            exc = NoStringColumnsError("No string columns found.")
-            return Err(str(exc))
+            raise NoStringColumnsError("No string columns found.")
 
         for column in self._str_data.columns:
             for condition, operation in self._operations:
@@ -758,7 +748,7 @@ class StringOperationsProcessor(BasePreprocessor):
                     continue
                 operation(data, column)
 
-        return Ok(data)
+        return data
 
     def _modify_case(self, data: DataFrame, column: str) -> DataFrame:
         """
@@ -918,13 +908,15 @@ class DataCleanser(BasePreprocessor):
     def __init__(
         self,
         missing_clean: bool = True,
-        missing_strategy: MissingValueStrategy
-        | str = MissingValueStrategy.MEAN,
+        missing_strategy: (
+            MissingValueStrategy | str
+        ) = MissingValueStrategy.MEAN,
         missing_fill_value: int | float | str | None = None,
         missing_indicator: bool = False,
         outlier_clean: bool = True,
-        outlier_method: OutlierDetectionMethod
-        | str = OutlierDetectionMethod.IQR,
+        outlier_method: (
+            OutlierDetectionMethod | str
+        ) = OutlierDetectionMethod.IQR,
         outlier_threshold: float = 2.5,
         outlier_indicator: bool = True,
         str_operations: bool = False,
@@ -953,15 +945,13 @@ class DataCleanser(BasePreprocessor):
         self.remove_letters = str_remove_letters
         self.remove_punctuation = str_remove_punctuation
 
-    def fit(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> Self | Err[str]:
+    def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    #@ override
+    # @ override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         if columns:
             data = data[columns]
         else:
@@ -975,11 +965,7 @@ class DataCleanser(BasePreprocessor):
                 verbose=self.verbose,
             )
             logging.debug("> Cleansing")
-            result = cme.fit_transform(data)
-            if result.is_err():
-                return result
-
-            data = result.unwrap()
+            data = cme.fit_transform(data)
 
         if self.clean_outliers:
             coe = self._clean_outliers_enc = OutliersProcessor(
@@ -1002,15 +988,7 @@ class DataCleanser(BasePreprocessor):
 
             na_cols = exclude_from_columns(columns, missing_labels)
             logging.debug(na_cols)
-            result = coe.fit_transform(data, columns=na_cols)
-
-            if result.is_err():
-                return result
-            if result.is_err():
-                return result
-
-            data = result.unwrap()
-            data = result.unwrap()
+            data = coe.fit_transform(data, columns=na_cols)
 
         if self.string_operations:
             soe = self._string_operations_enc = StringOperationsProcessor(
@@ -1023,20 +1001,17 @@ class DataCleanser(BasePreprocessor):
                 verbose=self.verbose,
             )
             logging.debug("> String Operations")
-            result = soe.fit_transform(data)
-            if result.is_err():
-                return result
-            data = result.unwrap()
+            data = soe.fit_transform(data)
 
         self._fitted = True
-        return Ok(data)
+        return data
 
-    #@ override
+    # @ override
     def transform(
         self,
         data: DataFrame,
         columns: list[str] | None = None,
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         if not self._fitted:
             raise DataNotFittedError(
                 "Data must be fitted first using the 'fit_transform' method"
@@ -1047,24 +1022,14 @@ class DataCleanser(BasePreprocessor):
 
         if self._clean_missing_enc:
             logging.debug("> Cleansing")
-            result = self._clean_missing_enc.transform(data)
-            if result.is_err():
-                return result
-            data = result.unwrap()
+            data = self._clean_missing_enc.transform(data)
 
         if self._clean_outliers_enc:
             logging.debug("> Outliers")
-            result = self._clean_outliers_enc.transform(data)
-            if result.is_err():
-                return result
-
-            data = result.unwrap()
+            data = self._clean_outliers_enc.transform(data)
 
         if self._string_operations_enc:
             logging.debug("> String Operations")
-            result = self._string_operations_enc.transform(data)
-            if result.is_err():
-                return result
-            data = result.unwrap()
+            data = self._string_operations_enc.transform(data)
 
-        return Ok(data)
+        return data

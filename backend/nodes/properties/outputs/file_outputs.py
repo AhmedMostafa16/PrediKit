@@ -21,4 +21,3 @@ class FileOutput(BaseOutput):
 def DatasetFileOutput() -> FileOutput:
     """Output for saving a local dataset file"""
     return FileOutput("DatasetFile", "Dataset File")
-

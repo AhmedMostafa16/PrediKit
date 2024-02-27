@@ -14,7 +14,9 @@ from ...properties.outputs import TextOutput
 class TextAppendNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Append different text together using a separator string."
+        self.description = (
+            "Append different text together using a separator string."
+        )
         self.inputs = [
             TextInput("Separator", has_handle=False, max_length=3),
             TextInput("Text A"),

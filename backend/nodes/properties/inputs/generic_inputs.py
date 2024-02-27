@@ -71,6 +71,33 @@ class TextInput(BaseInput):
         }
 
 
+class BoolInput(DropDownInput):
+    """Input for a checkbox"""
+
+    def __init__(self, label: str):
+        super().__init__(
+            input_type="bool",
+            label=label,
+            options=[
+                {
+                    "option": "True",
+                    "value": int(True),  # 1
+                    "type": "true",
+                },
+                {
+                    "option": "False",
+                    "value": int(False),  # 0
+                    "type": "false",
+                },
+            ],
+        )
+        self.associated_type = bool
+
+    def enforce(self, value: object) -> bool:
+        value = super().enforce(value)
+        return bool(value)
+
+
 class NoteTextAreaInput(BaseInput):
     """Input for note text"""
 
@@ -92,6 +119,31 @@ class AnyInput(BaseInput):
     def enforce_(self, value):
         # The behavior for optional inputs and None makes sense for all inputs except this one.
         return value
+
+
+class ClipboardInput(BaseInput):
+    """Input for pasting from clipboard"""
+
+    def __init__(self, label: str = "Clipboard input"):
+        super().__init__(
+            ["Dataset", "string", "number"], label, kind="text-line"
+        )
+        self.input_conversion = """
+            match Input {
+                Dataset => "<Dataset>",
+                _ as i => i,
+            }
+        """
+
+    def enforce(self, value):
+        if isinstance(value, pandas.DataFrame):
+            return value.to_csv(index=False)
+
+        if isinstance(value, float) and int(value) == value:
+            # stringify integers values
+            return str(int(value))
+
+        return str(value)
 
 
 def MathOpsDropdown() -> DropDownInput:

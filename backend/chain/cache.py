@@ -62,7 +62,9 @@ class OutputCache:
         static_data: Optional[Dict[NodeId, Any]] = None,
     ):
         super().__init__()
-        self.__static: Dict[NodeId, Any] = static_data.copy() if static_data else {}
+        self.__static: Dict[NodeId, Any] = (
+            static_data.copy() if static_data else {}
+        )
         self.__counted: Dict[NodeId, _CacheEntry] = {}
         self.parent: Optional[OutputCache] = parent
 

@@ -2,7 +2,14 @@ from typing import Any, List, Literal, Optional, Tuple, TypedDict, Union
 
 from base_types import NodeId
 
-from .chain import Chain, IteratorNode, FunctionNode, Edge, EdgeSource, EdgeTarget
+from .chain import (
+    Chain,
+    IteratorNode,
+    FunctionNode,
+    Edge,
+    EdgeSource,
+    EdgeTarget,
+)
 from .input import InputMap, EdgeInput, ValueInput, Input
 
 
@@ -57,7 +64,9 @@ def parse_json(json: List[JsonNode]) -> Tuple[Chain, InputMap]:
         for index, i in enumerate(json_node["inputs"]):
             if i["type"] == "edge":
                 inputs.append(EdgeInput(i["id"], i["index"]))
-                index_edges.append(IndexEdge(i["id"], i["index"], node.id, index))
+                index_edges.append(
+                    IndexEdge(i["id"], i["index"], node.id, index)
+                )
             else:
                 inputs.append(ValueInput(i["value"]))
         input_map.set(node.id, inputs)

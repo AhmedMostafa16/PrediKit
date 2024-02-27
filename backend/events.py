@@ -21,8 +21,8 @@ class DatasetInputInfo(TypedDict):
     columns: List[Any]
     data: Dict[Any, Any]
     index: List[Any]
-    dtype: str
-    shape: Tuple[int, int]
+    dtype: List[Any]
+    shape: List[int]
 
 
 InputsDict = Dict[InputId, Union[str, int, float, DatasetInputInfo, None]]

@@ -36,6 +36,7 @@ class BaseInput:
 
     # This is the method that should be called by the processing code
     def enforce_(self, value):
+        """Enforce the input type, and check for None if optional."""
         if self.optional and value is None:
             return None
         assert value is not None, (
@@ -45,7 +46,9 @@ class BaseInput:
         return self.enforce(value)
 
     def toDict(self):
-        actual_type = [self.input_type, "null"] if self.optional else self.input_type
+        actual_type = (
+            [self.input_type, "null"] if self.optional else self.input_type
+        )
         return {
             "id": self.id,
             "type": actual_type,

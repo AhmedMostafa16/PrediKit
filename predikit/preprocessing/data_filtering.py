@@ -48,7 +48,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
     def fit(
         self, data: DataFrame, column: str | None = None
-    ) -> Self | Err[str]:
+    ) -> Self:
         """
         Compute the necessary parameters for filtering.
 
@@ -78,7 +78,7 @@ class BasicFilteringProcessor(BasePreprocessor):
     #@ override
     def transform(
         self, data: DataFrame, column: str | None = None
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         """
         Apply the filtering to the data.
 

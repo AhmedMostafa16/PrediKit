@@ -48,7 +48,7 @@ class FeatureSelection(BasePreprocessor):
         self,
         data: DataFrame,
         columns: list[str] | None = None,
-    ) -> Self | Err[str]:
+    ) -> Self:
         # if columns and exclude:
         #     exc = ValueError(
         #         "Only one of 'columns' and 'exclude' can be specified"
@@ -87,7 +87,7 @@ class FeatureSelection(BasePreprocessor):
         self,
         data: DataFrame,
         columns: list[str] | None = None,
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         if self.empty == True:
             exc = ValueError("No columns or dtypes to be selected")
             return Err(str(exc))
@@ -143,7 +143,7 @@ class EncodingProcessor(BasePreprocessor):
     #@ override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         masked_data = data[columns] if columns else data
 
         if self.encoded_names.size == 0:
@@ -161,5 +161,5 @@ class EncodingProcessor(BasePreprocessor):
     #@ override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         return self.fit(data, columns).transform(data, columns)

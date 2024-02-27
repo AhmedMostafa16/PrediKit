@@ -1,7 +1,7 @@
 from ...category import Category
 
 category = Category(
-    name="Datasets",
+    name="Dataset",
     description="Base dataset nodes.",
     icon="BsFileEarmarkSpreadsheetFill",
     color="#C53030",

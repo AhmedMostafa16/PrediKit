@@ -255,10 +255,13 @@ class Executor:
         if node_instance.type == "iteratorHelper":
             enforced_inputs = inputs
         else:
+            # Enforce the inputs and store them in a list
+            # Enforcing means converting the input to the expected type
             node_inputs = node_instance.inputs
             for idx, node_input in enumerate(inputs):
                 enforced_inputs.append(node_inputs[idx].enforce_(node_input))
 
+        # Run the node and pass in inputs as args
         if node_instance.type == "iterator":
             context = IteratorContext(self, node.id)
             run_func = functools.partial(
@@ -293,7 +296,9 @@ class Executor:
                     elif isinstance(input_value, (str, int, float)):
                         input_dict[input_id] = input_value
                     elif isinstance(input_value, pandas.DataFrame):
-                        columns, data, dfindex, dtype, shape = get_dataframe_fields(input_value)
+                        columns, data, dfindex, dtype, shape = (
+                            get_dataframe_fields(input_value)
+                        )
                         input_dict[input_id] = {
                             "columns": columns,
                             "data": data,
@@ -454,9 +459,9 @@ class Executor:
 
     def is_running(self) -> bool:
         return not self.progress.aborted and not self.progress.paused
-    
+
     def is_paused(self) -> bool:
         return self.progress.paused
-    
+
     def is_aborted(self) -> bool:
         return self.progress.aborted

@@ -26,7 +26,9 @@ def __outline_child_nodes(chain: Chain) -> bool:
                 return n.parent is None
 
             # I can only outline if all of its inputs are independent of the iterator
-            can_outline = all(has_no_parent(n.source) for n in chain.edges_to(node.id))
+            can_outline = all(
+                has_no_parent(n.source) for n in chain.edges_to(node.id)
+            )
             if can_outline:
                 node.parent = None
                 changed = True
@@ -44,11 +46,15 @@ def __removed_dead_nodes(chain: Chain) -> bool:
     changed = False
 
     for node in list(chain.nodes.values()):
-        is_dead = len(chain.edges_from(node.id)) == 0 and not __has_side_effects(node)
+        is_dead = len(
+            chain.edges_from(node.id)
+        ) == 0 and not __has_side_effects(node)
         if is_dead:
             chain.remove_node(node.id)
             changed = True
-            logger.info(f"Chain optimization: Removed {node.schema_id} node {node.id}")
+            logger.info(
+                f"Chain optimization: Removed {node.schema_id} node {node.id}"
+            )
 
     return changed
 

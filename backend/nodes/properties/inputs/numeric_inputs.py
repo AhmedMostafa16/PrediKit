@@ -132,7 +132,9 @@ class SliderInput(NumberInput):
         self.slider_step = (
             slider_step
             if slider_step is not None
-            else (controls_step if controls_step is not None else 10**-precision)
+            else (
+                controls_step if controls_step is not None else 10**-precision
+            )
         )
 
     def toDict(self):

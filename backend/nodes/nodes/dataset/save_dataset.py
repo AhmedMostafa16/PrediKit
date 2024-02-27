@@ -10,6 +10,7 @@ import pandas
 from result import Ok
 
 from sanic.log import logger
+from ...properties.outputs.file_outputs import DatasetFileOutput
 
 from nodes.properties.inputs.dataset_input import DatasetInput
 
@@ -40,7 +41,9 @@ class DatasetWriteNode(NodeBase):
         ]
         self.category = DatasetCategory
         self.name = "Save Dataset"
-        self.outputs = []
+        self.outputs = [
+            DatasetFileOutput(),
+        ]
         self.icon = "MdSave"
         self.sub = "Input & Output"
 
@@ -63,4 +66,4 @@ class DatasetWriteNode(NodeBase):
             dataframe, extension=FileExtension(extension)
         ).export()
 
-        return Ok(full_file)
+        return full_file

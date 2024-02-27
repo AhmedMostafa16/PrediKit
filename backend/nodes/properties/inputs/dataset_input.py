@@ -1,3 +1,4 @@
+import pandas
 from ...properties import expression
 from ...properties.inputs.base_input import BaseInput
 
@@ -8,6 +9,15 @@ class DatasetInput(BaseInput):
     def __init__(
         self,
         label: str = "Dataset",
-        dataset_type: expression.ExpressionJson = "Dataset",
     ):
-        super().__init__(dataset_type, label)
+        super().__init__("Dataset", label)
+
+    def enforce(self, value):
+        assert isinstance(value, pandas.DataFrame)
+        return value
+
+    def toDict(self):
+        return {
+            **super().toDict(),
+            "inputType": "dataset",
+        }

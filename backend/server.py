@@ -10,6 +10,12 @@ from json import dumps as stringify
 from typing import Any, Dict, List, Optional, TypedDict
 import importlib
 import os
+from bson import ObjectId
+from dotenv import load_dotenv
+
+# pylint: disable=unused-import, wrong-import-position
+root = os.path.dirname(os.path.abspath("../predikit/"))
+sys.path.append(root)
 
 # pylint: disable=unused-import
 from sanic import Sanic
@@ -36,6 +42,13 @@ from response import (
 )
 from nodes.nodes.builtin_categories import category_order
 
+from motor.motor_asyncio import AsyncIOMotorClient
+
+dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
+load_dotenv(dotenv_path)
+
+
+# Set up counters
 missing_node_count = 0
 categories = set()
 missing_categories = set()
@@ -116,7 +129,16 @@ class AppContext:
 app = Sanic("PrediKit", ctx=AppContext())
 app.config.REQUEST_TIMEOUT = sys.maxsize
 app.config.RESPONSE_TIMEOUT = sys.maxsize
-CORS(app)
+# CORS(app)
+
+# Set up MongoDB
+mongodb_url = os.getenv("MONGODB_CONNECTION_STRING")
+logger.info(f"Connecting to MongoDB at {mongodb_url}")
+client = AsyncIOMotorClient(mongodb_url)
+
+# Set up the database
+db = client.predikit
+workflows_collection = db.workflows
 
 
 class SSEFilter(logging.Filter):
@@ -165,7 +187,7 @@ runIndividualCounter = ZeroCounter()
 access_logger.addFilter(SSEFilter())
 
 
-@app.route("/workflows/<workflow_id:str>/nodes")
+@app.route("/workflows/nodes")
 async def nodes(_):
     """Gets a list of all nodes as well as the node information"""
     registry = NodeFactory.get_registry()
@@ -223,7 +245,7 @@ async def run(request: Request, workflow_id: str):
         if ctx.executors[workflow_id].is_paused():
             ctx.executors[workflow_id].resume()
             return json(
-                successResponse("Successfully resumed execution!"), status=201
+                successResponse("Successfully resumed execution!"), status=200
             )
 
     try:
@@ -392,14 +414,14 @@ async def pause(request: Request, workflow_id: str):
 
     if not workflow_id in ctx.executors:
         message = "No executor to pause"
-        logger.warning(message)
+        logger.warning(message + "!\n" + str(request.json))
         return json(noExecutorResponse(message), status=400)
 
     try:
         logger.info("Executor found. Attempting to pause...")
         ctx.executors[workflow_id].pause()
         return json(
-            successResponse("Successfully paused execution!"), status=201
+            successResponse("Successfully paused execution!"), status=200
         )
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
@@ -415,14 +437,14 @@ async def resume(request: Request, workflow_id: str):
 
     if not workflow_id in ctx.executors:
         message = "No executor to resume"
-        logger.warning(message)
+        logger.warning(message + "!\n" + str(request.json))
         return json(noExecutorResponse(message), status=400)
 
     try:
         logger.info("Executor found. Attempting to resume...")
         ctx.executors[workflow_id].resume()
         return json(
-            successResponse("Successfully resumed execution!"), status=201
+            successResponse("Successfully resumed execution!"), status=200
         )
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
@@ -438,14 +460,14 @@ async def kill(request: Request, workflow_id: str):
 
     if not workflow_id in ctx.executors:
         message = "No executor to kill"
-        logger.warning("No executor to kill")
+        logger.warning(message + "!\n" + str(request.json))
         return json(noExecutorResponse(message), status=400)
 
     try:
         logger.info("Executor found. Attempting to kill...")
         ctx.executors[workflow_id].kill()
         return json(
-            successResponse("Successfully killed execution!"), status=201
+            successResponse("Successfully killed execution!"), status=200
         )
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
@@ -454,6 +476,76 @@ async def kill(request: Request, workflow_id: str):
         )
 
 
+@app.route("/ping", methods=["GET"])
+async def ping(_):
+    return json(successResponse("Pong"), status=200)
+
+
+@app.route("/workflows", methods=["GET"])
+async def get_all_workflows(_):
+    try:
+        workflows = await workflows_collection.find().to_list(None)
+        for workflow in workflows:
+            workflow["id"] = str(workflow["_id"])
+            del workflow["_id"]
+        return json(workflows, status=200)
+    except Exception as e:
+        return json(errorResponse("Error fetching workflows!", e), status=500)
+
+
+@app.route("/workflows", methods=["POST"])
+async def create_workflow(request: Request):
+    try:
+        workflow = request.json
+        result = await workflows_collection.insert_one(workflow)
+        return json(successResponse(str(result.inserted_id)), status=201)
+    except Exception as e:
+        return json(errorResponse("Error creating workflow!", e), status=500)
+
+
+@app.route("/workflows/<workflow_id:str>", methods=["GET"])
+async def get_workflow(request: Request, workflow_id: str):
+    try:
+        workflow = await workflows_collection.find_one(
+            {"_id": ObjectId(workflow_id)}
+        )
+        if workflow:
+            workflow["id"] = str(workflow["_id"])
+            del workflow["_id"]
+            return json(workflow, status=200)
+        return json(errorResponse("Workflow not found!", ""), status=404)
+    except Exception as e:
+        return json(errorResponse("Error fetching workflow!", e), status=500)
+
+
+@app.route("/workflows/<workflow_id:str>", methods=["PUT"])
+async def update_workflow(request: Request, workflow_id: str):
+    try:
+        workflow = request.json
+        result = await workflows_collection.replace_one(
+            {"_id": ObjectId(workflow_id)}, workflow
+        )
+        if result.matched_count == 0:
+            return json(errorResponse("Workflow not found!", ""), status=404)
+        if result.modified_count == 0:
+            return json(errorResponse("Workflow not updated!", ""), status=500)
+        return json(successResponse(""), status=200)
+    except Exception as e:
+        return json(errorResponse("Error updating workflow!", e), status=500)
+
+
+@app.route("/workflows/<workflow_id:str>", methods=["DELETE"])
+async def delete_workflow(request: Request, workflow_id: str):
+    try:
+        result = await workflows_collection.delete_one({"_id": workflow_id})
+        if result.deleted_count == 0:
+            return json(errorResponse("Workflow not found!", ""), status=404)
+        return json(successResponse(""), status=200)
+    except Exception as e:
+        return json(errorResponse("Error deleting workflow!", e), status=500)
+
+
+# Main entry point for the application
 if __name__ == "__main__":
     host: str = os.getenv("HOST", "localhost")
     port = int(os.getenv("PORT", 5001))
@@ -464,6 +556,7 @@ if __name__ == "__main__":
 
     # Ensure at least one worker is running
     if workers < 1 and not is_production:
+        logger.info("Setting workers to 1")
         workers = 1
     else:
         workers = multiprocessing.cpu_count()

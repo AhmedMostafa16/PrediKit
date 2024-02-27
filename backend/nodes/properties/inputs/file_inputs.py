@@ -55,7 +55,7 @@ def DatasetFileInput() -> FileInput:
 def DatasetExtensionDropdown() -> DropDownInput:
     """Input for selecting file type from dropdown"""
     return DropDownInput(
-        input_type="DatasetExtension",
+        input_type="string",
         label="Dataset Extension",
         options=[
             {

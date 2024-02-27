@@ -37,39 +37,43 @@ class DatasetReadNode(NodeBase):
         self.icon = "BsFileSpreadsheetFill"
         self.sub = "Input & Output"
 
-    def run(self, path: str) -> Result[Tuple[pandas.DataFrame, str], str]:
+    def run(self, path: str) -> tuple[pandas.DataFrame, str]:
         """Reads an dataset from the specified path and return it as a pandas DataFrame."""
-
-        logger.debug(f"Reading dataset from path: {path}")
-        directory = pathlib.Path(path)
-        basename = directory.name
-        ext = directory.suffix
-
-        supported_formats = ext.lower() in get_available_dataset_formats()
-
-        if not supported_formats:
-            return Err(
-                f'The dataset "{path}" you are trying to read cannot be read by PrediKit.'
-            )
-
-        # Load the file into bytesIO
         try:
-            df = pandas.DataFrame()
-            match ext.lower():
-                case ".csv":
-                    df = pandas.read_csv(path, engine="pyarrow")
-                case ".parquet":
-                    df = pandas.read_parquet(path, engine="pyarrow")
-                case ".xlsx" | ".xls":
-                    df = pandas.read_excel(path)
-                case ".json":
-                    df = pandas.read_json(path)
-                case ".feather":
-                    df = pandas.read_feather(path, use_threads=True)
-                case _:
-                    return Err(f"Unsupported file format: {ext}")
+            logger.debug(f"Reading dataset from path: {path}")
+            directory = pathlib.Path(path)
+            basename = directory.name
+            ext = directory.suffix
 
+            supported_formats = ext.lower() in get_available_dataset_formats()
+
+            if not supported_formats:
+                raise Exception(
+                    f'The dataset "{path}" you are trying to read cannot be read by PrediKit.'
+                )
+
+            # Load the file
+            try:
+                df = pandas.DataFrame()
+                match ext.lower():
+                    case ".csv":
+                        df = pandas.read_csv(path, engine="pyarrow")
+                    case ".parquet":
+                        df = pandas.read_parquet(path, engine="pyarrow")
+                    case ".xlsx" | ".xls":
+                        df = pandas.read_excel(path)
+                    case ".json":
+                        df = pandas.read_json(
+                            path,
+                        )
+                    case ".feather":
+                        df = pandas.read_feather(path, use_threads=True)
+                    case _:
+                        raise Exception(f"Unsupported file format: {ext}")
+
+            except Exception as e:
+                raise Exception(f"Error reading dataset: {e}")
+
+            return (df, basename)
         except Exception as e:
-            return Err(f"Error reading dataset: {e}")
-
-        return Ok((df, basename))
+            raise Exception(f"Error: {str(e)}")
