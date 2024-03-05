@@ -18,3 +18,6 @@ six==1.16.0
 threadpoolctl==3.2.0
 typing_extensions==4.9.0
 tzdata==2023.4
+catboost==1.2.3
+xgboost==2.0.3
+lightgbm==4.3.0

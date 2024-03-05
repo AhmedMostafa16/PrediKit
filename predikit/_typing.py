@@ -5,7 +5,7 @@ from typing import (
     TypeAlias,
 )
 
-from pandas import DataFrame
+from pandas import DataFrame, Series
 
 Number: TypeAlias = int | float
 

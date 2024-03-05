@@ -1,7 +1,7 @@
-from . import classification
+from .classification.classifiers import Classifiers
 from . import regression
 
 __all__ = [
-    "classification",
+    "Classifiers",
     "regression",
 ]

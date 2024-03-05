@@ -21,6 +21,9 @@ from predikit.preprocessing import (
     OutliersProcessor,
     StringOperationsProcessor,
 )
+from predikit.models import(
+    Classifiers,
+)
 from predikit.util import (
     FileExtension,
     init_logging_config,
@@ -47,6 +50,7 @@ __all__ = [
     "CaseModifyingMethod",
     "DataCleanser",
     "util",
+    "Classifiers"
 ]
 
 
