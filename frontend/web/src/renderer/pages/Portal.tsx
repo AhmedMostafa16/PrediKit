@@ -22,7 +22,7 @@ import log from "electron-log";
 import { useNavigate } from "react-router-dom";
 
 export const Portal = memo(() => {
-    const { /*  getAllWorkflows, */ setCurrentWorkflowId, setCurrentWorkflow } =
+    const { /*  getAllWorkflows, */ setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } =
         useContext(GlobalContext);
     const { backend } = useContext(BackendContext);
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -39,8 +39,9 @@ export const Portal = memo(() => {
     };
 
     useEffect(() => {
-        fetchWorkflows();
-    }, [backend]); // Update dependency array
+        const interval = setInterval(fetchWorkflows, 3000);
+        return () => clearInterval(interval);
+    }, [backend]);
 
     const elements = workflows.map((workflow: Workflow) => {
         return (
@@ -49,6 +50,7 @@ export const Portal = memo(() => {
                 onClick={() => {
                     setCurrentWorkflowId(workflow.id);
                     setCurrentWorkflow(workflow);
+                    loadWorkflow(workflow.id);
                     navigate(`/workflows/${workflow.id}`);
                 }}
             >

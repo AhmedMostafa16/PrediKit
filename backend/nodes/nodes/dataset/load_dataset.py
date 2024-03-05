@@ -42,7 +42,7 @@ class DatasetReadNode(NodeBase):
         try:
             logger.debug(f"Reading dataset from path: {path}")
             directory = pathlib.Path(path)
-            basename = directory.name
+            basename = directory.name.split(".")[0]
             ext = directory.suffix
 
             supported_formats = ext.lower() in get_available_dataset_formats()
@@ -74,6 +74,6 @@ class DatasetReadNode(NodeBase):
             except Exception as e:
                 raise Exception(f"Error reading dataset: {e}")
 
-            return (df, basename)
+            return df, basename
         except Exception as e:
             raise Exception(f"Error: {str(e)}")

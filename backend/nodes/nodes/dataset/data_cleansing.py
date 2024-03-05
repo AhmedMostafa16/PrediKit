@@ -2,6 +2,8 @@ from __future__ import annotations
 import os
 import re
 import sys
+
+import pandas
 from backend.nodes.utils.dataset_utils import get_column_names_from_node_input
 
 from predikit.preprocessing.data_filtering import BasicFilteringProcessor
@@ -185,13 +187,17 @@ class BasicFilterNode(NodeBase):
         self.description = "Filter a dataset based on a condition."
         self.inputs = [
             DatasetInput(),
-            DropDownInput(
+            # DropDownInput(
+            #     label="Column",
+            #     options=[
+            #         {"option": col, "value": col, "type": "string"}
+            #         for col in get_column_names_from_node_input(self.inputs[0])
+            #     ],
+            #     input_type="string",
+            # ),
+            TextInput(
                 label="Column",
-                options=[
-                    {"option": col, "value": col, "type": "string"}
-                    for col in get_column_names_from_node_input(self.inputs[0])
-                ],
-                input_type="string",
+                allow_numbers=True,
             ),
             DropDownInput(
                 label="Operator",
@@ -283,7 +289,9 @@ class BasicFilterNode(NodeBase):
         self.icon = "MdFilterAlt"  # ImFilter for advanced filter
         self.sub = "Data Cleasing"
 
-    def run(self, dataset, column, operator, value):
+    def run(
+        self, dataset: pandas.DataFrame, column, operator: str, value: str
+    ):
         try:
             filter = BasicFilteringProcessor(
                 operator=operator,

@@ -52,18 +52,18 @@ class DatasetWriteNode(NodeBase):
     def run(
         self,
         dataframe: pandas.DataFrame,
-        filename: str,
+        file_name: str,
         extension: str,
     ):
         """Write a dataset to a file and return the file to the frontend"""
 
         # TODO
 
-        full_file = f"{filename}.{extension}"
+        full_file = f"{file_name}.{extension}"
         logger.debug(f"Writing dataset to file: {full_file}")
 
         file = DataFrameExporter(
             dataframe, extension=FileExtension(extension)
         ).export()
 
-        return full_file
+        # return full_file

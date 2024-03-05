@@ -17,9 +17,12 @@ import { ExecutionContext, ExecutionStatus } from "../contexts/ExecutionContext"
 import { useAsyncEffect } from "../hooks/useAsyncEffect";
 import { SettingsButton } from "./SettingsModal";
 import { BsCodeSlash } from "react-icons/bs";
+import { Link } from "react-router-dom";
+import { GlobalContext } from "../contexts/GlobalWorkflowState";
 
 export const EditorHeader = memo(() => {
     const { run, pause, kill, status } = useContext(ExecutionContext);
+    const { setCurrentWorkflowId, setCurrentWorkflow } = useContext(GlobalContext);
 
     const [appVersion, setAppVersion] = useState("#.#.#");
     useAsyncEffect(
@@ -43,7 +46,14 @@ export const EditorHeader = memo(() => {
                 h="100%"
                 p={2}
             >
-                <HStack>
+                <HStack
+                    as={Link}
+                    to={"/"}
+                    onClick={() => {
+                        setCurrentWorkflowId("");
+                        setCurrentWorkflow({});
+                    }}
+                >
                     {/* <LinkIcon /> */}
                     {/* <Image
                         boxSize="36px"

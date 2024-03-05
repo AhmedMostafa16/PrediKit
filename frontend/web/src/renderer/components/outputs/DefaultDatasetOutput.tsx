@@ -5,7 +5,7 @@ import { BsEyeFill } from "react-icons/bs";
 import { useContext, useContextSelector } from "use-context-selector";
 import { EdgeData, InputId, NodeData, SchemaId } from "../../../common/common-types";
 import { NamedExpression, NamedExpressionField } from "../../../common/types/expression";
-import { NumericLiteralType } from "../../../common/types/types";
+import { AnyType, NumericLiteralType } from "../../../common/types/types";
 import {
     createUniqueId,
     parseSourceHandle,
@@ -18,13 +18,15 @@ import { OutputProps } from "./props";
 
 const VIEW_SCHEMA_ID = "predikit:dataset:view" as SchemaId;
 
-interface ImageBroadcastData {
-    width: number;
-    height: number;
-    channels: number;
+interface DatasetBroadcastData {
+    columns: any[];
+    data: any;
+    index: any[];
+    dtype: any[];
+    shape: any[];
 }
 
-export const DefaultImageOutput = memo(({ label, id, outputId, useOutputData }: OutputProps) => {
+export const DefaultDatasetOutput = memo(({ label, id, outputId, useOutputData }: OutputProps) => {
     const type = useContextSelector(GlobalVolatileContext, (c) =>
         c.typeState.functions.get(id)?.outputs.get(outputId)
     );
@@ -32,19 +34,21 @@ export const DefaultImageOutput = memo(({ label, id, outputId, useOutputData }: 
     const createNode = useContextSelector(GlobalVolatileContext, (c) => c.createNode);
     const createConnection = useContextSelector(GlobalVolatileContext, (c) => c.createConnection);
 
-    const { selectNode, setManualOutputType } = useContext(GlobalContext);
+    const { setManualOutputType } = useContext(GlobalContext);
 
     const inputHash = useContextSelector(GlobalVolatileContext, (c) => c.inputHashes.get(id));
-    const [value, valueInputHash] = useOutputData<ImageBroadcastData>(outputId);
+    const [value, valueInputHash] = useOutputData<DatasetBroadcastData>(outputId);
     useEffect(() => {
         if (value && valueInputHash === inputHash) {
             setManualOutputType(
                 id,
                 outputId,
                 new NamedExpression("Dataset", [
-                    new NamedExpressionField("width", new NumericLiteralType(value.width)),
-                    new NamedExpressionField("height", new NumericLiteralType(value.height)),
-                    new NamedExpressionField("channels", new NumericLiteralType(value.channels)),
+                    new NamedExpressionField("columns", AnyType.instance),
+                    new NamedExpressionField("data", AnyType.instance),
+                    new NamedExpressionField("index", AnyType.instance),
+                    new NamedExpressionField("dtype", AnyType.instance),
+                    new NamedExpressionField("shape", AnyType.instance),
                 ])
             );
         } else {
@@ -67,22 +71,6 @@ export const DefaultImageOutput = memo(({ label, id, outputId, useOutputData }: 
                 w="2rem"
                 onClick={() => {
                     const byId = new Map(getNodes().map((n) => [n.id, n]));
-
-                    // check whether there already is a view node
-                    const viewId = getEdges()
-                        .filter(
-                            (e) =>
-                                e.source === id &&
-                                e.sourceHandle &&
-                                parseSourceHandle(e.sourceHandle).inOutId === outputId
-                        )
-                        .map((e) => e.target)
-                        .find((i) => byId.get(i)?.data.schemaId === VIEW_SCHEMA_ID);
-                    if (viewId !== undefined) {
-                        // select view node
-                        selectNode(viewId);
-                        return;
-                    }
 
                     const containingNode = byId.get(id);
                     if (containingNode) {

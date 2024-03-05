@@ -88,7 +88,7 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                                         edges: [],
                                         viewport: { x: 0, y: 0, zoom: 1 },
                                         migration: currentMigration ?? 0,
-                                        version: app.getVersion(),
+                                        version: ipcRenderer.invoke("get-app-version"),
                                         createdAt: new Date().getTime(),
                                         updatedAt: new Date().getTime(),
                                     } as WorkflowDto);
@@ -99,6 +99,7 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                                         console.log("Workflow created", response.data);
                                         loadWorkflow(response.data);
                                         navigate(`/workflow/${response.data}`);
+                                        onClose();
                                     }
                                 }
                             }}

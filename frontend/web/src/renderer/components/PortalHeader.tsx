@@ -15,6 +15,8 @@ import { BsCodeSlash } from "react-icons/bs";
 import { useAsyncEffect } from "../hooks/useAsyncEffect";
 import { SettingsButton } from "./SettingsModal";
 import { CreateWorkflowButton } from "./CreateWorkflowModal";
+import { GlobalContext } from "../contexts/GlobalWorkflowState";
+import { useContext } from "use-context-selector";
 
 export const PortalHeader = memo(() => {
     const [appVersion, setAppVersion] = useState("#.#.#");

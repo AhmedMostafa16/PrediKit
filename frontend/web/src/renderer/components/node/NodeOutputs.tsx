@@ -6,7 +6,7 @@ import { Output, OutputId, OutputKind, SchemaId } from "../../../common/common-t
 import { Type } from "../../../common/types/types";
 import { BackendContext } from "../../contexts/BackendContext";
 import { GlobalContext, GlobalVolatileContext } from "../../contexts/GlobalWorkflowState";
-import { DefaultImageOutput } from "../outputs/DefaultImageOutput";
+import { DefaultDatasetOutput } from "../outputs/DefaultDatasetOutput";
 import { GenericOutput } from "../outputs/GenericOutput";
 import { OutputContainer } from "../outputs/OutputContainer";
 import { OutputProps } from "../outputs/props";
@@ -19,7 +19,7 @@ const OutputComponents: Readonly<
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     Record<OutputKind, React.MemoExoticComponent<(props: any) => JSX.Element>>
 > = {
-    dataset: DefaultImageOutput,
+    dataset: DefaultDatasetOutput,
     text: GenericOutput,
     generic: GenericOutput,
 };

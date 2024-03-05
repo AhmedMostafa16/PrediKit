@@ -329,7 +329,7 @@ export const GlobalProvider = memo(
         useEffect(() => {
             const id = setTimeout(() => {
                 const dot = hasRelevantUnsavedChanges ? " •" : "";
-                document.title = `PrediKit - ${savePath || "Untitled"}${dot}`;
+                document.title = `PrediKit - ${savePath || currentWorkflow?.title || "Untitled"}${dot}`;
             }, 200);
             return () => clearTimeout(id);
         }, [savePath, hasRelevantUnsavedChanges]);
@@ -485,6 +485,7 @@ export const GlobalProvider = memo(
                 //     });
                 //     return;
                 // }
+                log.info("Workflow loaded from cloud: ", response)
                 const savedData = response;
 
                 const validNodes = savedData.nodes
@@ -582,6 +583,8 @@ export const GlobalProvider = memo(
         ]);
 
         const autoSave = useCallback(async () => {
+            if(!hasRelevantUnsavedChanges || !currentWorkflowId) return;
+
             const saveData = await dumpState();
             saveData.nodes = saveData.nodes.map((n) => {
                 const inputData = { ...n.data.inputData } as Mutable<InputData>;
@@ -604,7 +607,7 @@ export const GlobalProvider = memo(
             setHasRelevantUnsavedChanges(false);
 
             await backend.updateWorkflow(saveData.id, saveData);
-        }, [dumpState]);
+        }, [dumpState, hasRelevantUnsavedChanges]);
 
         const performSave = useCallback(
             (saveAs: boolean, isTemplate = false) => {
@@ -1205,16 +1208,8 @@ export const GlobalProvider = memo(
         const [currentWorkflow, setCurrentWorkflow] = useState<WorkflowDto | undefined>(undefined);
 
         const loadWorkflow = async (id: string) => {
-            const response = await backend.getWorkflow(id);
             // if (response.success) {
             await setStateFromCloudRef.current(id);
-            setCurrentWorkflow(response);
-            // } else {
-            //     sendAlert({
-            //         type: AlertType.ERROR,
-            //         message: "Failed to load workflow",
-            //     });
-            // }
         };
 
         const globalVolatileValue = useMemoObject<GlobalVolatile>({

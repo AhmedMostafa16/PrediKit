@@ -13,7 +13,7 @@ class DatasetInput(BaseInput):
         super().__init__("Dataset", label)
 
     def enforce(self, value):
-        assert isinstance(value, pandas.DataFrame)
+        # assert isinstance(value, pandas.DataFrame)
         return value
 
     def toDict(self):

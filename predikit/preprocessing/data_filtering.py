@@ -69,7 +69,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         if not column:
             exc = ValueError("Column name must be provided")
-            return Err(str(exc))
+            return str(exc)
 
         self._numeric = self._is_numeric(data, column)
         self._query = self._parse_query(column, self.operator, self.value)
@@ -110,7 +110,7 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         data = data.query(self._query)
 
-        return Ok(data)
+        return data
 
     def _parse_query(
         self,
