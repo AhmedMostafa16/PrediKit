@@ -23,6 +23,8 @@ from predikit.preprocessing import (
 )
 from predikit.models import(
     Classifiers,
+    Regressors,
+    Clusters,
 )
 from predikit.util import (
     FileExtension,
