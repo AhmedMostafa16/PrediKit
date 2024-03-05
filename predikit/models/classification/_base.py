@@ -9,7 +9,7 @@ from sklearn.base import (
     ClassifierMixin,
     BaseEstimator
 )
-
+from numpy import ndarray
 from ..._typing import DataFrame, Series
 
 class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
@@ -19,18 +19,18 @@ class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
         pass
 
     @abstractmethod
-    def score(X: DataFrame, Y: Series):
+    def score(X: DataFrame, Y: Series) -> float:
         pass
 
     @abstractmethod
-    def predict(X: DataFrame):
+    def predict(X: DataFrame) -> ndarray:
         pass
 
     @abstractmethod
-    def predict_proba(X: DataFrame):
+    def predict_proba(X: DataFrame) -> ndarray:
         pass
 
-    def predict_log_proba(X: DataFrame):
+    def predict_log_proba(X: DataFrame) -> ndarray:
         pass
 
 class ClassifierStrategies(StrEnum):

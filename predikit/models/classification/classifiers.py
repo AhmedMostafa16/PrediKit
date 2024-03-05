@@ -4,6 +4,7 @@ from ._base import(
     BaseClassifier
 )
 from ..._typing import DataFrame, Series
+from numpy import ndarray
 
 from typing import Any
 from sklearn.ensemble import(
@@ -18,20 +19,20 @@ class Classifiers(BaseClassifier):
         ClassifierStrategies.LGBMClassifier: LGBMClassifier,
     }
 
-    def __init__(self, strategy: ClassifierStrategies, **classifier_params):
+    def __init__(self, strategy: ClassifierStrategies, **classifier_params) -> None:
         self.model = self._CLASSIFIERS[strategy](**classifier_params)
 
-    def fit(self, X:DataFrame, Y:Series):
+    def fit(self, X:DataFrame, Y:Series) -> None:
         self.model.fit(X, Y)
 
-    def score(self, X:DataFrame, Y:Series):
+    def score(self, X:DataFrame, Y:Series) -> float:
         return self.model.score(X, Y)
 
-    def predict(self, X: DataFrame):
+    def predict(self, X: DataFrame) -> ndarray:
         return self.model.predict(X)
 
-    def predict_proba(self, X:DataFrame):
-        return self.mode.predic_proba(X)
+    def predict_proba(self, X:DataFrame) -> ndarray:
+        return self.model.predict_proba(X)
 
-    def predict_log_proba(self, X: DataFrame):
+    def predict_log_proba(self, X: DataFrame) -> ndarray:
         return self.model.predict_log_proba(X)
