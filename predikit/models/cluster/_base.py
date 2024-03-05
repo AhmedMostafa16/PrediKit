@@ -9,13 +9,13 @@ from sklearn.base import (
     ClusterMixin,
     BaseEstimator
 )
-
+from typing import Any
 from ..._typing import DataFrame, Series
 
 class BaseCluster(ClusterMixin, BaseEstimator, ABC):
 
     @abstractmethod
-    def fit_predict(X: DataFrame, Y: Series):
+    def fit_predict(X: DataFrame, Y: Series) -> Any:
         pass
 
 class ClusterStrategies(StrEnum):
@@ -35,7 +35,7 @@ class ClusterStrategies(StrEnum):
 
         Returns
         -------
-        ClassifierStrategies
+        ClusterStrategies
             The enumeration member corresponding to the given string.
         """
         strategy = strategy.lower()

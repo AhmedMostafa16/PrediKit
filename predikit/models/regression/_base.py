@@ -9,21 +9,22 @@ from sklearn.base import (
     RegressorMixin,
     BaseEstimator
 )
-
+from typing import Any
+from numpy import ndarray
 from ..._typing import DataFrame, Series
 
 class BaseRegressor(RegressorMixin, BaseEstimator, ABC):
 
     @abstractmethod
-    def fit(X: DataFrame, Y: Series):
+    def fit(X: DataFrame, Y: Series) -> Any:
         pass
 
     @abstractmethod
-    def score(X: DataFrame, Y: Series):
+    def score(X: DataFrame, Y: Series) -> float:
         pass
 
     @abstractmethod
-    def predict(X: DataFrame):
+    def predict(X: DataFrame) -> ndarray:
         pass
 
 class RegressorStrategies(StrEnum):
@@ -50,7 +51,7 @@ class RegressorStrategies(StrEnum):
 
         Returns
         -------
-        ClassifierStrategies
+        RegressorStrategies
             The enumeration member corresponding to the given string.
         """
         strategy = strategy.lower()

@@ -20,9 +20,10 @@ class Classifiers(BaseClassifier):
     }
 
     def __init__(self, strategy: ClassifierStrategies, **classifier_params) -> None:
-        self.model = self._CLASSIFIERS[strategy](**classifier_params)
+        self.strategy = ClassifierStrategies.from_str(strategy)
+        self.model = self._CLASSIFIERS[self.strategy](**classifier_params)
 
-    def fit(self, X:DataFrame, Y:Series) -> None:
+    def fit(self, X:DataFrame, Y:Series) -> Any:
         self.model.fit(X, Y)
 
     def score(self, X:DataFrame, Y:Series) -> float:
