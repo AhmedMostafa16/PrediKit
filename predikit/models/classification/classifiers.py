@@ -4,7 +4,7 @@ from ._base import(
     BaseClassifier
 )
 from ..._typing import DataFrame, Series
-from numpy import ndarray
+from numpy import ndarray, log
 
 from typing import Any
 from sklearn.ensemble import(
@@ -36,4 +36,4 @@ class Classifiers(BaseClassifier):
         return self.model.predict_proba(X)
 
     def predict_log_proba(self, X: DataFrame) -> ndarray:
-        return self.model.predict_log_proba(X)
+        return log(self.predict_proba(X))
