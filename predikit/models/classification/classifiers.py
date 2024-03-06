@@ -1,4 +1,3 @@
-
 from ._base import(
     ClassifierStrategies,
     BaseClassifier
@@ -8,15 +7,30 @@ from numpy import ndarray, log
 
 from typing import Any
 from sklearn.ensemble import(
-    RandomForestClassifier
+    RandomForestClassifier,
+    AdaBoostClassifier
 )
 
 from lightgbm import LGBMClassifier
+from sklearn.svm import SVC
+from catboost import CatBoostClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from xgboost import XGBClassifier
+from sklearn.linear_model import LogisticRegression
+
 
 class Classifiers(BaseClassifier):
     _CLASSIFIERS: dict[ClassifierStrategies, Any] = {
         ClassifierStrategies.RandomForestClassifier: RandomForestClassifier,
         ClassifierStrategies.LGBMClassifier: LGBMClassifier,
+        ClassifierStrategies.SVC: SVC,
+        ClassifierStrategies.CatBoostClassifier: CatBoostClassifier,
+        ClassifierStrategies.KNeighborsClassifier: KNeighborsClassifier,
+        ClassifierStrategies.DecisionTreeClassifier: DecisionTreeClassifier,
+        ClassifierStrategies.XGBClassifier: XGBClassifier,
+        ClassifierStrategies.LogisticRegression: LogisticRegression,
+        ClassifierStrategies.AdaBoostClassifier: AdaBoostClassifier,
     }
 
     def __init__(self, strategy: ClassifierStrategies, **classifier_params) -> None:
