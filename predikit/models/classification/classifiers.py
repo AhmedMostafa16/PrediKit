@@ -2,10 +2,10 @@ from ._base import(
     ClassifierStrategies,
     BaseClassifier
 )
-from ..._typing import DataFrame, Series
+from ..._typing import MatrixLike, Any
 from numpy import ndarray, log
+from sklearn.exceptions import NotFittedError
 
-from typing import Any
 from sklearn.ensemble import(
     RandomForestClassifier,
     AdaBoostClassifier
@@ -20,7 +20,7 @@ from xgboost import XGBClassifier
 from sklearn.linear_model import LogisticRegression
 
 
-class Classifiers(BaseClassifier):
+class Classifier(BaseClassifier):
     _CLASSIFIERS: dict[ClassifierStrategies, Any] = {
         ClassifierStrategies.RandomForestClassifier: RandomForestClassifier,
         ClassifierStrategies.LGBMClassifier: LGBMClassifier,
@@ -33,21 +33,41 @@ class Classifiers(BaseClassifier):
         ClassifierStrategies.AdaBoostClassifier: AdaBoostClassifier,
     }
 
-    def __init__(self, strategy: ClassifierStrategies, **classifier_params) -> None:
-        self.strategy = ClassifierStrategies.from_str(strategy)
-        self.model = self._CLASSIFIERS[self.strategy](**classifier_params)
+    def __init__(self, strategy: ClassifierStrategies = None,
+                params: dict[str, str | int | float ] = None) -> None:
+        if strategy is None:
+            raise ValueError('Select a classifier.')
+        else:
+            self.strategy = ClassifierStrategies.from_str(strategy)
 
-    def fit(self, X:DataFrame, Y:Series) -> Any:
-        self.model.fit(X, Y)
+        if params is None:
+            self.model = self._CLASSIFIERS[self.strategy]()
+        else:
+            self.model = self._CLASSIFIERS[self.strategy](**params)
 
-    def score(self, X:DataFrame, Y:Series) -> float:
-        return self.model.score(X, Y)
+    def fit(self, X: MatrixLike, Y: MatrixLike) -> "Classifier":
+        return self.model.fit(X, Y)
 
-    def predict(self, X: DataFrame) -> ndarray:
-        return self.model.predict(X)
+    def score(self, X: MatrixLike, Y: MatrixLike) -> float:
+        try:
+            return self.model.score(X, Y)
+        except:
+            raise NotFittedError('You have to fit the model first.')
 
-    def predict_proba(self, X:DataFrame) -> ndarray:
-        return self.model.predict_proba(X)
+    def predict(self, X: MatrixLike) -> ndarray:
+        try: 
+            return self.model.predict(X)
+        except:
+            raise NotFittedError('You have to fit the model first.')
 
-    def predict_log_proba(self, X: DataFrame) -> ndarray:
-        return log(self.predict_proba(X))
+    def predict_proba(self, X:MatrixLike) -> ndarray:
+        try:
+            return self.model.predict_proba(X)
+        except:
+                raise NotFittedError('You have to fit the model first.')
+
+    def predict_log_proba(self, X: MatrixLike) -> ndarray:
+        try:
+            return log(self.predict_proba(X))
+        except:
+            raise NotFittedError('You have to fit the model first.')

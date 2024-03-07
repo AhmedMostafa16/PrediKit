@@ -1,9 +1,9 @@
-from .classification import Classifiers
-from .regression import Regressors
-from .cluster import Clusters
+from .classification import Classifier
+from .regression import Regressor
+from .cluster import Cluster
 
 __all__ = [
-    "Classifiers",
-    "Regressors",
-    "Clusters"
+    "Classifier",
+    "Regressor",
+    "Cluster"
 ]

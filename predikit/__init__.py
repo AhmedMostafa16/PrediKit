@@ -22,9 +22,9 @@ from predikit.preprocessing import (
     StringOperationsProcessor,
 )
 from predikit.models import(
-    Classifiers,
-    Regressors,
-    Clusters,
+    Classifier,
+    Regressor,
+    Cluster,
 )
 from predikit.util import (
     FileExtension,
@@ -52,7 +52,9 @@ __all__ = [
     "CaseModifyingMethod",
     "DataCleanser",
     "util",
-    "Classifiers"
+    "Classifier",
+    "Regressor",
+    "Cluster",
 ]
 
 

@@ -10,27 +10,27 @@ from sklearn.base import (
     BaseEstimator
 )
 from numpy import ndarray
-from ..._typing import DataFrame, Series
+from ..._typing import MatrixLike, Any
 
 class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
 
     @abstractmethod
-    def fit(X: DataFrame, Y: Series):
+    def fit(X: MatrixLike, Y: MatrixLike) -> "BaseClassifier":
         pass
 
     @abstractmethod
-    def score(X: DataFrame, Y: Series) -> float:
+    def score(X: MatrixLike, Y: MatrixLike) -> float:
         pass
 
     @abstractmethod
-    def predict(X: DataFrame) -> ndarray:
+    def predict(X: MatrixLike) -> ndarray:
         pass
 
     @abstractmethod
-    def predict_proba(X: DataFrame) -> ndarray:
+    def predict_proba(X: MatrixLike) -> ndarray:
         pass
 
-    def predict_log_proba(X: DataFrame) -> ndarray:
+    def predict_log_proba(X: MatrixLike) -> ndarray:
         pass
 
 class ClassifierStrategies(StrEnum):

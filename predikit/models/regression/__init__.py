@@ -1,3 +1,3 @@
-from .regressors import Regressors
+from .regressors import Regressor
 
-__all__ = ['Regressors']
+__all__ = ['Regressor']

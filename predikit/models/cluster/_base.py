@@ -3,19 +3,23 @@ from abc import(
     abstractmethod
 )
 
+from numpy import ndarray
 from enum import StrEnum
 
 from sklearn.base import (
     ClusterMixin,
     BaseEstimator
 )
-from typing import Any
-from ..._typing import DataFrame, Series
+from ..._typing import MatrixLike
 
 class BaseCluster(ClusterMixin, BaseEstimator, ABC):
 
     @abstractmethod
-    def fit_predict(X: DataFrame, Y: Series) -> Any:
+    def fit(X: MatrixLike) -> "BaseCluster":
+        pass
+
+    @abstractmethod
+    def fit_predict(X: MatrixLike) -> ndarray:
         pass
 
 class ClusterStrategies(StrEnum):

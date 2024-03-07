@@ -3,9 +3,9 @@ from ._base import(
     RegressorStrategies
 )
 
-from typing import Any
-from ..._typing import DataFrame, Series
+from ..._typing import MatrixLike, Any
 from numpy import ndarray
+from sklearn.exceptions import NotFittedError
 
 from sklearn.ensemble import(
     RandomForestRegressor,
@@ -20,7 +20,7 @@ from xgboost import XGBRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 
-class Regressors(BaseRegressor):
+class Regressor(BaseRegressor):
     _REGRESSORS: dict[RegressorStrategies, Any] = {
         RegressorStrategies.SVR: SVR,
         RegressorStrategies.CatBoostRegressor: CatBoostRegressor,
@@ -33,15 +33,29 @@ class Regressors(BaseRegressor):
         RegressorStrategies.DecisionTreeRegressor: DecisionTreeRegressor,
     }
 
-    def __init__(self, strategy: RegressorStrategies, **regressor_params) -> None:
-        self.strategy = RegressorStrategies.from_str(strategy)
-        self.model = self._REGRESSORS[self.strategy](**regressor_params)
+    def __init__(self, strategy: RegressorStrategies = None,
+                params: dict[str, str | int | float ] = None) -> None:
+        if strategy is None:
+            raise ValueError('Select a Regressor.')
+        else:
+            self.strategy = RegressorStrategies.from_str(strategy)
 
-    def fit(self, X:DataFrame, Y:Series) -> Any:
-        self.model.fit(X, Y)
+        if params is None:
+            self.model = self._REGRESSORS[self.strategy]()
+        else:
+            self.model = self._REGRESSORS[self.strategy](**params)
 
-    def score(self, X:DataFrame, Y:Series) -> float:
-        return self.model.score(X, Y)
+    def fit(self, X: MatrixLike, Y: MatrixLike) -> "Regressor":
+        return self.model.fit(X, Y)
 
-    def predict(self, X: DataFrame) -> ndarray:
-        return self.model.predict(X)
+    def score(self, X: MatrixLike, Y: MatrixLike) -> float:
+        try:
+            return self.model.score(X, Y)
+        except:
+            raise NotFittedError('You have to fit the model first.')
+
+    def predict(self, X: MatrixLike) -> ndarray:
+        try: 
+            return self.model.predict(X)
+        except:
+            raise NotFittedError('You have to fit the model first.')

@@ -9,22 +9,21 @@ from sklearn.base import (
     RegressorMixin,
     BaseEstimator
 )
-from typing import Any
 from numpy import ndarray
-from ..._typing import DataFrame, Series
+from ..._typing import MatrixLike
 
 class BaseRegressor(RegressorMixin, BaseEstimator, ABC):
 
     @abstractmethod
-    def fit(X: DataFrame, Y: Series) -> Any:
+    def fit(X: MatrixLike, Y: MatrixLike) -> "BaseRegressor":
         pass
 
     @abstractmethod
-    def score(X: DataFrame, Y: Series) -> float:
+    def score(X: MatrixLike, Y: MatrixLike) -> float:
         pass
 
     @abstractmethod
-    def predict(X: DataFrame) -> ndarray:
+    def predict(X: MatrixLike) -> ndarray:
         pass
 
 class RegressorStrategies(StrEnum):
