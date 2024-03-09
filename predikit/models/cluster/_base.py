@@ -13,6 +13,7 @@ from sklearn.base import (
 from ..._typing import MatrixLike
 
 class BaseCluster(ClusterMixin, BaseEstimator, ABC):
+    """base class for all clusters."""
 
     @abstractmethod
     def fit(X: MatrixLike) -> "BaseCluster":

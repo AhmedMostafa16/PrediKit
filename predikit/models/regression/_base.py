@@ -13,6 +13,7 @@ from numpy import ndarray
 from ..._typing import MatrixLike
 
 class BaseRegressor(RegressorMixin, BaseEstimator, ABC):
+    """Base class for all regressors."""
 
     @abstractmethod
     def fit(X: MatrixLike, Y: MatrixLike) -> "BaseRegressor":

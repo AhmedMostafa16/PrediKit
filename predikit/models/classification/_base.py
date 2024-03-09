@@ -13,6 +13,7 @@ from numpy import ndarray
 from ..._typing import MatrixLike, Any
 
 class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
+    """Base class for all classifiers."""
 
     @abstractmethod
     def fit(X: MatrixLike, Y: MatrixLike) -> "BaseClassifier":
