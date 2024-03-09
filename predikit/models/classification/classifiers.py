@@ -5,6 +5,7 @@ from ._base import(
 from ..._typing import MatrixLike, Any
 from numpy import ndarray, log
 from sklearn.exceptions import NotFittedError
+from sklearn.preprocessing import LabelEncoder
 
 from sklearn.ensemble import(
     RandomForestClassifier,
@@ -45,12 +46,16 @@ class Classifier(BaseClassifier):
         else:
             self.model = self._CLASSIFIERS[self.strategy](**params)
 
-    def fit(self, X: MatrixLike, Y: MatrixLike) -> "Classifier":
-        return self.model.fit(X, Y)
+    def fit(self, X: MatrixLike, y: MatrixLike) -> "Classifier":
+        if self.strategy is ClassifierStrategies.XGBClassifier and y.dtype in ['object', 'string']:
+            y = LabelEncoder().fit_transform(y)
+        return self.model.fit(X, y)
 
-    def score(self, X: MatrixLike, Y: MatrixLike) -> float:
+    def score(self, X: MatrixLike, y: MatrixLike) -> float:
         try:
-            return self.model.score(X, Y)
+            if self.strategy is ClassifierStrategies.XGBClassifier and y.dtype in ['object', 'string']:
+                y = LabelEncoder().fit_transform(y)
+            return self.model.score(X, y)
         except:
             raise NotFittedError('You have to fit the model first.')
 
@@ -64,7 +69,7 @@ class Classifier(BaseClassifier):
         try:
             return self.model.predict_proba(X)
         except:
-                raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError('You have to fit the model first.')
 
     def predict_log_proba(self, X: MatrixLike) -> ndarray:
         try:

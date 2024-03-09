@@ -40,7 +40,7 @@ class Cluster(BaseCluster):
             raise NotFittedError('You have to fit the model first.')
         
     def get_inertia(self) -> float:
-        if self.model in [ClusterStrategies.KMeans,]:
+        if self.strategy is ClusterStrategies.KMeans:
             try:
                 return self.model.labels_
             except:
@@ -49,7 +49,7 @@ class Cluster(BaseCluster):
             raise ValueError('This model does not support get_inertia.')
 
     def get_centroids(self) -> ndarray:
-        if self.model in [ClusterStrategies.KMeans,]:
+        if self.strategy is ClusterStrategies.KMeans:
             try:
                 return self.model.cluster_centers_
             except:

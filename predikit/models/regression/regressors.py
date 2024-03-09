@@ -45,12 +45,12 @@ class Regressor(BaseRegressor):
         else:
             self.model = self._REGRESSORS[self.strategy](**params)
 
-    def fit(self, X: MatrixLike, Y: MatrixLike) -> "Regressor":
-        return self.model.fit(X, Y)
+    def fit(self, X: MatrixLike, y: MatrixLike) -> "Regressor":
+        return self.model.fit(X, y)
 
-    def score(self, X: MatrixLike, Y: MatrixLike) -> float:
+    def score(self, X: MatrixLike, y: MatrixLike) -> float:
         try:
-            return self.model.score(X, Y)
+            return self.model.score(X, y)
         except:
             raise NotFittedError('You have to fit the model first.')
 
