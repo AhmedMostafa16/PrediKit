@@ -4,6 +4,7 @@ import sys
 import numpy as np
 import pandas as pd
 import warnings
+import matplotlib.pyplot as plt
 
 warnings.filterwarnings('ignore')
 
@@ -38,3 +39,5 @@ count_plot = Visualization(
             }, strategy="countplot")
 
 plot = count_plot.plot()
+
+diabetes_data.plot(kind="")

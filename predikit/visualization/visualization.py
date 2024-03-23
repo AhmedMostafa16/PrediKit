@@ -1,16 +1,20 @@
 import matplotlib.pyplot as plt
 from matplotlib.pyplot import (
     bar,
+    boxplot,
     hist,
     scatter,
 )
+import numpy as np
 from numpy import (
     log,
     ndarray,
 )
+from pandas import DataFrame
 from seaborn import (
     countplot,
     heatmap,
+    lineplot,
     pairplot,
 )
 
@@ -30,7 +34,7 @@ class Visualization(BaseVisualization):
 
     ### Parameters
     strategy : {"Bar", "Scatter", "Hist", "CountPlot", "HeatMap",
-    "PairPlot"}, default= None
+    "PairPlot", "BoxPlot", "LinePlot"}, default= None
 
     params: a dictionary of parameters
     {'parameter': value -> (str, int or float)}.
@@ -43,12 +47,14 @@ class Visualization(BaseVisualization):
         VisualizationStrategies.CountPlot: countplot,
         VisualizationStrategies.HeatMap: heatmap,
         VisualizationStrategies.PairPlot: pairplot,
+        VisualizationStrategies.LinePlot: lineplot,
+        VisualizationStrategies.BoxPlot: boxplot,
     }
 
     def __init__(
-            self,
-            strategy: VisualizationStrategies = None,
-            params: dict[str, str | int | float] = None,
+        self,
+        strategy: VisualizationStrategies = None,
+        params: dict[str, str | int | float] = None,
     ) -> None:
         if strategy is None:
             raise ValueError("Select a visualization.")
@@ -76,6 +82,11 @@ class Visualization(BaseVisualization):
         if y_label is not None:
             plot.ylabel(y_label)
         plot.show(plot)
+    
+        if type(self.data) == DataFrame:
+            if self.strategy in [VisualizationStrategies.Bar, 
+                                 VisualizationStrategies.Hist,
+                                 VisualizationStrategies.Scatter]:
         """
         plot = self.vis.plot()
         return self.vis.plot()
