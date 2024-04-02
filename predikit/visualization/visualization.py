@@ -1,21 +1,40 @@
 import matplotlib.pyplot as plt
+
+"""
 from matplotlib.pyplot import (
     bar,
     boxplot,
     hist,
     scatter,
 )
+"""
 import numpy as np
 from numpy import (
     log,
     ndarray,
 )
 from pandas import DataFrame
+
+"""
 from seaborn import (
     countplot,
     heatmap,
     lineplot,
     pairplot,
+)
+"""
+
+from plotly.express import (
+    bar,
+    box,
+    histogram,
+    line,
+    scatter,
+)
+from plotly.io import to_json
+from plotly.graph_objs import(
+    Figure,
+    Layout,
 )
 
 from .._typing import (
@@ -43,13 +62,17 @@ class Visualization(BaseVisualization):
     _VISUALIZATIONS: dict[VisualizationStrategies, "Visualization"] = {
         VisualizationStrategies.Bar: bar,
         VisualizationStrategies.Scatter: scatter,
-        VisualizationStrategies.Hist: hist,
+        VisualizationStrategies.Hist: histogram,
+        VisualizationStrategies.Box: box,
+        VisualizationStrategies.Line: line,
+    }
+    """
         VisualizationStrategies.CountPlot: countplot,
         VisualizationStrategies.HeatMap: heatmap,
         VisualizationStrategies.PairPlot: pairplot,
         VisualizationStrategies.LinePlot: lineplot,
         VisualizationStrategies.BoxPlot: boxplot,
-    }
+        """
 
     def __init__(
         self,
@@ -66,27 +89,17 @@ class Visualization(BaseVisualization):
         else:
             self.vis = self._VISUALIZATIONS[self.strategy](**params)
 
-    def plot(self):
+    def send_json(self):
         """
         Plots the data based on the strategy selected.
 
         Args:
             .
         """
-        """
-        x_label = ""
-        y_label = ""
-        plot = self.vis.plot()
-        if x_label is not None:
-            plot.xlabel(x_label)
-        if y_label is not None:
-            plot.ylabel(y_label)
-        plot.show(plot)
+        return to_json(self.vis)
     
-        if type(self.data) == DataFrame:
-            if self.strategy in [VisualizationStrategies.Bar, 
-                                 VisualizationStrategies.Hist,
-                                 VisualizationStrategies.Scatter]:
+    def show(self):
         """
-        plot = self.vis.plot()
-        return self.vis.plot()
+        Shows the plot.
+        """
+        self.vis.show()

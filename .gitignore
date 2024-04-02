@@ -647,3 +647,16 @@ appsettings.json
 output/
 out/
 tests/*.lua
+examples/sample_data/16csdata.xlsx
+examples/sample_data/16csdata.xlsx
+examples/sample_data/cwurData.csv
+examples/sample_data/education_expenditure_supplementary_data.csv
+examples/sample_data/16csdata.xlsx
+examples/sample_data/educational_attainment_supplementary_data.csv
+examples/sample_data/16csdata.xlsx
+examples/sample_data/school_and_country_table.csv
+examples/sample_data/timesData.csv
+examples/sample_data/16csdata.xlsx
+examples/sample_data/shanghaiData.csv
+examples/sample_data/16csdata.xlsx
+examples/sample_data/16csdata.xlsx

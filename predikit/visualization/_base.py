@@ -5,6 +5,7 @@ from abc import (
 
 from enum import StrEnum
 
+"""
 from matplotlib.pyplot import (
     bar,
     hist,
@@ -19,6 +20,15 @@ from seaborn import (
     lineplot,
     pairplot,
 )
+"""
+
+from plotly.express import (
+    bar,
+    scatter,
+    histogram,
+    box,
+    line,
+)
 
 from numpy import ndarray
 from .._typing import MatrixLike, Any
@@ -27,20 +37,26 @@ from .._typing import MatrixLike, Any
 class BaseVisualization(ABC):
     """Base class for all visualizations."""
 
-    def plot() -> Any:
+    def send_json() -> Any:
+        pass
+    def show() -> Any:
         pass
 
 
 class VisualizationStrategies(StrEnum):
     Bar = 'bar'
     Scatter = 'scatter'
-    Hist = 'hist'
+    Hist = 'histogram'
+    Box = 'box'
+    Line = 'line'
+    """
     CountPlot = 'countplot'
     HeatMap = 'heatmap'
     PairPlot = 'pairplot'
     LinePlot = 'lineplot'
     BoxPlot = 'boxplot'
     PairPlot = 'pairplot'
+    """
 
     @classmethod
     def from_str(cls, strategy: str) -> "VisualizationStrategies":
@@ -65,6 +81,15 @@ class VisualizationStrategies(StrEnum):
                 return cls.Scatter
             case "hist" | "histogram":
                 return cls.Hist
+            case "box" | "bosplot":
+                return cls.Box
+            case "line" | "lineplot":
+                return cls.Line
+            case _:
+                raise ValueError(f"Invalid visualization strategy: {strategy}")
+
+
+"""
             case "countplot" | "count":
                 return cls.CountPlot
             case "heatmap":
@@ -75,5 +100,4 @@ class VisualizationStrategies(StrEnum):
                 return cls.LinePlot
             case "pairplot" | "pair":
                 return cls.PairPlot
-            case _:
-                raise ValueError(f"Invalid visualization strategy: {strategy}")
+            """
