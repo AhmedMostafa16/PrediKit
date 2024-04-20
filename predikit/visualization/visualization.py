@@ -1,28 +1,3 @@
-import matplotlib.pyplot as plt
-
-"""
-from matplotlib.pyplot import (
-    bar,
-    boxplot,
-    hist,
-    scatter,
-)
-"""
-import numpy as np
-from numpy import (
-    log,
-    ndarray,
-)
-from pandas import DataFrame
-
-"""
-from seaborn import (
-    countplot,
-    heatmap,
-    lineplot,
-    pairplot,
-)
-"""
 
 from plotly.express import (
     bar,
@@ -31,21 +6,20 @@ from plotly.express import (
     line,
     scatter,
 )
+import plotly.subplots as sp
+from plotly import offline
+from plotly.graph_objs import Figure
 from plotly.io import to_json
-from plotly.graph_objs import(
-    Figure,
-    Layout,
-)
 
 from .._typing import (
     Any,
     MatrixLike,
 )
+
 from ._base import (
     BaseVisualization,
     VisualizationStrategies,
 )
-
 
 class Visualization(BaseVisualization):
     """
@@ -89,9 +63,21 @@ class Visualization(BaseVisualization):
         else:
             self.vis = self._VISUALIZATIONS[self.strategy](**params)
 
+    def get_traces(self) -> list[dict]:
+        """
+        Get the traces or data from the visualization.
+
+        Returns:
+            List of dictionaries representing the traces.
+        """
+        if isinstance(self.vis, Figure):
+            return self.vis.data
+        else:
+            raise TypeError("Visualization object does not contain valid data.")
+    
     def send_json(self):
         """
-        Plots the data based on the strategy selected.
+        Convert the visualization to JSON.
 
         Args:
             .
@@ -103,3 +89,60 @@ class Visualization(BaseVisualization):
         Shows the plot.
         """
         self.vis.show()
+
+class Subplots(BaseVisualization):
+    """
+    A class that creates subplots.
+
+    ### Parameters
+    figures: list
+        A list of figures to be displayed.
+    rows: int
+        The number of rows in the subplot.
+    cols: int
+        The number of columns in the subplot.    
+    """
+    def __init__(
+            self, 
+            figures: list,
+            rows: int,
+            cols: int
+    ) -> None:
+        self.figures = figures
+        self.rows = rows
+        self.cols = cols
+
+    def subplots(self):
+        """
+        Creates subplots.
+        """
+        # Create a subplot with the specified number of rows and columns
+        this_figure = sp.make_subplots(rows=self.rows, cols=self.cols) 
+
+        # Loop through each figure and add its traces to the appropriate subplot
+        for i, fig in enumerate(self.figures, 1):  # Start index from 1
+            for trace in fig.get_traces():
+                # Calculate row and col indices based on total number of subplots
+                row_index = (i - 1) // self.cols + 1
+                col_index = (i - 1) % self.cols + 1
+                this_figure.add_trace(trace, row=row_index, col=col_index) 
+    
+        return this_figure
+    
+    def send_json(self, figure):
+        """
+        Convert the visualization to JSON.
+
+        Args:
+            .
+        """
+        return to_json(figure)
+    
+    def show(self, figure):
+        """
+        Shows the plot.
+
+        Args:
+            figure: The figure to be displayed.
+        """
+        offline.iplot(figure)

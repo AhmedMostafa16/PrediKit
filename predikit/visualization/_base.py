@@ -4,33 +4,6 @@ from abc import (
 )
 
 from enum import StrEnum
-
-"""
-from matplotlib.pyplot import (
-    bar,
-    hist,
-    scatter,
-    boxplot,
-)
-
-from seaborn import (
-    countplot,
-    heatmap,
-    pairplot,
-    lineplot,
-    pairplot,
-)
-"""
-
-from plotly.express import (
-    bar,
-    scatter,
-    histogram,
-    box,
-    line,
-)
-
-from numpy import ndarray
 from .._typing import MatrixLike, Any
 
 
@@ -40,6 +13,10 @@ class BaseVisualization(ABC):
     def send_json() -> Any:
         pass
     def show() -> Any:
+        pass
+    def subplots() -> Any:
+        pass
+    def get_traces() -> list[dict]:
         pass
 
 

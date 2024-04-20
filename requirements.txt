@@ -20,3 +20,4 @@ typing_extensions==4.9.0
 tzdata==2023.4
 plotly==5.19.0
 nbformat==5.10.3
+dash==2.16.1

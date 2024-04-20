@@ -1,3 +1,3 @@
-from .visualization import Visualization
+from .visualization import Visualization, Subplots
 
 __all__ = ['Visualization']
