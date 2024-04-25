@@ -19,6 +19,7 @@ import { SettingsButton } from "./SettingsModal";
 import { BsCodeSlash } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
+import { Workflow } from "../../common/common-types";
 
 export const EditorHeader = memo(() => {
     const { run, pause, kill, status } = useContext(ExecutionContext);
@@ -51,7 +52,7 @@ export const EditorHeader = memo(() => {
                     to={"/"}
                     onClick={() => {
                         setCurrentWorkflowId("");
-                        setCurrentWorkflow({});
+                        setCurrentWorkflow({} as Workflow);
                     }}
                 >
                     {/* <LinkIcon /> */}

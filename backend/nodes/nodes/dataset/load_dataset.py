@@ -9,10 +9,10 @@ import numpy as np
 import pandas
 from result import Ok, Result, Err
 from sanic.log import logger
-from nodes.properties.outputs.dataset_output import DatasetOutput
+from ...properties.outputs.dataset_output import DatasetOutput
 
-from nodes.properties.outputs.file_outputs import DatasetFileOutput
-from nodes.utils.dataset_utils import get_available_dataset_formats
+from ...properties.outputs.file_outputs import DatasetFileOutput
+from ...utils.dataset_utils import get_available_dataset_formats
 
 from . import category as DatasetCategory
 from ...node_base import NodeBase

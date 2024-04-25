@@ -2,47 +2,67 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import functools
 import gc
+import importlib
+from json import dumps as stringify
 import logging
 import multiprocessing
+import os
 import sys
 import traceback
-from json import dumps as stringify
-from typing import Any, Dict, List, Optional, TypedDict
-import importlib
-import os
+import pandas
+from typing import (
+    Any,
+    Dict,
+    List,
+    TypedDict,
+)
+
+from asyncio_locked_dict import AsyncioLockedDict
+from base_types import (
+NodeId,
+    OutputId,
+)
 from bson import ObjectId
+from chain.cache import OutputCache
+from chain.json import (
+    JsonNode,
+    parse_json,
+)
+from chain.optimize import optimize
 from dotenv import load_dotenv
+from events import (
+    EventQueue,
+    ExecutionErrorData,
+)
+from motor.motor_asyncio import AsyncIOMotorClient
+from nodes.node_factory import NodeFactory
+from nodes.nodes.builtin_categories import category_order
+from process import (
+    Executor,
+    NodeExecutionError,
+    timed_supplier,
+)
+from progress import Aborted  # type: ignore
+from response import (
+    alreadyRunningResponse,
+    errorResponse,
+    noExecutorResponse,
+    successResponse,
+)
+from sanic import Sanic
+from sanic.log import (
+    access_logger,
+    logger,
+)
+from sanic.request import Request
+from sanic.response import json
 
 # pylint: disable=unused-import, wrong-import-position
 root = os.path.dirname(os.path.abspath("../predikit/"))
 sys.path.append(root)
 
 # pylint: disable=unused-import
-from sanic import Sanic
-from sanic.log import logger, access_logger
-from sanic.request import Request
-from sanic.response import json
-from sanic_cors import CORS
-from asyncio_locked_dict import AsyncioLockedDict
 
-from nodes.node_factory import NodeFactory
-
-from base_types import NodeId, InputId, OutputId
-from chain.cache import OutputCache
-from chain.json import parse_json, JsonNode
-from chain.optimize import optimize
-from events import EventQueue, ExecutionErrorData
-from process import Executor, NodeExecutionError, timed_supplier
-from progress import Aborted  # type: ignore
-from response import (
-    errorResponse,
-    alreadyRunningResponse,
-    noExecutorResponse,
-    successResponse,
-)
-from nodes.nodes.builtin_categories import category_order
-
-from motor.motor_asyncio import AsyncIOMotorClient
 
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -273,8 +293,9 @@ async def run(request: Request, workflow_id: str):
         except Aborted:
             pass
         finally:
+            ctx.cache.update(executor.cache.get_all())
             del ctx.executors[workflow_id]
-            # gc.collect()
+            gc.collect()
 
         await ctx.queue.put(
             {"event": "finish", "data": {"message": "Successfully ran nodes!"}}
@@ -543,6 +564,58 @@ async def delete_workflow(request: Request, workflow_id: str):
         return json(successResponse(""), status=200)
     except Exception as e:
         return json(errorResponse("Error deleting workflow!", e), status=500)
+
+
+@app.route("/workflows/<workflow_id:str>/preview", methods=["POST"])
+async def preview_node(request: Request, workflow_id: str):
+    """Returns the output of a single node"""
+    ctx = AppContext.get(request.app)
+    PAGE_SIZE = 1000
+    try:
+        full_data: RunIndividualRequest = dict(request.json)  # type: ignore
+        logger.info(full_data)
+
+        # If the node is already in the cache, return the cached data
+        # Otherwise, return an error
+        df = pandas.DataFrame()
+        if full_data["id"] in ctx.cache:
+            node = ctx.cache[full_data["id"]]
+            if isinstance(node, tuple):
+                # try to find the dataframe in the tuple elements
+                for element in node:
+                    if isinstance(element, pandas.DataFrame):
+                        df = element
+                        break
+            elif isinstance(node, pandas.DataFrame):
+                df = node
+            else:
+                return json(
+                    {
+                        "success": False,
+                        "error": "Node output is not a Dataset.",
+                    }
+                )
+                
+            page = full_data.get("page", 1)
+            start = (page - 1) * PAGE_SIZE
+            end = page * PAGE_SIZE
+            return json(
+                {
+                    "success": True,
+                    # "data": df[start:end].to_dict(orient="records"),
+                    "data": df[start:end].to_json(orient="records"),
+                }
+            )
+        else:
+            return json(
+                {
+                    "success": False,
+                    "error": "Run the workflow first.",
+                }
+            )
+    except Exception as exception:
+        logger.error(exception, exc_info=True)
+        return json({"success": False, "error": str(exception)})
 
 
 # Main entry point for the application

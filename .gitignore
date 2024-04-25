@@ -652,3 +652,6 @@ appsettings.json
 output/
 out/
 tests/*.lua
+
+# .ignore file
+.ignore

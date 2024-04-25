@@ -39,7 +39,6 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
     const handleInputChange = (e: any) => setInput(e.target.value);
 
     const { backend } = useContext(BackendContext);
-    const { sendAlert } = useContext(AlertBoxContext);
     const { loadWorkflow } = useContext(GlobalContext);
 
     const navigate = useNavigate();
@@ -88,16 +87,18 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                                         edges: [],
                                         viewport: { x: 0, y: 0, zoom: 1 },
                                         migration: currentMigration ?? 0,
-                                        version: ipcRenderer.invoke("get-app-version"),
+                                        version: (await ipcRenderer.invoke(
+                                            "get-app-version"
+                                        )) as string,
                                         createdAt: new Date().getTime(),
                                         updatedAt: new Date().getTime(),
-                                    } as WorkflowDto);
+                                    });
 
                                     console.log("Response", response);
 
                                     if (response.success) {
                                         console.log("Workflow created", response.data);
-                                        loadWorkflow(response.data);
+                                        await loadWorkflow(response.data);
                                         navigate(`/workflow/${response.data}`);
                                         onClose();
                                     }

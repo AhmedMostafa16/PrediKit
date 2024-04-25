@@ -1,6 +1,6 @@
-import { Center, VStack } from "@chakra-ui/react";
+import { Center, VStack, useDisclosure } from "@chakra-ui/react";
 import path from "path";
-import { DragEvent, memo, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { DragEvent, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useContext, useContextSelector } from "use-context-selector";
 import { Input, NodeData } from "../../../common/common-types";
 import { isStartingNode } from "../../../common/util";
@@ -18,6 +18,7 @@ import { useValidity } from "../../hooks/useValidity";
 import { NodeBody } from "./NodeBody";
 import { NodeFooter } from "./NodeFooter/NodeFooter";
 import { NodeHeader } from "./NodeHeader";
+import { PreviewNodeModal } from "../PreviewNodeModal";
 
 /**
  * If there is only one file input, then this input will be returned. `undefined` otherwise.
@@ -50,7 +51,8 @@ export interface NodeProps {
 
 const NodeInner = memo(({ data, selected }: NodeProps) => {
     const { sendToast } = useContext(AlertBoxContext);
-    const { updateIteratorBounds, setHoveredNode, useInputData } = useContext(GlobalContext);
+    const { updateIteratorBounds, setHoveredNode, useInputData, selectNode } =
+        useContext(GlobalContext);
     const { schemata } = useContext(BackendContext);
 
     const { id, inputData, inputSize, isLocked, parentNode, schemaId } = data;
@@ -128,61 +130,68 @@ const NodeInner = memo(({ data, selected }: NodeProps) => {
     const disabled = useDisabled(data);
     const menu = useNodeMenu(data, disabled);
 
-    useRunNode(data, validity.isValid && isStartingNode(schema));
+    // useRunNode(data, validity.isValid && isStartingNode(schema));
 
     return (
-        <Center
-            bg="var(--node-bg-color)"
-            borderColor={borderColor}
-            borderRadius="lg"
-            borderWidth="0.5px"
-            boxShadow="lg"
-            opacity={disabled.status === DisabledStatus.Enabled ? 1 : 0.75}
-            overflow="hidden"
-            ref={targetRef}
-            transition="0.15s ease-in-out"
-            onContextMenu={menu.onContextMenu}
-            onDragEnter={() => {
-                if (parentNode) {
-                    setHoveredNode(parentNode);
-                }
-            }}
-            onDragOver={onDragOver}
-            onDrop={onDrop}
-        >
-            <VStack
-                minWidth="240px"
+        <>
+            <Center
+                bg="var(--node-bg-color)"
+                borderColor={borderColor}
+                borderRadius="lg"
+                borderWidth="0.5px"
+                boxShadow="lg"
                 opacity={disabled.status === DisabledStatus.Enabled ? 1 : 0.75}
-                spacing={0}
+                overflow="hidden"
+                ref={targetRef}
+                transition="0.15s ease-in-out"
+                onContextMenu={(event) => {
+                    selectNode(id);
+
+                    return menu.onContextMenu(event);
+                }}
+                onDragEnter={() => {
+                    if (parentNode) {
+                        setHoveredNode(parentNode);
+                    }
+                }}
+                onDragOver={onDragOver}
+                onDrop={onDrop}
             >
-                <VStack w="full">
-                    <NodeHeader
-                        accentColor={accentColor}
-                        disabledStatus={disabled.status}
-                        icon={icon}
-                        name={name}
-                        parentNode={parentNode}
-                        selected={selected}
-                    />
-                    <NodeBody
-                        accentColor={accentColor}
+                <VStack
+                    minWidth="240px"
+                    opacity={disabled.status === DisabledStatus.Enabled ? 1 : 0.75}
+                    spacing={0}
+                >
+                    <VStack w="full">
+                        <NodeHeader
+                            accentColor={accentColor}
+                            disabledStatus={disabled.status}
+                            icon={icon}
+                            name={name}
+                            parentNode={parentNode}
+                            selected={selected}
+                        />
+                        <NodeBody
+                            accentColor={accentColor}
+                            animated={animated}
+                            id={id}
+                            inputData={inputData}
+                            inputSize={inputSize}
+                            inputs={inputs}
+                            isLocked={isLocked}
+                            outputs={outputs}
+                            schemaId={schemaId}
+                        />
+                    </VStack>
+                    <NodeFooter
                         animated={animated}
                         id={id}
-                        inputData={inputData}
-                        inputSize={inputSize}
-                        inputs={inputs}
-                        isLocked={isLocked}
-                        outputs={outputs}
-                        schemaId={schemaId}
+                        useDisable={disabled}
+                        validity={validity}
                     />
                 </VStack>
-                <NodeFooter
-                    animated={animated}
-                    id={id}
-                    useDisable={disabled}
-                    validity={validity}
-                />
-            </VStack>
-        </Center>
+            </Center>
+            {selected && <PreviewNodeModal nodeId={id} />}
+        </>
     );
 });

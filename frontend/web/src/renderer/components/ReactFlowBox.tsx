@@ -9,6 +9,7 @@ import ReactFlow, {
     CoordinateExtent,
     Edge,
     EdgeTypes,
+    MiniMap,
     Node,
     NodeTypes,
     OnEdgesChange,
@@ -29,6 +30,7 @@ import { DataTransferProcessorOptions, dataTransferProcessors } from "../helpers
 import { expandSelection, isSnappedToGrid, snapToGrid } from "../helpers/reactFlowUtil";
 import { useMemoArray } from "../hooks/useMemo";
 import { usePaneNodeSearchMenu } from "../hooks/usePaneNodeSearchMenu";
+import { getNodeAccentColor } from "../helpers/getNodeAccentColor";
 
 const compareById = (a: Edge | Node, b: Edge | Node) => a.id.localeCompare(b.id);
 
@@ -450,6 +452,20 @@ export const ReactFlowBox = memo(({ wrapperRef, nodeTypes, edgeTypes }: ReactFlo
                     variant={BackgroundVariant.Dots}
                 />
                 <Controls />
+                <MiniMap
+                    style={{
+                        background: "var(--chain-editor-bg)",
+                        border: "1px solid var(--chain-editor-bg)",
+                        borderRadius: "0.5rem",
+                        boxShadow: "0 0 0.5rem var(--chain-editor-bg)",
+                    }}
+                    maskColor={"var(--bg-600)"}
+                    nodeColor={(node) => {
+                        const schema = schemata.get(node.data.schemaId);
+                        const accentColor = getNodeAccentColor(schema.category);
+                        return getNodeAccentColor(accentColor);
+                    }}
+                />
             </ReactFlow>
         </Box>
     );

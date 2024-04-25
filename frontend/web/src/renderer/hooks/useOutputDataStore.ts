@@ -1,3 +1,4 @@
+import log from "electron-log";
 import isDeepEqual from "fast-deep-equal/react";
 import { useCallback, useState } from "react";
 import { OutputData } from "../../common/common-types";
@@ -8,23 +9,32 @@ export interface OutputDataEntry {
     inputHash: string;
     lastExecutionTime: number | undefined;
     data: OutputData | undefined;
+    outputs?: unknown[];
 }
 
 export interface OutputDataActions {
+    get(nodeId: string): OutputDataEntry | undefined;
     set(
         nodeId: string,
         executionTime: number | undefined,
         nodeInputHash: string,
-        data: OutputData | undefined
+        data: OutputData | undefined,
+        outputs?: unknown[]
     ): void;
     delete(nodeId: string): void;
     clear(): void;
 }
 
 export const useOutputDataStore = () => {
-    const [map, setMap] = useState<ReadonlyMap<string, OutputDataEntry>>(EMPTY_MAP);
+    const [map, setMap] = useState<Map<string, OutputDataEntry>>(EMPTY_MAP);
 
     const actions: OutputDataActions = {
+        get: useCallback(
+            (nodeId: string) => {
+                return map.get(nodeId);
+            },
+            [map]
+        ),
         set: useCallback(
             (nodeId, executionTime, inputHash, data) => {
                 setMap((prev) => {

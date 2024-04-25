@@ -109,3 +109,12 @@ class OutputCache:
             self.__static[node_id] = value
         else:
             self.__counted[node_id] = _CacheEntry(value, strategy.hits_to_live)
+
+    def get_static(self) -> Dict[NodeId, Any]:
+        return self.__static.copy()
+
+    def get_all(self) -> Dict[NodeId, Any]:
+        result = self.__static.copy()
+        for node_id, entry in self.__counted.items():
+            result[node_id] = entry.value
+        return result

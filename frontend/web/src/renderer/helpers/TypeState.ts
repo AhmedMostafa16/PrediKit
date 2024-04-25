@@ -9,7 +9,7 @@ import {
     StructType,
     Type,
 } from "../../common/types/types";
-import { EMPTY_MAP, parseSourceHandle, stringifyTargetHandle } from "../../common/util";
+import { EMPTY_READONLYMAP, parseSourceHandle, stringifyTargetHandle } from "../../common/util";
 
 export class TypeState {
     readonly functions: ReadonlyMap<string, FunctionInstance>;
@@ -24,7 +24,7 @@ export class TypeState {
         this.evaluationErrors = evaluationErrors;
     }
 
-    static readonly empty = new TypeState(EMPTY_MAP, EMPTY_MAP);
+    static readonly empty = new TypeState(EMPTY_READONLYMAP, EMPTY_READONLYMAP);
 
     static create(
         nodesMap: ReadonlyMap<string, Node<NodeData>>,

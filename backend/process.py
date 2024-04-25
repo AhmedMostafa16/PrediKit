@@ -174,7 +174,7 @@ class Executor:
         pool: ThreadPoolExecutor,
         parent_cache: Optional[OutputCache] = None,
         parent_executor: Optional[Executor] = None,
-    ):
+    ) -> None:
         assert not (
             parent_cache and parent_executor
         ), "Providing both a parent executor and a parent cache is not supported."
@@ -333,7 +333,7 @@ class Executor:
         node_id: NodeId,
         execution_time: float,
         output: Any,
-    ):
+    ) -> None:
         node_outputs = node_instance.outputs
         finished = list(self.cache.keys())
         if not node_id in finished:
@@ -465,3 +465,6 @@ class Executor:
 
     def is_aborted(self) -> bool:
         return self.progress.aborted
+    
+    def get_cache(self) -> OutputCache:
+        return self.cache if not self.parent_executor else self.parent_executor.cache

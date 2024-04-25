@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import fetch from "cross-fetch";
 import {
     Category,
@@ -14,7 +15,7 @@ export interface Dataset {
     columns: any[];
     data: any[];
     index: any[];
-    shape: number[];
+    shape: any[];
     dtypes: any[];
 }
 
@@ -143,6 +144,13 @@ export class Backend {
 
     kill(workflowId: string): Promise<BackendExecutorActionResponse> {
         return this.fetchJson(`/workflows/${workflowId}/kill`, "POST");
+    }
+
+    preview(
+        workflowId: string,
+        data: { id: string; page: number }
+    ): Promise<BackendResult<string>> {
+        return this.fetchJson(`/workflows/${workflowId}/preview`, "POST", data);
     }
 
     /**

@@ -1,6 +1,6 @@
 import pandas
 
-from backend.nodes.properties.inputs.dataset_input import DatasetInput
+from ..properties.inputs.dataset_input import DatasetInput
 
 from ..properties.inputs.base_input import BaseInput
 
@@ -31,10 +31,10 @@ def get_dataframe_fields(df: pandas.DataFrame):
     )
 
 
-def get_column_names_from_node_input(node_input: BaseInput):
-    """
-    Get the column names from a node input.
-    """
-    if node_input.input_type == "dataset":
-        return node_input.enforce(node_input).columns.tolist()
-    return []
+# def get_column_names_from_node_input(node_input: BaseInput):
+#     """
+#     Get the column names from a node input.
+#     """
+#     if node_input.input_type == "dataset":
+#         return node_input.enforce(node_input).columns.tolist()
+#     return []

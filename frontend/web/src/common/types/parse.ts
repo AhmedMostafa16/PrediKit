@@ -513,7 +513,13 @@ class AstConverter {
 }
 
 const errorListener: Parameters<antlr4.Recognizer["addErrorListener"]>[0] = {
-    syntaxError: (recognizer, offendingSymbol, line, column, msg): void => {
+    syntaxError: (
+        recognizer: any,
+        offendingSymbol: any,
+        line: any,
+        column: any,
+        msg: any
+    ): void => {
         throw new SyntaxError(`At ${line}:${column}: ${msg}`);
     },
     reportAmbiguity: noop,

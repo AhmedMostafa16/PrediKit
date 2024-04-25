@@ -6,7 +6,7 @@
     "main": ".webpack/main",
     "scripts": {
         "start": "electron-forge start -- --no-backend",
-        "dev": "concurrently \"nodemon ./backend/src/run.py 8000\" \"electron-forge start -- --no-backend\"",
+        "dev": "concurrently \"nodemon ./backend/sever.py 5001\" \"electron-forge start -- --no-backend\"",
         "package": "cross-env NODE_ENV=production electron-forge package",
         "make": "cross-env NODE_ENV=production electron-forge make",
         "make-linux-zip": "cross-env NODE_ENV=production electron-forge make --targets @electron-forge/maker-zip --platform linux",
@@ -72,9 +72,9 @@
                 }
             ],
             "plugins": [
-                [
-                    "@electron-forge/plugin-webpack",
-                    {
+                {
+                    "name": "@electron-forge/plugin-webpack",
+                    "config": {
                         "mainConfig": "./webpack.main.config.js",
                         "renderer": {
                             "config": "./webpack.renderer.config.js",
@@ -95,7 +95,7 @@
                         },
                         "devContentSecurityPolicy": ""
                     }
-                ]
+                }
             ]
         }
     },
@@ -112,7 +112,7 @@
         "@electron-forge/plugin-webpack": "^6.0.0-beta.65",
         "@electron-forge/publisher-github": "^6.0.0-beta.65",
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.7",
-        "@types/antlr4": "^4.7.2",
+        "@types/antlr4": "4.7.2",
         "@types/d3": "^7.4.0",
         "@types/decompress": "^4.2.4",
         "@types/jest": "^28.1.0",
@@ -167,7 +167,8 @@
         "@emotion/styled": "^11.8.1",
         "@fontsource/open-sans": "^4.5.10",
         "@react-nano/use-event-source": "^0.12.0",
-        "antlr4": "^4.10.1",
+        "@tanstack/react-table": "^8.16.0",
+        "antlr4": "4.10.1",
         "cross-fetch": "^3.1.5",
         "decompress": "^4.2.1",
         "electron-log": "^4.4.8",

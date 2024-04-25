@@ -29,10 +29,10 @@ import {
     WorkflowDto,
 } from "../../common/common-types";
 import { ipcRenderer } from "../../common/safeIpc";
-import { ParsedSaveData, openSaveFile } from "../../common/SaveFile";
-import { getPrediKitScope } from "../../common/types/predikit-scope";
+import { ParsedSaveData } from "../../common/SaveFile";
 import { evaluate } from "../../common/types/evaluate";
 import { Expression } from "../../common/types/expression";
+import { getPrediKitScope } from "../../common/types/predikit-scope";
 import { Type } from "../../common/types/types";
 import {
     EMPTY_SET,
@@ -78,7 +78,6 @@ import {
 import { getSessionStorageOrDefault, useSessionStorage } from "../hooks/useSessionStorage";
 import { AlertBoxContext, AlertType } from "./AlertBoxContext";
 import { BackendContext } from "./BackendContext";
-import { app } from "electron";
 
 type SetState<T> = React.Dispatch<React.SetStateAction<T>>;
 
@@ -150,6 +149,7 @@ interface Global {
     setCurrentWorkflow: (workflow: Workflow) => void;
     loadWorkflow: (id: string) => Promise<void>;
     autoSave: () => Promise<void>;
+    getOutputData: (nodeId: string, page: number) => Promise<string | undefined>;
 }
 
 // TODO: Find default
@@ -329,7 +329,9 @@ export const GlobalProvider = memo(
         useEffect(() => {
             const id = setTimeout(() => {
                 const dot = hasRelevantUnsavedChanges ? " •" : "";
-                document.title = `PrediKit - ${savePath || currentWorkflow?.title || "Untitled"}${dot}`;
+                document.title = `PrediKit - ${
+                    savePath || currentWorkflow?.title || "Untitled"
+                }${dot}`;
             }, 200);
             return () => clearTimeout(id);
         }, [savePath, hasRelevantUnsavedChanges]);
@@ -485,7 +487,7 @@ export const GlobalProvider = memo(
                 //     });
                 //     return;
                 // }
-                log.info("Workflow loaded from cloud: ", response)
+                // log.info("Workflow loaded from cloud: ", response);
                 const savedData = response;
 
                 const validNodes = savedData.nodes
@@ -583,7 +585,7 @@ export const GlobalProvider = memo(
         ]);
 
         const autoSave = useCallback(async () => {
-            if(!hasRelevantUnsavedChanges || !currentWorkflowId) return;
+            if (!hasRelevantUnsavedChanges || !currentWorkflowId) return;
 
             const saveData = await dumpState();
             saveData.nodes = saveData.nodes.map((n) => {
@@ -1140,7 +1142,7 @@ export const GlobalProvider = memo(
                 outputDataActions.delete(id);
                 addInputDataChanges();
                 backend
-                    .clearNodeCacheIndividual(id, currentWorkflowId as string)
+                    .clearNodeCacheIndividual(id, currentWorkflowId)
                     .catch((error) => log.error(error));
             },
             [modifyNode, addInputDataChanges, outputDataActions]
@@ -1188,7 +1190,7 @@ export const GlobalProvider = memo(
         const getAllWorkflows = async () => {
             try {
                 const response = await backend.getAllWorkflows();
-                log.info("Getting workflows: " + response);
+                log.info(`Getting workflows: ${response}`);
                 // if (response.success) {
                 setWorkflows(response);
                 log.info("Workflows loaded");
@@ -1211,6 +1213,23 @@ export const GlobalProvider = memo(
             // if (response.success) {
             await setStateFromCloudRef.current(id);
         };
+
+        const getOutputData = useCallback(
+            async (nodeId: string, page: number): Promise<string | undefined> => {
+                const result = await backend.preview(getCurrentWorkflowId(), { id: nodeId, page });
+                if (result.success) {
+                    return result.data;
+                }
+                sendToast({
+                    title:
+                        result.error ?? "Can't preview this node. Please, run the workflow first.",
+                    status: "info",
+                    duration: 5000,
+                });
+                return undefined;
+            },
+            [outputDataActions]
+        );
 
         const globalVolatileValue = useMemoObject<GlobalVolatile>({
             nodeChanges,
@@ -1265,6 +1284,7 @@ export const GlobalProvider = memo(
             setCurrentWorkflow,
             loadWorkflow,
             autoSave,
+            getOutputData,
         });
 
         return (

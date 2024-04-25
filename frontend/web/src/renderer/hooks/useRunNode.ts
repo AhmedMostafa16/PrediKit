@@ -44,7 +44,7 @@ export const useRunNode = ({ inputData, id, schemaId }: NodeData, shouldRun: boo
                         id,
                         inputs,
                     },
-                    getWorkflowId() as string
+                    getWorkflowId()
                 );
 
                 if (!result.success) {

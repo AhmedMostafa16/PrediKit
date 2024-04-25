@@ -1,5 +1,5 @@
 import { Input, InputId, InputSchemaValue, NodeSchema, Output, OutputId } from "../common-types";
-import { EMPTY_MAP, lazy, topologicalSort } from "../util";
+import { EMPTY_READONLYMAP, lazy, topologicalSort } from "../util";
 import { getPrediKitScope } from "./predikit-scope";
 import { evaluate } from "./evaluate";
 import { Expression } from "./expression";
@@ -404,7 +404,7 @@ export class FunctionInstance {
         partialInputs:
             | ReadonlyMap<InputId, NonNeverType>
             | ((inputId: InputId) => NonNeverType | undefined),
-        outputNarrowing: ReadonlyMap<OutputId, Type> = EMPTY_MAP
+        outputNarrowing: ReadonlyMap<OutputId, Type> = EMPTY_READONLYMAP
     ): FunctionInstance {
         if (typeof partialInputs === "object") {
             if (partialInputs.size === 0) return definition.defaultInstance;

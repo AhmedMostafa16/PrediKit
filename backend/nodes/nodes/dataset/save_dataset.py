@@ -41,9 +41,7 @@ class DatasetWriteNode(NodeBase):
         ]
         self.category = DatasetCategory
         self.name = "Save Dataset"
-        self.outputs = [
-            DatasetFileOutput(),
-        ]
+        self.outputs = []
         self.icon = "MdSave"
         self.sub = "Input & Output"
 
@@ -57,13 +55,13 @@ class DatasetWriteNode(NodeBase):
     ):
         """Write a dataset to a file and return the file to the frontend"""
 
-        # TODO
+        # TODO: Pass file as a blob to the frontend
 
         full_file = f"{file_name}.{extension}"
         logger.debug(f"Writing dataset to file: {full_file}")
 
         file = DataFrameExporter(
-            dataframe, extension=FileExtension(extension)
+            filename=file_name,
+            df=dataframe,
+            extension=FileExtension(extension),
         ).export()
-
-        # return full_file

@@ -20,16 +20,14 @@ import { Portal } from "./Portal";
 import log from "electron-log";
 import useFetch, { CachePolicies } from "use-http";
 import { BackendNodesResponse } from "../../common/Backend";
-import { getLocalStorage, getStorageKeys } from "../../common/util";
 import { BackendProvider } from "../contexts/BackendContext";
 import { GlobalProvider } from "../contexts/GlobalWorkflowState";
-import { useIpcRendererListener } from "../hooks/useIpcRendererListener";
-import { useLastWindowSize } from "../hooks/useLastWindowSize";
 import { useContext } from "use-context-selector";
 import { ReactFlowProvider } from "react-flow-renderer";
 import { HistoryProvider } from "../components/HistoryProvider";
 import { ExecutionProvider } from "../contexts/ExecutionContext";
 import { SettingsProvider } from "../contexts/SettingsContext";
+import { DisclosureProvider } from "../contexts/DisclosureContext";
 
 const LoadingComponent = memo(() => (
     <Box
@@ -151,48 +149,50 @@ export const App = memo(() => {
             <ColorModeScript initialColorMode={theme.config.initialColorMode} />
             <ContextMenuProvider>
                 <AlertBoxProvider>
-                    <ReactFlowProvider>
-                        <SettingsProvider>
-                            <BackendProvider
-                                categories={nodesInfo.categories}
-                                categoriesMissingNodes={nodesInfo.categoriesMissingNodes}
-                                functionDefinitions={nodesInfo.functionDefinitions}
-                                port={port}
-                                schemata={nodesInfo.schemata}
-                            >
-                                <GlobalProvider reactFlowWrapper={reactFlowWrapper}>
-                                    <ExecutionProvider>
-                                        <HistoryProvider>
-                                            {!port || !storageInitialized ? (
-                                                <LoadingComponent />
-                                            ) : (
-                                                // <MainComponent port={port} />
-                                                <HashRouter>
-                                                    <Routes>
-                                                        <Route
-                                                            path="/workflows/:id"
-                                                            element={
-                                                                <Main
-                                                                    port={port}
-                                                                    reactFlowWrapper={
-                                                                        reactFlowWrapper
-                                                                    }
-                                                                />
-                                                            }
-                                                        />
-                                                        <Route
-                                                            path="/"
-                                                            element={<Portal />}
-                                                        />
-                                                    </Routes>
-                                                </HashRouter>
-                                            )}
-                                        </HistoryProvider>
-                                    </ExecutionProvider>
-                                </GlobalProvider>
-                            </BackendProvider>
-                        </SettingsProvider>
-                    </ReactFlowProvider>
+                    <DisclosureProvider>
+                        <ReactFlowProvider>
+                            <SettingsProvider>
+                                <BackendProvider
+                                    categories={nodesInfo.categories}
+                                    categoriesMissingNodes={nodesInfo.categoriesMissingNodes}
+                                    functionDefinitions={nodesInfo.functionDefinitions}
+                                    port={port}
+                                    schemata={nodesInfo.schemata}
+                                >
+                                    <GlobalProvider reactFlowWrapper={reactFlowWrapper}>
+                                        <ExecutionProvider>
+                                            <HistoryProvider>
+                                                {!port || !storageInitialized ? (
+                                                    <LoadingComponent />
+                                                ) : (
+                                                    // <MainComponent port={port} />
+                                                    <HashRouter>
+                                                        <Routes>
+                                                            <Route
+                                                                path="/workflows/:id"
+                                                                element={
+                                                                    <Main
+                                                                        port={port}
+                                                                        reactFlowWrapper={
+                                                                            reactFlowWrapper
+                                                                        }
+                                                                    />
+                                                                }
+                                                            />
+                                                            <Route
+                                                                path="/"
+                                                                element={<Portal />}
+                                                            />
+                                                        </Routes>
+                                                    </HashRouter>
+                                                )}
+                                            </HistoryProvider>
+                                        </ExecutionProvider>
+                                    </GlobalProvider>
+                                </BackendProvider>
+                            </SettingsProvider>
+                        </ReactFlowProvider>
+                    </DisclosureProvider>
                 </AlertBoxProvider>
             </ContextMenuProvider>
         </ChakraProvider>

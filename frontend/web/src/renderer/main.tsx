@@ -1,7 +1,7 @@
 import { Box, Center, HStack, Text, VStack } from "@chakra-ui/react";
 import log from "electron-log";
-import { memo, useEffect, useRef, useState } from "react";
-import { EdgeTypes, NodeTypes, ReactFlowProvider } from "react-flow-renderer";
+import { memo, useEffect, useState } from "react";
+import { EdgeTypes, NodeTypes } from "react-flow-renderer";
 import { useContext } from "use-context-selector";
 import useFetch, { CachePolicies } from "use-http";
 import { BackendNodesResponse } from "../common/Backend";
@@ -13,21 +13,14 @@ import { FunctionDefinition } from "../common/types/function";
 import { getLocalStorage, getStorageKeys } from "../common/util";
 import { CustomEdge } from "./components/CustomEdge";
 import { EditorHeader } from "./components/EditorHeader";
-import { HistoryProvider } from "./components/HistoryProvider";
 import { IteratorHelperNode } from "./components/node/IteratorHelperNode";
 import { IteratorNode } from "./components/node/IteratorNode";
 import { Node } from "./components/node/Node";
 import { NodeSelector } from "./components/NodeSelectorPanel/NodeSelectorPanel";
 import { ReactFlowBox } from "./components/ReactFlowBox";
 import { AlertBoxContext, AlertType } from "./contexts/AlertBoxContext";
-import { BackendProvider } from "./contexts/BackendContext";
-import { ExecutionProvider } from "./contexts/ExecutionContext";
-import { GlobalProvider } from "./contexts/GlobalWorkflowState";
-import { SettingsProvider } from "./contexts/SettingsContext";
-import { useAsyncEffect } from "./hooks/useAsyncEffect";
 import { useIpcRendererListener } from "./hooks/useIpcRendererListener";
 import { useLastWindowSize } from "./hooks/useLastWindowSize";
-import { BsCodeSlash } from "react-icons/bs";
 
 export interface NodesInfo {
     schemata: SchemaMap;
@@ -90,7 +83,7 @@ export const Main = memo(({ port, reactFlowWrapper }: MainProps) => {
 
     const { loading, error, data, response } = useFetch<BackendNodesResponse>(
         `http://localhost:${port}/workflows/nodes`,
-        { cachePolicy: CachePolicies.NO_CACHE, retries: 25 },
+        { cachePolicy: CachePolicies.NO_CACHE, retries: 250 },
         [port]
     );
 
