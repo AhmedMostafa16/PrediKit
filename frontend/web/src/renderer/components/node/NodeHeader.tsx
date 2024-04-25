@@ -4,7 +4,6 @@ import { interpolateColor } from "../../helpers/colorTools";
 import { DisabledStatus } from "../../helpers/disabled";
 import { useThemeColor } from "../../hooks/useThemeColor";
 import { IconFactory } from "../CustomIcons";
-import { log } from "electron-log";
 
 interface NodeHeaderProps {
     name: string;

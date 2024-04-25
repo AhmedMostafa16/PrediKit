@@ -322,7 +322,7 @@ export function union<A extends Type, B extends Type, C extends Type, D extends 
     d: D
 ): Union4<A, B, C, D>;
 export function union<T extends Type>(...types: T[]): Closed<T> | NeverType;
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
+
 export function union(...types: Type[]): Type {
     if (types.length === 0) return NeverType.instance;
     if (types.length === 1) return types[0];

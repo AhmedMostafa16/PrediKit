@@ -14,7 +14,6 @@ import {
 import { Type } from "../../../common/types/types";
 import { BackendContext } from "../../contexts/BackendContext";
 import { GlobalContext } from "../../contexts/GlobalWorkflowState";
-import { DirectoryInput } from "../inputs/DirectoryInput";
 import { DropDownInput } from "../inputs/DropDownInput";
 import { FileInput } from "../inputs/FileInput";
 import { GenericInput } from "../inputs/GenericInput";

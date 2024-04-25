@@ -1,7 +1,6 @@
 import { Center, Flex, Spacer, Text } from "@chakra-ui/react";
 import { memo, useEffect } from "react";
 import { useContext, useContextSelector } from "use-context-selector";
-import { NamedExpression, NamedExpressionField } from "../../../common/types/expression";
 import { StringLiteralType } from "../../../common/types/types";
 import { isStartingNode } from "../../../common/util";
 import { BackendContext } from "../../contexts/BackendContext";

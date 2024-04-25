@@ -4,30 +4,30 @@ import {
     ChakraProvider,
     ColorModeScript,
     Spinner,
-    VStack,
     Text,
+    VStack,
 } from "@chakra-ui/react";
+import log from "electron-log";
 import { LocalStorage } from "node-localstorage";
 import { memo, useEffect, useRef, useState } from "react";
+import { ReactFlowProvider } from "react-flow-renderer";
+import { HashRouter, Route, Routes } from "react-router-dom";
+import { useContext } from "use-context-selector";
+import useFetch, { CachePolicies } from "use-http";
+import { BackendNodesResponse } from "../../common/Backend";
 import { ipcRenderer } from "../../common/safeIpc";
+import { HistoryProvider } from "../components/HistoryProvider";
 import { AlertBoxContext, AlertBoxProvider, AlertType } from "../contexts/AlertBoxContext";
+import { BackendProvider } from "../contexts/BackendContext";
 import { ContextMenuProvider } from "../contexts/ContextMenuContext";
+import { DisclosureProvider } from "../contexts/DisclosureContext";
+import { ExecutionProvider } from "../contexts/ExecutionContext";
+import { GlobalProvider } from "../contexts/GlobalWorkflowState";
+import { SettingsProvider } from "../contexts/SettingsContext";
 import { useAsyncEffect } from "../hooks/useAsyncEffect";
 import { Main, NodesInfo, processBackendResponse } from "../main";
 import { theme } from "../theme";
-import { HashRouter, Route, Routes } from "react-router-dom";
 import { Portal } from "./Portal";
-import log from "electron-log";
-import useFetch, { CachePolicies } from "use-http";
-import { BackendNodesResponse } from "../../common/Backend";
-import { BackendProvider } from "../contexts/BackendContext";
-import { GlobalProvider } from "../contexts/GlobalWorkflowState";
-import { useContext } from "use-context-selector";
-import { ReactFlowProvider } from "react-flow-renderer";
-import { HistoryProvider } from "../components/HistoryProvider";
-import { ExecutionProvider } from "../contexts/ExecutionContext";
-import { SettingsProvider } from "../contexts/SettingsContext";
-import { DisclosureProvider } from "../contexts/DisclosureContext";
 
 const LoadingComponent = memo(() => (
     <Box
@@ -169,7 +169,6 @@ export const App = memo(() => {
                                                     <HashRouter>
                                                         <Routes>
                                                             <Route
-                                                                path="/workflows/:id"
                                                                 element={
                                                                     <Main
                                                                         port={port}
@@ -178,10 +177,11 @@ export const App = memo(() => {
                                                                         }
                                                                     />
                                                                 }
+                                                                path="/workflows/:id"
                                                             />
                                                             <Route
-                                                                path="/"
                                                                 element={<Portal />}
+                                                                path="/"
                                                             />
                                                         </Routes>
                                                     </HashRouter>

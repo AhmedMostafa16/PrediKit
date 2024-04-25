@@ -45,7 +45,7 @@ function wrapUnary(fn: (a: NumberPrimitive) => Arg<NumberPrimitive>): UnaryFn<Nu
 function wrapUnary<T extends ValueType, R extends ValueType = T>(
     fn: (a: T) => Arg<R>
 ): UnaryFn<T, R>;
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
+
 function wrapUnary<T extends ValueType, R extends ValueType = T>(
     fn: (a: T) => Arg<R>
 ): UnaryFn<T, R> {
@@ -88,7 +88,7 @@ function wrapVarArgs(
     neutral: Arg<NumberPrimitive>,
     fn: (a: NumberPrimitive, b: NumberPrimitive) => Arg<NumberPrimitive>
 ): VarArgsFn<NumberPrimitive>;
-// eslint-disable-next-line prefer-arrow-functions/prefer-arrow-functions
+
 function wrapVarArgs<T extends ValueType>(
     neutral: Arg<T>,
     fn: (a: T, b: T) => Arg<T>

@@ -14,10 +14,10 @@ import {
     Tr,
 } from "@chakra-ui/react";
 import React, { memo, useEffect } from "react";
-import { GlobalContext } from "../contexts/GlobalWorkflowState";
 import { useContext } from "use-context-selector";
-import { useDisclosureContext } from "../contexts/DisclosureContext";
 import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
+import { useDisclosureContext } from "../contexts/DisclosureContext";
+import { GlobalContext } from "../contexts/GlobalWorkflowState";
 
 interface PreviewNodeModalProps {
     nodeId: string;
@@ -60,7 +60,7 @@ export const PreviewNodeModal = memo(({ nodeId }: PreviewNodeModalProps) => {
     if (dataset && dataset.length > 0) {
         propertyNames = Object.keys(dataset[0]);
 
-        for (let i = 0; i < dataset.length; i++) {
+        for (let i = 0; i < dataset.length; i += 1) {
             values.push(Object.values(dataset[i]));
         }
     }
@@ -95,7 +95,7 @@ export const PreviewNodeModal = memo(({ nodeId }: PreviewNodeModalProps) => {
                             {dataset.length > 0 &&
                                 values.map((record, index) => (
                                     <Tr key={index}>
-                                        {record.map((value: any, index: any) => (
+                                        {record.map((value: any, index: number) => (
                                             <Td key={index}>{value}</Td>
                                         ))}
                                     </Tr>

@@ -1,18 +1,18 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
-const ReactRefreshWebpackPlugin = require('@pmmmwh/react-refresh-webpack-plugin');
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
-const rules = require('./webpack.rules');
+const rules = require("./webpack.rules");
 
-const isDevelopment = process.env.NODE_ENV !== 'production';
+const isDevelopment = process.env.NODE_ENV !== "production";
 
 rules.push(
     {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader'],
+        use: ["style-loader", "css-loader"],
     },
     {
         test: /\.s[ac]ss$/i,
-        use: ['style-loader', 'css-loader', 'sass-loader'],
+        use: ["style-loader", "css-loader", "sass-loader"],
     }
 );
 
@@ -22,12 +22,12 @@ module.exports = {
     module: {
         rules,
     },
-    mode: isDevelopment ? 'development' : 'production',
+    mode: isDevelopment ? "development" : "production",
     devServer: {
         hot: isDevelopment,
     },
     plugins: [isDevelopment && new ReactRefreshWebpackPlugin()].filter(Boolean),
     resolve: {
-        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+        extensions: [".js", ".jsx", ".ts", ".tsx"],
     },
 };

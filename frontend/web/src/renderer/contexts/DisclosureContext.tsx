@@ -1,5 +1,5 @@
 import { UseDisclosureReturn, useDisclosure } from "@chakra-ui/react";
-import { createContext, memo, useContext } from "react";
+import { createContext, memo, useContext, useMemo } from "react";
 
 interface DisclosureContextType {
     disclosure: UseDisclosureReturn;
@@ -18,7 +18,7 @@ export const useDisclosureContext = () => {
 export const DisclosureProvider = memo(({ children }: React.PropsWithChildren<unknown>) => {
     const disclosure = useDisclosure();
 
-    return (
-        <DisclosureContext.Provider value={{ disclosure }}>{children}</DisclosureContext.Provider>
-    );
+    const contextValue = useMemo(() => ({ disclosure }), [disclosure]);
+
+    return <DisclosureContext.Provider value={contextValue}>{children}</DisclosureContext.Provider>;
 });

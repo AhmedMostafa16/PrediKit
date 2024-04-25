@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { memo, useEffect, useRef, useState } from "react";
 import { Edge, Node, useReactFlow } from "react-flow-renderer";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -189,7 +190,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
         typeStateRef,
         outputDataActions,
         getInputHash,
-        getCurrentWorkflowId: getCurrentWorkflowId,
+        getCurrentWorkflowId,
     } = useContext(GlobalContext);
     const { schemata, port, backend } = useContext(BackendContext);
     const { sendAlert, sendToast } = useContext(AlertBoxContext);
@@ -428,7 +429,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
 
     const resume = async () => {
         try {
-            const response = await backend.resume(getCurrentWorkflowId() as string);
+            const response = await backend.resume(getCurrentWorkflowId());
             if (response.type === "error") {
                 sendAlert(AlertType.ERROR, null, response.exception);
                 return;
@@ -452,7 +453,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
 
     const pause = async () => {
         try {
-            const response = await backend.pause(getCurrentWorkflowId() as string);
+            const response = await backend.pause(getCurrentWorkflowId());
             if (response.type === "error") {
                 sendAlert(AlertType.ERROR, null, response.exception);
                 return;
@@ -468,7 +469,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
 
     const kill = async () => {
         try {
-            const response = await backend.kill(getCurrentWorkflowId() as string);
+            const response = await backend.kill(getCurrentWorkflowId());
             if (response.type === "error") {
                 sendAlert(AlertType.ERROR, null, response.exception);
             }

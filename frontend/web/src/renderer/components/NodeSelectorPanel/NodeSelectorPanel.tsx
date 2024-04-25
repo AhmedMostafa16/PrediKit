@@ -1,7 +1,6 @@
 import { CloseIcon, SearchIcon } from "@chakra-ui/icons";
 import {
     Accordion,
-    AccordionItem,
     Box,
     Button,
     Center,
@@ -32,8 +31,7 @@ import {
 } from "../../helpers/nodeSearchFuncs";
 import { useNodeFavorites } from "../../hooks/useNodeFavorites";
 import { FavoritesAccordionItem } from "./FavoritesAccordionItem";
-import { PackageHint, RegularAccordionItem, Subcategories } from "./RegularAccordionItem";
-import { TextBox } from "./TextBox";
+import { RegularAccordionItem, Subcategories } from "./RegularAccordionItem";
 
 export const NodeSelector = memo(() => {
     const { schemata, categories, categoriesMissingNodes } = useContext(BackendContext);
@@ -183,8 +181,8 @@ export const NodeSelector = memo(() => {
                                         />
                                         {categories.map((category) => {
                                             const categoryNodes = byCategories.get(category.name);
-                                            const categoryIsMissingNodes =
-                                                categoriesMissingNodes.includes(category.name);
+                                            // const categoryIsMissingNodes =
+                                            //     categoriesMissingNodes.includes(category.name);
 
                                             const subcategoryMap = categoryNodes
                                                 ? getSubcategories(categoryNodes)

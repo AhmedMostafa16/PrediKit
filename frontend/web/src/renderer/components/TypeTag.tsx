@@ -1,21 +1,8 @@
 import { Tag } from "@chakra-ui/react";
 import React, { memo } from "react";
 import { StructType, Type } from "../../common/types/types";
-import { isDataset, isNumericLiteral } from "../../common/types/util";
+import { isNumericLiteral } from "../../common/types/util";
 import { without } from "../../common/types/without";
-
-const getColorMode = (channels: number) => {
-    switch (channels) {
-        case 1:
-            return "Gray";
-        case 3:
-            return "RGB";
-        case 4:
-            return "RGBA";
-        default:
-            return undefined;
-    }
-};
 
 const nullType = new StructType("null");
 

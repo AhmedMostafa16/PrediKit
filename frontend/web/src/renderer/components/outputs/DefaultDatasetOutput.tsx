@@ -1,17 +1,12 @@
-import { Center, Flex, Icon, Spacer, Text } from "@chakra-ui/react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Center, Flex, Spacer, Text } from "@chakra-ui/react";
 import { memo, useEffect } from "react";
 import { useReactFlow } from "react-flow-renderer";
-import { BsEyeFill } from "react-icons/bs";
 import { useContext, useContextSelector } from "use-context-selector";
 import { EdgeData, InputId, NodeData, SchemaId } from "../../../common/common-types";
 import { NamedExpression, NamedExpressionField } from "../../../common/types/expression";
-import { AnyType, NumericLiteralType } from "../../../common/types/types";
-import {
-    createUniqueId,
-    parseSourceHandle,
-    stringifySourceHandle,
-    stringifyTargetHandle,
-} from "../../../common/util";
+import { AnyType } from "../../../common/types/types";
+import { createUniqueId, stringifySourceHandle, stringifyTargetHandle } from "../../../common/util";
 import { GlobalContext, GlobalVolatileContext } from "../../contexts/GlobalWorkflowState";
 import { TypeTags } from "../TypeTag";
 import { OutputProps } from "./props";

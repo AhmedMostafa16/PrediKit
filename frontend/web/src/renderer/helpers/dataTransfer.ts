@@ -1,7 +1,7 @@
 import log from "electron-log";
 import { extname } from "path";
 import { XYPosition } from "react-flow-renderer";
-import { InputId, SchemaId } from "../../common/common-types";
+import { SchemaId } from "../../common/common-types";
 import { ipcRenderer } from "../../common/safeIpc";
 import { openSaveFile } from "../../common/SaveFile";
 import { SchemaMap } from "../../common/SchemaMap";

@@ -172,6 +172,8 @@ export const GlobalProvider = memo(
 
         const getCurrentWorkflowId = useCallback(() => currentWorkflowId, [currentWorkflowId]);
 
+        const [currentWorkflow, setCurrentWorkflow] = useState<WorkflowDto | undefined>(undefined);
+
         const [nodeChanges, addNodeChanges, nodeChangesRef] = useChangeCounter();
         const [edgeChanges, addEdgeChanges, edgeChangesRef] = useChangeCounter();
         const {
@@ -1185,15 +1187,15 @@ export const GlobalProvider = memo(
 
         const [connectingFrom, setConnectingFrom] = useState<OnConnectStartParams | null>(null);
 
-        const [workflows, setWorkflows] = useState<Workflow[]>([]);
+        /* const [workflows, setWorkflows] = useState<Workflow[]>([]);
 
         const getAllWorkflows = async () => {
             try {
                 const response = await backend.getAllWorkflows();
-                log.info(`Getting workflows: ${response}`);
+                // log.info(`Getting workflows: ${response}`);
                 // if (response.success) {
                 setWorkflows(response);
-                log.info("Workflows loaded");
+                // log.info("Workflows loaded");
                 // } else {
                 //     // sendAlert({
                 //     //     type: AlertType.ERROR,
@@ -1205,9 +1207,7 @@ export const GlobalProvider = memo(
             } catch (error) {
                 log.error(error);
             }
-        };
-
-        const [currentWorkflow, setCurrentWorkflow] = useState<WorkflowDto | undefined>(undefined);
+        }; */
 
         const loadWorkflow = async (id: string) => {
             // if (response.success) {
@@ -1221,8 +1221,7 @@ export const GlobalProvider = memo(
                     return result.data;
                 }
                 sendToast({
-                    title:
-                        result.error ?? "Can't preview this node. Please, run the workflow first.",
+                    title: result.error,
                     status: "info",
                     duration: 5000,
                 });

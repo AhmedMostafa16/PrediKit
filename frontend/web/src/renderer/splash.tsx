@@ -1,20 +1,17 @@
-import { Center, ChakraProvider, Flex, Progress, Text, VStack } from "@chakra-ui/react";
+import { Center, ChakraProvider, Flex, Text, VStack } from "@chakra-ui/react";
+import log from "electron-log";
 import { memo, useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { BsCodeSlash } from "react-icons/bs";
 import { ipcRenderer } from "../common/safeIpc";
 import { theme } from "./splashTheme";
-import { BsCodeSlash } from "react-icons/bs";
-import log from "electron-log";
 
 const Splash = memo(() => {
     const [status, setStatus] = useState("Loading...");
-    const [progressPercentage, setProgressPercentage] = useState(0);
-    const [overallProgressPercentage, setOverallProgressPercentage] = useState(0);
-    const [showProgressBar, setShowProgressBar] = useState(false);
 
     // Register event listeners
     useEffect(() => {
-        // ipcRenderer.on("spawning-backend", () => {
+        // ipcRenderer.on("coonecting-backend", () => {
         //     setShowProgressBar(false);
         //     setOverallProgressPercentage(0.8);
         //     setStatus("Starting up process...");
@@ -22,22 +19,17 @@ const Splash = memo(() => {
 
         ipcRenderer.on("splash-finish", () => {
             log.info("Splash screen finished");
-            setShowProgressBar(false);
-            setOverallProgressPercentage(0.9);
             setStatus("Loading main application...");
         });
 
         ipcRenderer.on("finish-loading", () => {
             log.info("Main application finished loading");
-            setShowProgressBar(false);
-            setOverallProgressPercentage(1);
             setStatus("Starting the application...");
         });
 
-        ipcRenderer.on("progress", (event, percentage) => {
-            log.info(`Progress: ${percentage}`);
-            setProgressPercentage(percentage);
-        });
+        // ipcRenderer.on("progress", (event, percentage) => {
+        //     log.info(`Progress: ${percentage}`);
+        // });
     }, []);
 
     return (

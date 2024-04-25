@@ -1,25 +1,15 @@
-import {
-    Box,
-    Flex,
-    HStack,
-    Heading,
-    IconButton,
-    Image,
-    Spacer,
-    Tag,
-    Tooltip,
-} from "@chakra-ui/react";
+import { Box, Flex, HStack, Heading, IconButton, Spacer, Tag, Tooltip } from "@chakra-ui/react";
 import { memo, useState } from "react";
+import { BsCodeSlash } from "react-icons/bs";
 import { IoPause, IoPlay, IoStop } from "react-icons/io5";
+import { Link } from "react-router-dom";
 import { useContext } from "use-context-selector";
+import { Workflow } from "../../common/common-types";
 import { ipcRenderer } from "../../common/safeIpc";
 import { ExecutionContext, ExecutionStatus } from "../contexts/ExecutionContext";
+import { GlobalContext } from "../contexts/GlobalWorkflowState";
 import { useAsyncEffect } from "../hooks/useAsyncEffect";
 import { SettingsButton } from "./SettingsModal";
-import { BsCodeSlash } from "react-icons/bs";
-import { Link } from "react-router-dom";
-import { GlobalContext } from "../contexts/GlobalWorkflowState";
-import { Workflow } from "../../common/common-types";
 
 export const EditorHeader = memo(() => {
     const { run, pause, kill, status } = useContext(ExecutionContext);
@@ -49,7 +39,7 @@ export const EditorHeader = memo(() => {
             >
                 <HStack
                     as={Link}
-                    to={"/"}
+                    to="/"
                     onClick={() => {
                         setCurrentWorkflowId("");
                         setCurrentWorkflow({} as Workflow);

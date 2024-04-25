@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/restrict-template-expressions */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import antlr4 from "antlr4";
 import { assertNever, noop } from "../util";
 import IVLTSLexer from "./antlr4/IVLTSLexer";

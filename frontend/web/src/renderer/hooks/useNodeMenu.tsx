@@ -4,10 +4,10 @@ import { BsEyeFill, BsLayerForward } from "react-icons/bs";
 import { MdPlayArrow, MdPlayDisabled } from "react-icons/md";
 import { useContext } from "use-context-selector";
 import { NodeData } from "../../common/common-types";
+import { useDisclosureContext } from "../contexts/DisclosureContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
 import { UseContextMenu, useContextMenu } from "./useContextMenu";
 import { UseDisabled } from "./useDisabled";
-import { useDisclosureContext } from "../contexts/DisclosureContext";
 
 export interface UseNodeMenuOptions {
     canLock?: boolean;
@@ -27,71 +27,69 @@ export const useNodeMenu = (
     const { disclosure } = useDisclosureContext();
 
     return useContextMenu(() => (
-        <>
-            <MenuList className="nodrag">
-                <MenuItem
-                    icon={<BsEyeFill />}
-                    onClick={() => {
-                        disclosure.onOpen();
-                    }}
-                >
-                    Preview
-                </MenuItem>
+        <MenuList className="nodrag">
+            <MenuItem
+                icon={<BsEyeFill />}
+                onClick={() => {
+                    disclosure.onOpen();
+                }}
+            >
+                Preview
+            </MenuItem>
 
+            <MenuItem
+                icon={<CopyIcon />}
+                onClick={() => {
+                    duplicateNode(id);
+                }}
+            >
+                Duplicate
+            </MenuItem>
+            <MenuItem
+                icon={<CloseIcon />}
+                onClick={() => {
+                    clearNode(id);
+                }}
+            >
+                Clear
+            </MenuItem>
+            {canDisable && (
                 <MenuItem
-                    icon={<CopyIcon />}
-                    onClick={() => {
-                        duplicateNode(id);
-                    }}
+                    icon={isDirectlyDisabled ? <MdPlayArrow /> : <MdPlayDisabled />}
+                    onClick={toggleDirectlyDisabled}
                 >
-                    Duplicate
+                    {isDirectlyDisabled ? "Enable" : "Disable"}
                 </MenuItem>
-                <MenuItem
-                    icon={<CloseIcon />}
-                    onClick={() => {
-                        clearNode(id);
-                    }}
-                >
-                    Clear
-                </MenuItem>
-                {canDisable && (
-                    <MenuItem
-                        icon={isDirectlyDisabled ? <MdPlayArrow /> : <MdPlayDisabled />}
-                        onClick={toggleDirectlyDisabled}
-                    >
-                        {isDirectlyDisabled ? "Enable" : "Disable"}
-                    </MenuItem>
-                )}
+            )}
 
-                {canLock && (
-                    <MenuItem
-                        icon={isLocked ? <UnlockIcon /> : <LockIcon />}
-                        onClick={() => {
-                            toggleNodeLock(id);
-                        }}
-                    >
-                        {isLocked ? "Unlock" : "Lock"}
-                    </MenuItem>
-                )}
+            {canLock && (
                 <MenuItem
-                    icon={<DeleteIcon />}
+                    icon={isLocked ? <UnlockIcon /> : <LockIcon />}
                     onClick={() => {
-                        removeNodeById(id);
+                        toggleNodeLock(id);
                     }}
                 >
-                    Delete
+                    {isLocked ? "Unlock" : "Lock"}
                 </MenuItem>
-                {parentNode && (
-                    <MenuItem
-                        icon={<BsLayerForward />}
-                        onClick={() => {
-                            releaseNodeFromParent(id);
-                        }}
-                    >
-                        Release
-                    </MenuItem>
-                )}
-            </MenuList>
-        </>
+            )}
+            <MenuItem
+                icon={<DeleteIcon />}
+                onClick={() => {
+                    removeNodeById(id);
+                }}
+            >
+                Delete
+            </MenuItem>
+            {parentNode && (
+                <MenuItem
+                    icon={<BsLayerForward />}
+                    onClick={() => {
+                        releaseNodeFromParent(id);
+                    }}
+                >
+                    Release
+                </MenuItem>
+            )}
+        </MenuList>
     ));
 };

@@ -1,22 +1,10 @@
-import {
-    Box,
-    Button,
-    Flex,
-    HStack,
-    Heading,
-    IconButton,
-    Spacer,
-    Tag,
-    Tooltip,
-} from "@chakra-ui/react";
+import { Box, Flex, HStack, Heading, Spacer, Tag } from "@chakra-ui/react";
 import { ipcRenderer } from "electron";
 import { memo, useState } from "react";
 import { BsCodeSlash } from "react-icons/bs";
 import { useAsyncEffect } from "../hooks/useAsyncEffect";
-import { SettingsButton } from "./SettingsModal";
 import { CreateWorkflowButton } from "./CreateWorkflowModal";
-import { GlobalContext } from "../contexts/GlobalWorkflowState";
-import { useContext } from "use-context-selector";
+import { SettingsButton } from "./SettingsModal";
 
 export const PortalHeader = memo(() => {
     const [appVersion, setAppVersion] = useState("#.#.#");

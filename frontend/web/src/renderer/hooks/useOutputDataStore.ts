@@ -1,4 +1,3 @@
-import log from "electron-log";
 import isDeepEqual from "fast-deep-equal/react";
 import { useCallback, useState } from "react";
 import { OutputData } from "../../common/common-types";

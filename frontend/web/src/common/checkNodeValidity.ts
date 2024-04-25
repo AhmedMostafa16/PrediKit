@@ -1,9 +1,9 @@
 import { Input, InputData, InputId, NodeSchema } from "./common-types";
-import { getPrediKitScope } from "./types/predikit-scope";
 import { evaluate } from "./types/evaluate";
 import { IntersectionExpression, NamedExpression } from "./types/expression";
 import { FunctionInstance } from "./types/function";
 import { isDisjointWith } from "./types/intersection";
+import { getPrediKitScope } from "./types/predikit-scope";
 import { IntIntervalType, NumericLiteralType, StructType, Type } from "./types/types";
 import { IntNumberType, isDataset } from "./types/util";
 import { assertNever } from "./util";

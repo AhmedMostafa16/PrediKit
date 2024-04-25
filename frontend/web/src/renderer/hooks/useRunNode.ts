@@ -66,7 +66,7 @@ export const useRunNode = ({ inputData, id, schemaId }: NodeData, shouldRun: boo
         return () => {
             if (didEverRun.current) {
                 backend
-                    .clearNodeCacheIndividual(id, getWorkflowId() as string)
+                    .clearNodeCacheIndividual(id, getWorkflowId())
                     .catch((error) => log.error(error));
             }
         };

@@ -1,10 +1,10 @@
 import { Input, InputId, InputSchemaValue, NodeSchema, Output, OutputId } from "../common-types";
 import { EMPTY_READONLYMAP, lazy, topologicalSort } from "../util";
-import { getPrediKitScope } from "./predikit-scope";
 import { evaluate } from "./evaluate";
 import { Expression } from "./expression";
 import { intersect, isDisjointWith } from "./intersection";
 import { fromJson } from "./json";
+import { getPrediKitScope } from "./predikit-scope";
 import { ParameterDefinition, Scope, ScopeBuilder } from "./scope";
 import { NonNeverType, Type } from "./types";
 import { getReferences } from "./util";

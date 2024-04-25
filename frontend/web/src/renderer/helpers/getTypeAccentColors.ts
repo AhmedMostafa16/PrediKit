@@ -1,7 +1,7 @@
-import { getPrediKitScope } from "../../common/types/predikit-scope";
 import { evaluate } from "../../common/types/evaluate";
 import { NamedExpression } from "../../common/types/expression";
 import { isDisjointWith } from "../../common/types/intersection";
+import { getPrediKitScope } from "../../common/types/predikit-scope";
 import { NumberType, StringType, Type } from "../../common/types/types";
 import { lazy } from "../../common/util";
 

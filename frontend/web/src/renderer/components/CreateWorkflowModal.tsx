@@ -1,8 +1,10 @@
 import { AddIcon } from "@chakra-ui/icons";
 import {
     Button,
+    FormControl,
+    FormLabel,
     HStack,
-    Icon,
+    Input,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -11,21 +13,14 @@ import {
     ModalHeader,
     ModalOverlay,
     Tooltip,
-    Text,
     useDisclosure,
-    FormControl,
-    FormLabel,
-    Input,
 } from "@chakra-ui/react";
-import { app, ipcRenderer } from "electron";
-import React, { memo } from "react";
-import { useContext } from "use-context-selector";
-import { BackendContext } from "../contexts/BackendContext";
-import { WorkflowDto } from "../../common/common-types";
+import { ipcRenderer } from "electron";
+import React, { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useContext } from "use-context-selector";
 import { currentMigration } from "../../common/migrations";
-import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
+import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
 
 interface CreateWorkflowModalProps {
@@ -36,7 +31,7 @@ interface CreateWorkflowModalProps {
 export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModalProps) => {
     const [input, setInput] = useState<string>("");
 
-    const handleInputChange = (e: any) => setInput(e.target.value);
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
 
     const { backend } = useContext(BackendContext);
     const { loadWorkflow } = useContext(GlobalContext);
@@ -48,15 +43,15 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
 
     return (
         <Modal
+            blockScrollOnMount
             isCentered
+            finalFocusRef={finalRef}
+            initialFocusRef={initialRef}
             isOpen={isOpen}
             returnFocusOnClose={false}
             scrollBehavior="inside"
             size="xl"
             onClose={onClose}
-            blockScrollOnMount={true}
-            initialFocusRef={initialRef}
-            finalFocusRef={finalRef}
         >
             <ModalOverlay />
             <ModalContent>
@@ -66,9 +61,9 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                     <FormControl isRequired>
                         <FormLabel>Workflow Title</FormLabel>
                         <Input
-                            ref={initialRef}
-                            placeholder="New Workflow"
                             min={3}
+                            placeholder="New Workflow"
+                            ref={initialRef}
                             value={input}
                             onChange={handleInputChange}
                         />
@@ -86,7 +81,7 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                                         nodes: [],
                                         edges: [],
                                         viewport: { x: 0, y: 0, zoom: 1 },
-                                        migration: currentMigration ?? 0,
+                                        migration: currentMigration,
                                         version: (await ipcRenderer.invoke(
                                             "get-app-version"
                                         )) as string,
@@ -94,10 +89,10 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                                         updatedAt: new Date().getTime(),
                                     });
 
-                                    console.log("Response", response);
+                                    // console.log("Response", response);
 
                                     if (response.success) {
-                                        console.log("Workflow created", response.data);
+                                        // console.log("Workflow created", response.data);
                                         await loadWorkflow(response.data);
                                         navigate(`/workflow/${response.data}`);
                                         onClose();
@@ -110,8 +105,8 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                         <Button
                             colorScheme="blue"
                             mr={3}
+                            variant="outline"
                             onClick={onClose}
-                            variant={"outline"}
                         >
                             Close
                         </Button>

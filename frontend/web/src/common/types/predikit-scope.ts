@@ -1,7 +1,7 @@
 import { lazy } from "../util";
-import { formatTextPattern } from "./predikit-format";
 import { globalScope } from "./global-scope";
 import { parseDefinitions } from "./parse";
+import { formatTextPattern } from "./predikit-format";
 import { BuiltinFunctionDefinition, Scope, ScopeBuilder } from "./scope";
 import { SourceDocument } from "./source";
 import { StringType, StructType, Type } from "./types";

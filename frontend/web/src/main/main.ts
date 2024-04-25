@@ -12,7 +12,6 @@ import { SaveFile, openSaveFile } from "../common/SaveFile";
 import { lazy } from "../common/util";
 import { getArguments } from "./arguments";
 import { MenuData, setMainMenu } from "./menu";
-import { useFetch } from "use-http";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 // eslint-disable-next-line global-require
@@ -116,7 +115,7 @@ const registerEventHandlers = (mainWindow: BrowserWindowWithSafeIpc) => {
     });
 };
 
-const checkBackendConnection = async () => {
+const checkBackendConnection = () => {
     log.info("Attempting to check for an internet connection...");
     ipcMain.handle("get-internet-state", () => {
         // const res =  useFetch('http://localhost:5001/ping').response.ok;
@@ -141,6 +140,7 @@ const doSplashScreenChecks = async (mainWindow: BrowserWindowWithSafeIpc) =>
             maximizable: false,
             closable: false,
             alwaysOnTop: true,
+            movable: true,
             titleBarStyle: "hidden",
             transparent: true,
             roundedCorners: true,
@@ -178,12 +178,10 @@ const doSplashScreenChecks = async (mainWindow: BrowserWindowWithSafeIpc) =>
             });
 
         // Send events to splash screen renderer as they happen
-        // Added some sleep functions so I can see that this is doing what I want it to
-        // TODO: Remove the sleeps (or maybe not, since it feels more like something is happening here)
         splash.webContents.once("dom-ready", async () => {
             log.info("Splash screen is ready.");
             splash.webContents.send("checking-port");
-            await checkBackendConnection();
+            checkBackendConnection();
             log.info("Backend connection checked.");
             registerEventHandlers(mainWindow);
             log.info("Event handlers registered.");

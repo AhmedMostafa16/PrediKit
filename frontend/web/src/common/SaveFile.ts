@@ -1,9 +1,8 @@
 import { createHash } from "crypto";
 import log from "electron-log";
 import { readFile, writeFile } from "fs/promises";
-import { Edge, Node, Viewport } from "react-flow-renderer";
-import semver from "semver";
-import { EdgeData, FileOpenResult, NodeData, Workflow } from "./common-types";
+import { Node } from "react-flow-renderer";
+import { FileOpenResult, NodeData, Workflow } from "./common-types";
 import { currentMigration, migrate } from "./migrations";
 
 export interface ParsedSaveData extends Workflow {
@@ -33,7 +32,7 @@ export class SaveFile {
 
         const { version, content, checksum, migration } = rawData;
 
-        let data: Workflow = migrate(version, content, migration) as Workflow;
+        const data: Workflow = migrate(version, content, migration) as Workflow;
         const tamperedWith = checksum !== hash(JSON.stringify(content));
 
         return {

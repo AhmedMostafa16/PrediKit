@@ -27,10 +27,10 @@ import { ContextMenuContext } from "../contexts/ContextMenuContext";
 import { GlobalContext, GlobalVolatileContext } from "../contexts/GlobalWorkflowState";
 import { SettingsContext } from "../contexts/SettingsContext";
 import { DataTransferProcessorOptions, dataTransferProcessors } from "../helpers/dataTransfer";
+import { getNodeAccentColor } from "../helpers/getNodeAccentColor";
 import { expandSelection, isSnappedToGrid, snapToGrid } from "../helpers/reactFlowUtil";
 import { useMemoArray } from "../hooks/useMemo";
 import { usePaneNodeSearchMenu } from "../hooks/usePaneNodeSearchMenu";
-import { getNodeAccentColor } from "../helpers/getNodeAccentColor";
 
 const compareById = (a: Edge | Node, b: Edge | Node) => a.id.localeCompare(b.id);
 
@@ -453,17 +453,17 @@ export const ReactFlowBox = memo(({ wrapperRef, nodeTypes, edgeTypes }: ReactFlo
                 />
                 <Controls />
                 <MiniMap
+                    maskColor="var(--bg-600)"
+                    nodeColor={(node) => {
+                        const schema = schemata.get(node.data.schemaId);
+                        const accentColor = getNodeAccentColor(schema.category);
+                        return accentColor;
+                    }}
                     style={{
                         background: "var(--chain-editor-bg)",
                         border: "1px solid var(--chain-editor-bg)",
                         borderRadius: "0.5rem",
                         boxShadow: "0 0 0.5rem var(--chain-editor-bg)",
-                    }}
-                    maskColor={"var(--bg-600)"}
-                    nodeColor={(node) => {
-                        const schema = schemata.get(node.data.schemaId);
-                        const accentColor = getNodeAccentColor(schema.category);
-                        return getNodeAccentColor(accentColor);
                     }}
                 />
             </ReactFlow>

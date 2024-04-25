@@ -1,9 +1,8 @@
-import { Center, VStack, useDisclosure } from "@chakra-ui/react";
+import { Center, VStack } from "@chakra-ui/react";
 import path from "path";
-import { DragEvent, memo, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import { DragEvent, memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useContext, useContextSelector } from "use-context-selector";
 import { Input, NodeData } from "../../../common/common-types";
-import { isStartingNode } from "../../../common/util";
 import { AlertBoxContext } from "../../contexts/AlertBoxContext";
 import { BackendContext } from "../../contexts/BackendContext";
 import { GlobalContext, GlobalVolatileContext } from "../../contexts/GlobalWorkflowState";
@@ -13,12 +12,11 @@ import { DisabledStatus } from "../../helpers/disabled";
 import { getNodeAccentColor } from "../../helpers/getNodeAccentColor";
 import { useDisabled } from "../../hooks/useDisabled";
 import { useNodeMenu } from "../../hooks/useNodeMenu";
-import { useRunNode } from "../../hooks/useRunNode";
 import { useValidity } from "../../hooks/useValidity";
+import { PreviewNodeModal } from "../PreviewNodeModal";
 import { NodeBody } from "./NodeBody";
 import { NodeFooter } from "./NodeFooter/NodeFooter";
 import { NodeHeader } from "./NodeHeader";
-import { PreviewNodeModal } from "../PreviewNodeModal";
 
 /**
  * If there is only one file input, then this input will be returned. `undefined` otherwise.
