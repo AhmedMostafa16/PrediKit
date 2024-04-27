@@ -1,7 +1,4 @@
-from abc import (
-    ABC,
-    abstractmethod
-)
+from abc import ABC, abstractmethod
 
 from enum import StrEnum
 from .._typing import MatrixLike, Any
@@ -12,20 +9,23 @@ class BaseVisualization(ABC):
 
     def send_json() -> Any:
         pass
+
     def show() -> Any:
         pass
+
     def subplots() -> Any:
         pass
+
     def get_traces() -> list[dict]:
         pass
 
 
 class VisualizationStrategies(StrEnum):
-    Bar = 'bar'
-    Scatter = 'scatter'
-    Hist = 'histogram'
-    Box = 'box'
-    Line = 'line'
+    Bar = "bar"
+    Scatter = "scatter"
+    Hist = "histogram"
+    Box = "box"
+    Line = "line"
     """
     CountPlot = 'countplot'
     HeatMap = 'heatmap'

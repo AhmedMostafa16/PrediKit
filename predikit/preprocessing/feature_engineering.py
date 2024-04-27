@@ -44,7 +44,7 @@ class FeatureSelection(BasePreprocessor):
         self.stored_dtypes = None
 
     # ToDo: Add include/exclude dtypes parameter
-    #@ override
+    # @ override
     def fit(
         self,
         data: DataFrame,
@@ -83,7 +83,7 @@ class FeatureSelection(BasePreprocessor):
 
         return self
 
-    #@ override
+    # @ override
     def transform(
         self,
         data: DataFrame,
@@ -128,14 +128,17 @@ class EncodingProcessor(BasePreprocessor):
         self._encoder_params = encoder_params
         self._encoder = init_encoder(strategy, **encoder_params)
 
-    #@ override
-    def fit(self, data: DataFrame, 
-            ) -> None:
+    # @ override
+    def fit(
+        self,
+        data: DataFrame,
+    ) -> None:
         self._encoder.fit(data)
 
-    #@ override
+    # @ override
     def transform(
-        self, data: DataFrame, 
+        self,
+        data: DataFrame,
     ) -> Result[DataFrame, str]:
         return self._encoder.transform(data)
 
@@ -143,7 +146,11 @@ class EncodingProcessor(BasePreprocessor):
         return self._encoder.fit_transform(data)
 
     def get_feature_names_out(self):
-        if self.strategy in [EncodingStrategies.OneHotEncoder,]:
+        if self.strategy in [
+            EncodingStrategies.OneHotEncoder,
+        ]:
             return self._encoder.get_features_names_out()
         else:
-            raise ValueError('This Encoder does not support get_features_names_out.')
+            raise ValueError(
+                "This Encoder does not support get_features_names_out."
+            )

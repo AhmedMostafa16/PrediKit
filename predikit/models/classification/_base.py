@@ -1,16 +1,11 @@
-from abc import(
-    ABC, 
-    abstractmethod
-)
+from abc import ABC, abstractmethod
 
 from enum import StrEnum
 
-from sklearn.base import (
-    ClassifierMixin,
-    BaseEstimator
-)
+from sklearn.base import ClassifierMixin, BaseEstimator
 from numpy import ndarray
 from ..._typing import MatrixLike, Any
+
 
 class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
     """Base class for all classifiers."""
@@ -34,17 +29,18 @@ class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
     def predict_log_proba(X: MatrixLike) -> ndarray:
         pass
 
+
 class ClassifierStrategies(StrEnum):
 
-    SVC = 'SVC'
-    XGBClassifier = 'XGBClassifier'
-    LGBMClassifier = 'LGBMClassifier'
-    LogisticRegression = 'LogisticRegression'
-    CatBoostClassifier = 'CatBoostClassifier'
-    AdaBoostClassifier = 'AdaBoostClassifier'
-    KNeighborsClassifier = 'KNeighborsClassifier'
-    DecisionTreeClassifier = 'DecisionTreeClassifier'
-    RandomForestClassifier = 'RandomForestClassifier'
+    SVC = "SVC"
+    XGBClassifier = "XGBClassifier"
+    LGBMClassifier = "LGBMClassifier"
+    LogisticRegression = "LogisticRegression"
+    CatBoostClassifier = "CatBoostClassifier"
+    AdaBoostClassifier = "AdaBoostClassifier"
+    KNeighborsClassifier = "KNeighborsClassifier"
+    DecisionTreeClassifier = "DecisionTreeClassifier"
+    RandomForestClassifier = "RandomForestClassifier"
 
     @classmethod
     def from_str(cls, strategy: str) -> "ClassifierStrategies":
@@ -63,7 +59,7 @@ class ClassifierStrategies(StrEnum):
         """
         strategy = strategy.lower()
         match strategy:
-            case "supportvectorclassifier" | 'svc':
+            case "supportvectorclassifier" | "svc":
                 return cls.SVC
             case "xgbc" | "xgboostclassifier" | "xgbclassifier":
                 return cls.XGBClassifier
@@ -79,7 +75,9 @@ class ClassifierStrategies(StrEnum):
                 return cls.KNeighborsClassifier
             case "decisiontreeclassifier" | "dcclassifier":
                 return cls.DecisionTreeClassifier
-            case "forestclassifier" | "rfclassifier" | "randomforestclassifier":
+            case (
+                "forestclassifier" | "rfclassifier" | "randomforestclassifier"
+            ):
                 return cls.RandomForestClassifier
             case _:
                 raise ValueError(f"Invalid classifier strategy: {strategy}")

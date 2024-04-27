@@ -57,9 +57,11 @@ class FileExtension(Enum):
 
         supported_extensions = ", ".join(
             [
-                ext.value
-                if isinstance(ext.value, str)
-                else ", ".join(ext.value)
+                (
+                    ext.value
+                    if isinstance(ext.value, str)
+                    else ", ".join(ext.value)
+                )
                 for ext in cls
             ]
         )

@@ -46,9 +46,7 @@ class BasicFilteringProcessor(BasePreprocessor):
         self.case_sensitive = case_sensitive
         self.verbose = verbose
 
-    def fit(
-        self, data: DataFrame, column: str | None = None
-    ) -> Self:
+    def fit(self, data: DataFrame, column: str | None = None) -> Self:
         """
         Compute the necessary parameters for filtering.
 
@@ -75,7 +73,7 @@ class BasicFilteringProcessor(BasePreprocessor):
         self._query = self._parse_query(column, self.operator, self.value)
         return self
 
-    #@ override
+    # @ override
     def transform(
         self, data: DataFrame, column: str | None = None
     ) -> DataFrame:

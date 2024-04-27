@@ -108,7 +108,6 @@ class Chain:
                 if n.parent == node_id:
                     self.remove_node(n.id)
 
-
     def get_node(self, node_id: NodeId) -> Node | None:
         return self.nodes.get(node_id)
 

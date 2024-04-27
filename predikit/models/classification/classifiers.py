@@ -1,16 +1,10 @@
-from ._base import(
-    ClassifierStrategies,
-    BaseClassifier
-)
+from ._base import ClassifierStrategies, BaseClassifier
 from ..._typing import MatrixLike, Any
 from numpy import ndarray, log
 from sklearn.exceptions import NotFittedError
 from sklearn.preprocessing import LabelEncoder
 
-from sklearn.ensemble import(
-    RandomForestClassifier,
-    AdaBoostClassifier
-)
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 
 from lightgbm import LGBMClassifier
 from sklearn.svm import SVC
@@ -26,13 +20,14 @@ class Classifier(BaseClassifier):
     A class that unifies various classification algorithms for efficient model training and prediction.
 
     ### Parameters
-    strategy : {"RandomForestClassifier", "LGBMClassifier", 
-    "SVC", "CatBoostClassifier", "KNeighborsClassifier", 
-    "DecisionTreeClassifier", "XGBClassifier", "LogisticRegression", 
+    strategy : {"RandomForestClassifier", "LGBMClassifier",
+    "SVC", "CatBoostClassifier", "KNeighborsClassifier",
+    "DecisionTreeClassifier", "XGBClassifier", "LogisticRegression",
     "AdaBoostClassifier"}, default= None
 
     params: a dictionary of parameters {'parameter': value -> (str, int or float)}.
     """
+
     _CLASSIFIERS: dict[ClassifierStrategies, "Classifier"] = {
         ClassifierStrategies.RandomForestClassifier: RandomForestClassifier,
         ClassifierStrategies.LGBMClassifier: LGBMClassifier,
@@ -45,10 +40,13 @@ class Classifier(BaseClassifier):
         ClassifierStrategies.AdaBoostClassifier: AdaBoostClassifier,
     }
 
-    def __init__(self, strategy: ClassifierStrategies = None,
-                params: dict[str, str | int | float ] = None) -> None:
+    def __init__(
+        self,
+        strategy: ClassifierStrategies = None,
+        params: dict[str, str | int | float] = None,
+    ) -> None:
         if strategy is None:
-            raise ValueError('Select a classifier.')
+            raise ValueError("Select a classifier.")
         else:
             self.strategy = ClassifierStrategies.from_str(strategy)
 
@@ -68,7 +66,10 @@ class Classifier(BaseClassifier):
         Returns:
             Classifier: The `Classifier` object.
         """
-        if self.strategy is ClassifierStrategies.XGBClassifier and y.dtype in ['object', 'string']:
+        if (
+            self.strategy is ClassifierStrategies.XGBClassifier
+            and y.dtype in ["object", "string"]
+        ):
             y = LabelEncoder().fit_transform(y)
         return self.model.fit(X, y)
 
@@ -87,11 +88,14 @@ class Classifier(BaseClassifier):
             NotFittedError: If the model hasn't been fitted yet.
         """
         try:
-            if self.strategy is ClassifierStrategies.XGBClassifier and y.dtype in ['object', 'string']:
+            if (
+                self.strategy is ClassifierStrategies.XGBClassifier
+                and y.dtype in ["object", "string"]
+            ):
                 y = LabelEncoder().fit_transform(y)
             return self.model.score(X, y)
         except:
-            raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError("You have to fit the model first.")
 
     def predict(self, X: MatrixLike) -> ndarray:
         """
@@ -103,12 +107,12 @@ class Classifier(BaseClassifier):
         Raises:
             `NotFittedError` if the model hasn't been fitted.
         """
-        try: 
+        try:
             return self.model.predict(X)
         except:
-            raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError("You have to fit the model first.")
 
-    def predict_proba(self, X:MatrixLike) -> ndarray:
+    def predict_proba(self, X: MatrixLike) -> ndarray:
         """
         Predicts class probabilities for each data point.
 
@@ -121,7 +125,7 @@ class Classifier(BaseClassifier):
         try:
             return self.model.predict_proba(X)
         except:
-            raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError("You have to fit the model first.")
 
     def predict_log_proba(self, X: MatrixLike) -> ndarray:
         """
@@ -136,4 +140,4 @@ class Classifier(BaseClassifier):
         try:
             return log(self.predict_proba(X))
         except:
-            raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError("You have to fit the model first.")

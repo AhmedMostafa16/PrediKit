@@ -1,16 +1,11 @@
-from abc import(
-    ABC, 
-    abstractmethod
-)
+from abc import ABC, abstractmethod
 
 from enum import StrEnum
 
-from sklearn.base import (
-    RegressorMixin,
-    BaseEstimator
-)
+from sklearn.base import RegressorMixin, BaseEstimator
 from numpy import ndarray
 from ..._typing import MatrixLike
+
 
 class BaseRegressor(RegressorMixin, BaseEstimator, ABC):
     """Base class for all regressors."""
@@ -27,17 +22,18 @@ class BaseRegressor(RegressorMixin, BaseEstimator, ABC):
     def predict(X: MatrixLike) -> ndarray:
         pass
 
+
 class RegressorStrategies(StrEnum):
 
-    SVR = 'SVR'
-    XGBRegressor = 'XGBRegressor'
-    LGBMRegressor = 'LGBMRegressor'
-    LinearRegression = 'LinearRegression'
-    CatBoostRegressor = 'CatBoostRegressor'
-    AdaBoostRegressor = 'AdaBoostRegressor'
-    KNeighborsRegressor = 'KNeighborsRegressor'
-    DecisionTreeRegressor = 'DecisionTreeRegressor'
-    RandomForestRegressor = 'RandomForestRegressor'
+    SVR = "SVR"
+    XGBRegressor = "XGBRegressor"
+    LGBMRegressor = "LGBMRegressor"
+    LinearRegression = "LinearRegression"
+    CatBoostRegressor = "CatBoostRegressor"
+    AdaBoostRegressor = "AdaBoostRegressor"
+    KNeighborsRegressor = "KNeighborsRegressor"
+    DecisionTreeRegressor = "DecisionTreeRegressor"
+    RandomForestRegressor = "RandomForestRegressor"
 
     @classmethod
     def from_str(cls, strategy: str) -> "RegressorStrategies":
@@ -56,7 +52,7 @@ class RegressorStrategies(StrEnum):
         """
         strategy = strategy.lower()
         match strategy:
-            case "supportvectorregressor" | 'svr':
+            case "supportvectorregressor" | "svr":
                 return cls.SVR
             case "xgbr" | "xgboostregressor" | "xgbregressor":
                 return cls.XGBRegressor

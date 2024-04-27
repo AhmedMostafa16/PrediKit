@@ -22,7 +22,7 @@ from ._base import EncodingStrategies, Encoder
 
 
 class OneHotEncoder:
-    def __init__(self, cols: list[str] = None, drop: str =None) -> None:
+    def __init__(self, cols: list[str] = None, drop: str = None) -> None:
         self.columns: list[str] = cols
         self.drop: str = drop
         self.encodings: dict[str, int] = {}
@@ -34,18 +34,31 @@ class OneHotEncoder:
         for column in self.columns:
             unique_values = df[column].unique()
             if self.drop == "first":
-                unique_values = np.delete(unique_values, 0)  # Drop the first category
+                unique_values = np.delete(
+                    unique_values, 0
+                )  # Drop the first category
             elif self.drop == "if_binary" and len(unique_values) == 2:
-                unique_values = unique_values[1:]  # Drop the first category if binary
-            self.encodings[column] = {value: np.eye(len(unique_values))[i] for i, value in enumerate(unique_values)}
-            self.feature_names_out.extend([f"{column}_{value}" for value in unique_values])
+                unique_values = unique_values[
+                    1:
+                ]  # Drop the first category if binary
+            self.encodings[column] = {
+                value: np.eye(len(unique_values))[i]
+                for i, value in enumerate(unique_values)
+            }
+            self.feature_names_out.extend(
+                [f"{column}_{value}" for value in unique_values]
+            )
 
     def transform(self, df: DataFrame) -> DataFrame:
         df_encoded = df
         for column in self.columns:
-            if (column in df_encoded):  # Check if column exists after dropping (if_binary)
+            if (
+                column in df_encoded
+            ):  # Check if column exists after dropping (if_binary)
                 for value, _ in self.encodings[column].items():
-                    df_encoded[column + "_" + str(value)] = (df_encoded[column] == value).astype(int)
+                    df_encoded[column + "_" + str(value)] = (
+                        df_encoded[column] == value
+                    ).astype(int)
                 df_encoded.drop(column, axis=1, inplace=True)
         return df_encoded
 
@@ -63,8 +76,11 @@ class OneHotEncoder:
             list: A list of string, the names of the encoded features.
         """
         if self.feature_names_out is None:
-            raise ValueError("Please fit the encoder before calling get_features_names_out.")
+            raise ValueError(
+                "Please fit the encoder before calling get_features_names_out."
+            )
         return self.feature_names_out
+
 
 class EncoderFetch:
     _ENCODERS: dict[EncodingStrategies, Encoder] = {
@@ -79,11 +95,16 @@ class EncoderFetch:
         EncodingStrategies.OrdinalEncoder: OrdinalEncoder,
     }
 
-    def __init__(self, strategy: EncodingStrategies, cols: list[str] = None, **encoder_params) -> None:
+    def __init__(
+        self,
+        strategy: EncodingStrategies,
+        cols: list[str] = None,
+        **encoder_params,
+    ) -> None:
         self.strategy = strategy
         self.columns = cols
         self.encoder_params = encoder_params
-        self._encoder = self._ENCODERS[self.strategy](**self.encoder_params) 
+        self._encoder = self._ENCODERS[self.strategy](**self.encoder_params)
 
     def fit(self, df: DataFrame) -> None:
         if self.columns is None:
@@ -92,16 +113,25 @@ class EncoderFetch:
 
     def transform(self, df: DataFrame) -> DataFrame:
         df_encoded = df.copy()
-        if self.strategy in [EncodingStrategies.OrdinalEncoder, EncodingStrategies.LabelEncoder]:
-            df_encoded = DataFrame(self._encoder.transform(df_encoded[self.columns]))
-            df.drop(self.columns, axis= 1, inplace= True)
+        if self.strategy in [
+            EncodingStrategies.OrdinalEncoder,
+            EncodingStrategies.LabelEncoder,
+        ]:
+            df_encoded = DataFrame(
+                self._encoder.transform(df_encoded[self.columns])
+            )
+            df.drop(self.columns, axis=1, inplace=True)
             df[df_encoded.columns] = df_encoded
         else:
-            cat_col = [col for col in self.columns 
-                        if col in df_encoded.select_dtypes(include=['category', 'object'])]
+            cat_col = [
+                col
+                for col in self.columns
+                if col
+                in df_encoded.select_dtypes(include=["category", "object"])
+            ]
             df_encoded = self._encoder.transform(df_encoded[self.columns])
             df[df_encoded.columns] = df_encoded
-            df.drop(cat_col, axis= 1, inplace= True)
+            df.drop(cat_col, axis=1, inplace=True)
         return df
 
     def fit_transform(self, df: DataFrame):
@@ -133,6 +163,7 @@ ENCODERS = {
     EncodingStrategies.PolynomialEncoder: EncoderFetch,
     EncodingStrategies.OrdinalEncoder: EncoderFetch,
 }
+
 
 def init_encoder(strategy: EncodingStrategies, **params):
     """

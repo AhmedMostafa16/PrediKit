@@ -1,4 +1,3 @@
-
 from plotly.express import (
     bar,
     box,
@@ -20,6 +19,7 @@ from ._base import (
     BaseVisualization,
     VisualizationStrategies,
 )
+
 
 class Visualization(BaseVisualization):
     """
@@ -73,8 +73,10 @@ class Visualization(BaseVisualization):
         if isinstance(self.vis, Figure):
             return self.vis.data
         else:
-            raise TypeError("Visualization object does not contain valid data.")
-    
+            raise TypeError(
+                "Visualization object does not contain valid data."
+            )
+
     def send_json(self):
         """
         Convert the visualization to JSON.
@@ -83,12 +85,13 @@ class Visualization(BaseVisualization):
             .
         """
         return to_json(self.vis)
-    
+
     def show(self):
         """
         Shows the plot.
         """
         self.vis.show()
+
 
 class Subplots(BaseVisualization):
     """
@@ -100,14 +103,10 @@ class Subplots(BaseVisualization):
     rows: int
         The number of rows in the subplot.
     cols: int
-        The number of columns in the subplot.    
+        The number of columns in the subplot.
     """
-    def __init__(
-            self, 
-            figures: list,
-            rows: int,
-            cols: int
-    ) -> None:
+
+    def __init__(self, figures: list, rows: int, cols: int) -> None:
         self.figures = figures
         self.rows = rows
         self.cols = cols
@@ -117,7 +116,7 @@ class Subplots(BaseVisualization):
         Creates subplots.
         """
         # Create a subplot with the specified number of rows and columns
-        this_figure = sp.make_subplots(rows=self.rows, cols=self.cols) 
+        this_figure = sp.make_subplots(rows=self.rows, cols=self.cols)
 
         # Loop through each figure and add its traces to the appropriate subplot
         for i, fig in enumerate(self.figures, 1):  # Start index from 1
@@ -125,10 +124,10 @@ class Subplots(BaseVisualization):
                 # Calculate row and col indices based on total number of subplots
                 row_index = (i - 1) // self.cols + 1
                 col_index = (i - 1) % self.cols + 1
-                this_figure.add_trace(trace, row=row_index, col=col_index) 
-    
+                this_figure.add_trace(trace, row=row_index, col=col_index)
+
         return this_figure
-    
+
     def send_json(self, figure):
         """
         Convert the visualization to JSON.
@@ -137,7 +136,7 @@ class Subplots(BaseVisualization):
             .
         """
         return to_json(figure)
-    
+
     def show(self, figure):
         """
         Shows the plot.

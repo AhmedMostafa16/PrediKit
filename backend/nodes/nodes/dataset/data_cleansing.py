@@ -290,7 +290,7 @@ class BasicFilterNode(NodeBase):
 
     def run(
         self, dataset: pandas.DataFrame, column, operator: str, value: str
-    )-> pandas.DataFrame:
+    ) -> pandas.DataFrame:
         try:
             filter = BasicFilteringProcessor(
                 operator=operator,

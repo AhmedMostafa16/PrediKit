@@ -1,16 +1,10 @@
-from ._base import(
-    BaseRegressor,
-    RegressorStrategies
-)
+from ._base import BaseRegressor, RegressorStrategies
 
 from ..._typing import MatrixLike, Any
 from numpy import ndarray
 from sklearn.exceptions import NotFittedError
 
-from sklearn.ensemble import(
-    RandomForestRegressor,
-    AdaBoostRegressor
-)
+from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
 
 from lightgbm import LGBMRegressor
 from sklearn.svm import SVR
@@ -20,18 +14,20 @@ from xgboost import XGBRegressor
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.tree import DecisionTreeRegressor
 
+
 class Regressor(BaseRegressor):
     """
     A class that provides a unified interface for various regression algorithms.
 
     ### Parameters
-    strategy : {"RandomForestRegressor", "LGBMRegressor", 
-    "SVR", "CatBoostRegressor", "KNeighborsRegressor", 
-    "DecisionTreeRegressor", "XGBRegressor", "LinearRegression", 
+    strategy : {"RandomForestRegressor", "LGBMRegressor",
+    "SVR", "CatBoostRegressor", "KNeighborsRegressor",
+    "DecisionTreeRegressor", "XGBRegressor", "LinearRegression",
     "AdaBoostRegressor"}, default= None
 
     params: a dictionary of parameters {'parameter': value -> (str, int or float)}.
     """
+
     _REGRESSORS: dict[RegressorStrategies, Any] = {
         RegressorStrategies.SVR: SVR,
         RegressorStrategies.CatBoostRegressor: CatBoostRegressor,
@@ -44,10 +40,13 @@ class Regressor(BaseRegressor):
         RegressorStrategies.DecisionTreeRegressor: DecisionTreeRegressor,
     }
 
-    def __init__(self, strategy: RegressorStrategies = None,
-                params: dict[str, str | int | float ] = None) -> None:
+    def __init__(
+        self,
+        strategy: RegressorStrategies = None,
+        params: dict[str, str | int | float] = None,
+    ) -> None:
         if strategy is None:
-            raise ValueError('Select a Regressor.')
+            raise ValueError("Select a Regressor.")
         else:
             self.strategy = RegressorStrategies.from_str(strategy)
 
@@ -86,7 +85,7 @@ class Regressor(BaseRegressor):
         try:
             return self.model.score(X, y)
         except:
-            raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError("You have to fit the model first.")
 
     def predict(self, X: MatrixLike) -> ndarray:
         """
@@ -101,7 +100,7 @@ class Regressor(BaseRegressor):
         Raises:
             NotFittedError: If the model hasn't been fitted yet.
         """
-        try: 
+        try:
             return self.model.predict(X)
         except:
-            raise NotFittedError('You have to fit the model first.')
+            raise NotFittedError("You have to fit the model first.")

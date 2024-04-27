@@ -19,7 +19,7 @@ from typing import (
 
 from asyncio_locked_dict import AsyncioLockedDict
 from base_types import (
-NodeId,
+    NodeId,
     OutputId,
 )
 from bson import ObjectId
@@ -595,7 +595,7 @@ async def preview_node(request: Request, workflow_id: str):
                         "error": "Node output is not a Dataset.",
                     }
                 )
-                
+
             page = full_data.get("page", 1)
             start = (page - 1) * PAGE_SIZE
             end = page * PAGE_SIZE

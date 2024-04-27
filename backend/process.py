@@ -465,6 +465,10 @@ class Executor:
 
     def is_aborted(self) -> bool:
         return self.progress.aborted
-    
+
     def get_cache(self) -> OutputCache:
-        return self.cache if not self.parent_executor else self.parent_executor.cache
+        return (
+            self.cache
+            if not self.parent_executor
+            else self.parent_executor.cache
+        )

@@ -1,16 +1,11 @@
-from abc import(
-    ABC, 
-    abstractmethod
-)
+from abc import ABC, abstractmethod
 
 from numpy import ndarray
 from enum import StrEnum
 
-from sklearn.base import (
-    ClusterMixin,
-    BaseEstimator
-)
+from sklearn.base import ClusterMixin, BaseEstimator
 from ..._typing import MatrixLike
+
 
 class BaseCluster(ClusterMixin, BaseEstimator, ABC):
     """base class for all clusters."""
@@ -23,10 +18,11 @@ class BaseCluster(ClusterMixin, BaseEstimator, ABC):
     def fit_predict(X: MatrixLike) -> ndarray:
         pass
 
+
 class ClusterStrategies(StrEnum):
 
-    KMeans = 'KMeans'
-    DBSCAN = 'DBSCAN'
+    KMeans = "KMeans"
+    DBSCAN = "DBSCAN"
 
     @classmethod
     def from_str(cls, strategy: str) -> "ClusterStrategies":
@@ -45,7 +41,7 @@ class ClusterStrategies(StrEnum):
         """
         strategy = strategy.lower()
         match strategy:
-            case "kmean" | 'kmeans':
+            case "kmean" | "kmeans":
                 return cls.KMeans
             case "dbscan":
                 return cls.DBSCAN

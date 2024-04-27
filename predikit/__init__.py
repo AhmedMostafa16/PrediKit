@@ -21,7 +21,7 @@ from predikit.preprocessing import (
     OutliersProcessor,
     StringOperationsProcessor,
 )
-from predikit.models import(
+from predikit.models import (
     Classifier,
     Regressor,
     Cluster,
@@ -31,7 +31,12 @@ from predikit.util import (
     init_logging_config,
     validations,
 )
-from predikit.automl import AutoML, initialize_cluster_server, import_file, split_train_test
+from predikit.automl import (
+    AutoML,
+    initialize_cluster_server,
+    import_file,
+    split_train_test,
+)
 
 __all__ = [
     "validations",

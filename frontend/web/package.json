@@ -5,7 +5,7 @@
     "description": "A flowchart based image processing GUI",
     "main": ".webpack/main",
     "scripts": {
-        "start": "electron-forge start -- --no-backend",
+        "start": "electron-forge start -- --no-backend --inspect-electron",
         "dev": "concurrently \"nodemon ./backend/sever.py 5001\" \"electron-forge start -- --no-backend\"",
         "package": "cross-env NODE_ENV=production electron-forge package",
         "make": "cross-env NODE_ENV=production electron-forge make",
@@ -25,6 +25,7 @@
         "npm": ">=7.0.0"
     },
     "config": {
+        "save-exact": true,
         "forge": {
             "packagerConfig": {
                 "executableName": "predikit",
@@ -129,7 +130,7 @@
         "concurrently": "^7.2.1",
         "cross-env": "^7.0.3",
         "css-loader": "^6.7.1",
-        "electron": "^20.1.4",
+        "electron": "^22.3.27",
         "electron-installer-common": "^0.10.3",
         "eslint": "^8.16.0",
         "eslint-config-airbnb": "^19.0.4",

@@ -1,3 +1,3 @@
 from .classifiers import Classifier
 
-__all__ = ['Classifier']
+__all__ = ["Classifier"]
