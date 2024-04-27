@@ -49,7 +49,7 @@ class FeatureSelection(BasePreprocessor):
         self,
         data: DataFrame,
         columns: list[str] | None = None,
-    ) -> Self | Err[str]:
+    ) -> Self:
         # if columns and exclude:
         #     exc = ValueError(
         #         "Only one of 'columns' and 'exclude' can be specified"
@@ -88,7 +88,7 @@ class FeatureSelection(BasePreprocessor):
         self,
         data: DataFrame,
         columns: list[str] | None = None,
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         if self.empty == True:
             exc = ValueError("No columns or dtypes to be selected")
             return Err(str(exc))
