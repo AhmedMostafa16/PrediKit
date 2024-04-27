@@ -2,7 +2,7 @@
     "name": "predikit",
     "productName": "PrediKit",
     "version": "0.1.0",
-    "description": "A flowchart based image processing GUI",
+    "description": "A cloud-based platform for data science and machine learning",
     "main": ".webpack/main",
     "scripts": {
         "start": "electron-forge start -- --no-backend --inspect-electron",

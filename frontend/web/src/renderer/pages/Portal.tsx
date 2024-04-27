@@ -26,18 +26,23 @@ export const Portal = memo(() => {
     };
 
     useEffect(() => {
-        const interval = setInterval(fetchWorkflows, 3000);
+        fetchWorkflows();
+    }, [backend.getAllWorkflows]);
+
+    useEffect(() => {
+        const interval = setInterval(fetchWorkflows, 5000);
         return () => clearInterval(interval);
-    }, [backend]);
+    }, [backend.getAllWorkflows]);
 
     const elements = workflows.map((workflow: Workflow) => {
         return (
             <Tr
                 key={workflow.id}
-                onClick={async () => {
+                onClick={() => {
                     setCurrentWorkflowId(workflow.id);
                     setCurrentWorkflow(workflow);
-                    await loadWorkflow(workflow.id);
+                    // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                    loadWorkflow(workflow.id);
                     navigate(`/workflows/${workflow.id}`);
                 }}
             >
