@@ -16,12 +16,13 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import { ipcRenderer } from "electron";
-import React, { memo, useState } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "use-context-selector";
 import { currentMigration } from "../../common/migrations";
 import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
+import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 
 interface CreateWorkflowModalProps {
     isOpen: boolean;
@@ -34,7 +35,8 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => setInput(e.target.value);
 
     const { backend } = useContext(BackendContext);
-    const { loadWorkflow } = useContext(GlobalContext);
+    const { loadWorkflow, setCurrentWorkflowId } = useContext(GlobalContext);
+    const { sendAlert } = useContext(AlertBoxContext);
 
     const navigate = useNavigate();
 
@@ -89,13 +91,32 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                                         updatedAt: new Date().getTime(),
                                     });
 
-                                    // console.log("Response", response);
+                                    console.log("Response: ", response);
 
-                                    if (response.success) {
-                                        // console.log("Workflow created", response.data);
-                                        await loadWorkflow(response.data);
-                                        navigate(`/workflow/${response.data}`);
-                                        onClose();
+                                    if (response.type === "success") {
+                                        const workflowId: string = response.message;
+                                        console.log("Workflow created", workflowId);
+
+                                        // Sleep for 1 second to allow the backend to update the workflow
+                                        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+                                        // eslint-disable-next-line @typescript-eslint/no-floating-promises
+                                        loadWorkflow(workflowId).then(() => {
+                                            onClose();
+
+                                            setCurrentWorkflowId(workflowId);
+                                            navigate(`/workflows/${workflowId}`);
+                                        });
+                                    } else {
+                                        console.error(
+                                            "Failed to create workflow",
+                                            response.message
+                                        );
+                                        sendAlert({
+                                            title: "Failed to create workflow",
+                                            message: response.message,
+                                            type: AlertType.ERROR,
+                                        });
                                     }
                                 }
                             }}

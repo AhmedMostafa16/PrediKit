@@ -9,8 +9,7 @@ import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
 
 export const Portal = memo(() => {
-    const { /*  getAllWorkflows, */ setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } =
-        useContext(GlobalContext);
+    const { setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } = useContext(GlobalContext);
     const { backend } = useContext(BackendContext);
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const navigate = useNavigate();

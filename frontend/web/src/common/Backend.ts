@@ -160,7 +160,7 @@ export class Backend {
         return this.fetchJson(`/workflows/${workflowId}/clearcache/individual`, "POST", { id });
     }
 
-    createWorkflow(workflow: WorkflowDto): Promise<BackendResult<string>> {
+    createWorkflow(workflow: WorkflowDto): Promise<BackendExecutorActionResponse> {
         return this.fetchJson("/workflows", "POST", workflow);
     }
 
