@@ -175,6 +175,10 @@ export class Backend {
     updateWorkflow(id: string, workflow: WorkflowDto): Promise<BackendResult<null>> {
         return this.fetchJson(`/workflows/${id}`, "PUT", workflow);
     }
+
+    deleteWorkflow(id: string): Promise<BackendExecutorActionResponse> {
+        return this.fetchJson(`/workflows/${id}`, "DELETE");
+    }
 }
 
 const backendCache = new Map<number, Backend>();

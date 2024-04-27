@@ -558,7 +558,7 @@ async def update_workflow(request: Request, workflow_id: str):
 @app.route("/workflows/<workflow_id:str>", methods=["DELETE"])
 async def delete_workflow(request: Request, workflow_id: str):
     try:
-        result = await workflows_collection.delete_one({"_id": workflow_id})
+        result = await workflows_collection.delete_one({"_id": ObjectId(workflow_id)})
         if result.deleted_count == 0:
             return json(errorResponse("Workflow not found!", ""), status=404)
         return json(successResponse(""), status=200)
