@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: .
+    ports:
+      - 5001:5001
+
+  # Uncomment the following block to run monogoDB in a container if you want to use it locally
+  # mongodb:
+  #   image: mongo
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=root
+  #     - MONGO_INITDB_ROOT_PASSWORD=mongopw
+  #   ports:
+  #     - 27017:27017
+  #   volumes:
+  #     - mongodata:/var/lib/mongodb/data
+
+networks:
+  default:
+    driver: bridge

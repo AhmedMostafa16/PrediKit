@@ -28,7 +28,7 @@ class Classifier(BaseClassifier):
     params: a dictionary of parameters {'parameter': value -> (str, int or float)}.
     """
 
-    _CLASSIFIERS: dict[ClassifierStrategies, "Classifier"] = {
+    _CLASSIFIERS: dict = {
         ClassifierStrategies.RandomForestClassifier: RandomForestClassifier,
         ClassifierStrategies.LGBMClassifier: LGBMClassifier,
         ClassifierStrategies.SVC: SVC,
@@ -42,8 +42,8 @@ class Classifier(BaseClassifier):
 
     def __init__(
         self,
-        strategy: ClassifierStrategies = None,
-        params: dict[str, str | int | float] = None,
+        strategy: ClassifierStrategies | None = None,
+        params: dict[str, str | int | float] = {},
     ) -> None:
         if strategy is None:
             raise ValueError("Select a classifier.")

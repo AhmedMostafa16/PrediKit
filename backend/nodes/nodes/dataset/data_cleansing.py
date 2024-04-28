@@ -5,8 +5,6 @@ import sys
 
 import pandas
 
-from predikit.preprocessing.data_filtering import BasicFilteringProcessor
-
 
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
@@ -14,6 +12,7 @@ sys.path.append(root)
 from predikit import (
     OutliersProcessor,
     StringOperationsProcessor,
+    BasicFilteringProcessor,
 )
 
 from ...properties.inputs.dataset_input import DatasetInput

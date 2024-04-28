@@ -66,8 +66,7 @@ class BasicFilteringProcessor(BasePreprocessor):
             self.operator = FilterOperator.from_str(self.operator)
 
         if not column:
-            exc = ValueError("Column name must be provided")
-            return str(exc)
+            raise ValueError("Column name must be provided")
 
         self._numeric = self._is_numeric(data, column)
         self._query = self._parse_query(column, self.operator, self.value)
