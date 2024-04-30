@@ -25,6 +25,11 @@ struct Dataset {
 
 struct MathOperation { operation: string }
 struct LogicalOperation { operation: string }
+
+struct Plot {
+    data: any,
+    layout: any,
+}
 `;
 
 export const getPrediKitScope = lazy((): Scope => {
