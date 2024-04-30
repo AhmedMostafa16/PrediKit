@@ -2,7 +2,7 @@ from typing import Union, Literal
 from base_types import OutputId
 from .. import expression
 
-OutputKind = Literal["dataset", "text", "generic"]
+OutputKind = Literal["dataset", "text", "generic", "plot"]
 
 
 class BaseOutput:

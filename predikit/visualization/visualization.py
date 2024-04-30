@@ -33,7 +33,7 @@ class Visualization(BaseVisualization):
     {'parameter': value -> (str, int or float)}.
     """
 
-    _VISUALIZATIONS: dict[VisualizationStrategies, "Visualization"] = {
+    _VISUALIZATIONS: dict = {
         VisualizationStrategies.Bar: bar,
         VisualizationStrategies.Scatter: scatter,
         VisualizationStrategies.Hist: histogram,
@@ -50,15 +50,15 @@ class Visualization(BaseVisualization):
 
     def __init__(
         self,
-        strategy: VisualizationStrategies = None,
-        params: dict[str, str | int | float] = None,
+        strategy: VisualizationStrategies,
+        params: dict[str, str | int | float] = {},
     ) -> None:
         if strategy is None:
             raise ValueError("Select a visualization.")
         else:
             self.strategy = VisualizationStrategies.from_str(strategy)
 
-        if params is None:
+        if params is None or not isinstance(params, dict) or len(params) == 0:
             self.vis = self._VISUALIZATIONS[self.strategy]()
         else:
             self.vis = self._VISUALIZATIONS[self.strategy](**params)

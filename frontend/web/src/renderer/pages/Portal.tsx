@@ -1,3 +1,4 @@
+import { DeleteIcon } from "@chakra-ui/icons";
 import {
     AlertDialog,
     AlertDialogBody,
@@ -24,10 +25,9 @@ import { useNavigate } from "react-router-dom";
 import { useContext } from "use-context-selector";
 import { Workflow } from "../../common/common-types";
 import { PortalHeader } from "../components/PortalHeader";
+import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
-import { DeleteIcon } from "@chakra-ui/icons";
-import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 
 export const Portal = memo(() => {
     const { setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } = useContext(GlobalContext);
@@ -101,10 +101,10 @@ export const Portal = memo(() => {
                         }}
                     />
                     <AlertDialog
-                        isOpen={isOpen}
-                        onClose={onClose}
-                        leastDestructiveRef={cancelRef}
                         isCentered
+                        isOpen={isOpen}
+                        leastDestructiveRef={cancelRef}
+                        onClose={onClose}
                     >
                         <AlertDialogOverlay>
                             <AlertDialogContent>
@@ -123,6 +123,7 @@ export const Portal = memo(() => {
                                     <Button onClick={onClose}>Cancel</Button>
                                     <Button
                                         colorScheme="red"
+                                        ml={3}
                                         onClick={() => {
                                             try {
                                                 backend.deleteWorkflow(workflow.id);
@@ -137,7 +138,6 @@ export const Portal = memo(() => {
                                             }
                                             onClose();
                                         }}
-                                        ml={3}
                                     >
                                         Delete
                                     </Button>
@@ -167,9 +167,9 @@ export const Portal = memo(() => {
         <VStack
             bg="var(--window-bg)"
             h="100vh"
+            overflow="hidden"
             p={2}
             w="100vw"
-            overflow={"hidden"}
         >
             <PortalHeader />
             <Box
@@ -177,8 +177,8 @@ export const Portal = memo(() => {
                 borderRadius="lg"
                 borderWidth="0px"
                 h="100%"
+                overflow="scroll"
                 w="100%"
-                overflow={"scroll"}
             >
                 <TableContainer m={8}>
                     <Table

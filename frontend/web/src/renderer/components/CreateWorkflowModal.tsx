@@ -16,13 +16,13 @@ import {
     useDisclosure,
 } from "@chakra-ui/react";
 import { ipcRenderer } from "electron";
-import React, { memo, useEffect, useState } from "react";
+import React, { memo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useContext } from "use-context-selector";
 import { currentMigration } from "../../common/migrations";
+import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
-import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 
 interface CreateWorkflowModalProps {
     isOpen: boolean;

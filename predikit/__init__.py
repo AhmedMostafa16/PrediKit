@@ -38,6 +38,10 @@ from predikit.automl import (
     split_train_test,
 )
 
+from predikit.visualization import (
+    Visualization,
+)
+
 __all__ = [
     "validations",
     "FileExtension",
@@ -62,6 +66,7 @@ __all__ = [
     "Regressor",
     "Cluster",
     "AutoML",
+    "Visualization",
 ]
 
 

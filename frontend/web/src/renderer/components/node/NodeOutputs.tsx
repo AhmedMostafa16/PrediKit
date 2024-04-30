@@ -9,6 +9,7 @@ import { GlobalContext, GlobalVolatileContext } from "../../contexts/GlobalWorkf
 import { DefaultDatasetOutput } from "../outputs/DefaultDatasetOutput";
 import { GenericOutput } from "../outputs/GenericOutput";
 import { OutputContainer } from "../outputs/OutputContainer";
+import { PlotOutput } from "../outputs/PlotOutput";
 import { OutputProps } from "../outputs/props";
 
 interface FullOutputProps extends Omit<Output, "id" | "type">, OutputProps {
@@ -22,11 +23,13 @@ const OutputComponents: Readonly<
     dataset: DefaultDatasetOutput,
     text: GenericOutput,
     generic: GenericOutput,
+    plot: PlotOutput,
 };
 const OutputIsGeneric: Readonly<Record<OutputKind, boolean>> = {
     dataset: true,
     text: true,
     generic: true,
+    plot: true,
 };
 
 const pickOutput = (kind: OutputKind, props: FullOutputProps) => {

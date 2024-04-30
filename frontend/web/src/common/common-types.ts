@@ -52,7 +52,7 @@ export interface Input {
     readonly filetypes?: string[];
 }
 
-export type OutputKind = "dataset" | "text" | "generic";
+export type OutputKind = "dataset" | "text" | "generic" | "plot";
 
 export interface Output {
     readonly id: OutputId;

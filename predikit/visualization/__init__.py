@@ -1,3 +1,8 @@
-from .visualization import Visualization, Subplots
+from .visualization import Visualization, Subplots, VisualizationStrategies
 
-__all__ = ["Visualization"]
+
+__all__ = [
+    "Visualization",
+    "VisualizationStrategies",
+    "Subplots",
+]

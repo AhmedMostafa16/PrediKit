@@ -15,6 +15,9 @@ services:
   #   volumes:
   #     - mongodata:/var/lib/mongodb/data
 
+# volumes:
+  # mongodata:
+
 networks:
   default:
     driver: bridge

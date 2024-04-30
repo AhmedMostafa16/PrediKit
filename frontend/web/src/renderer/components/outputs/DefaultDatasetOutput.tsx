@@ -51,7 +51,7 @@ export const DefaultDatasetOutput = memo(({ label, id, outputId, useOutputData }
         }
     }, [id, outputId, value]);
 
-    const { getNodes, getEdges } = useReactFlow<NodeData, EdgeData>();
+    const { getNodes } = useReactFlow<NodeData, EdgeData>();
 
     return (
         <Flex

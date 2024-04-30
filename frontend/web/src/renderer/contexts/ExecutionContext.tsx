@@ -362,8 +362,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
         if (nodes.length === 0) {
             let message;
             if (nodesToOptimize.length > 0) {
-                message =
-                    "There are no nodes that have an effect. Try to view or output images/files.";
+                message = "There are no nodes that have an effect. Try to view or output files.";
             } else if (disabledNodes.size > 0) {
                 message = "All nodes are disabled. There are no nodes to run.";
             } else {
