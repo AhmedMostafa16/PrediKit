@@ -14,8 +14,10 @@ def import_file(path: str) -> h2o.H2OFrame:
 
 
 def split_train_test(
-    data: h2o.H2OFrame, ratios: list[int] = [0.8], seed: int = None
+    data: h2o.H2OFrame, ratios: list[int] = None, seed: int = None
 ) -> Tuple[h2o.H2OFrame, h2o.H2OFrame]:
+    if ratios is None:
+        ratios = [0.8]
     train, test = data.split_frame(ratios=ratios, seed=seed)
     return (train, test)
 
