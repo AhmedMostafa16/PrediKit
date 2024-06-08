@@ -32,15 +32,17 @@ class DataPreparer(BasePreprocessor):
         outliers_method: OutlierDetectionMethod = OutlierDetectionMethod.IQR,
         clean_indicator: bool = False,
         outliers_threshold: float = 1.5,
-        cat_encoders_strategies: list[EncodingStrategies] = [
-            EncodingStrategies.HelmertEncoder,
-            EncodingStrategies.CountEncoder,
-        ],
+        cat_encoders_strategies: list[EncodingStrategies] = None,
         drop_invariant: bool = False,
         normalization: bool = False,
         random_state: int = 42,
         verbose: bool = False,
     ) -> None:
+        if cat_encoders_strategies is None:
+            cat_encoders_strategies = [
+                    EncodingStrategies.HelmertEncoder,
+                    EncodingStrategies.CountEncoder,
+                ]
         self.verbose = verbose
         self.cat_encoders_strategies = cat_encoders_strategies
         self.random_state = random_state

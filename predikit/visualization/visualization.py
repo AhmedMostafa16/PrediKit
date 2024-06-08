@@ -51,8 +51,10 @@ class Visualization(BaseVisualization):
     def __init__(
         self,
         strategy: VisualizationStrategies,
-        params: dict[str, str | int | float] = {},
+        params: dict[str, str | int | float] = None,
     ) -> None:
+        if params is None:
+            params = {}
         if strategy is None:
             raise ValueError("Select a visualization.")
         else:

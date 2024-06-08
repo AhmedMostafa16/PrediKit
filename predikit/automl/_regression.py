@@ -20,7 +20,7 @@ class AutoRegression:
         ignore_features: Optional[List[str]] = None,
         keep_features: Optional[List[str]] = None,
         preprocess: bool = True,
-        create_date_columns: List[str] = ["day", "month", "year"],
+        create_date_columns: List[str] = None,
         imputation_type: Optional[str] = "simple",
         numeric_imputation: Union[int, float, str] = "mean",
         categorical_imputation: str = "mode",
@@ -80,6 +80,8 @@ class AutoRegression:
         profile: bool = False,
         profile_kwargs: Optional[Dict[str, Any]] = None,
     ) -> None:
+        if create_date_columns is None:
+            create_date_columns = ["day", "month", "year"]
 
         setup(
             data=data,

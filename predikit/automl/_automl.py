@@ -25,7 +25,7 @@ class AutoML:
         ignore_features: Optional[List[str]] = None,
         keep_features: Optional[List[str]] = None,
         preprocess: bool = True,
-        create_date_columns: List[str] = ["day", "month", "year"],
+        create_date_columns: List[str] = None,
         imputation_type: Optional[str] = "simple",
         numeric_imputation: Union[int, float, str] = "mean",
         categorical_imputation: str = "mode",
@@ -87,6 +87,8 @@ class AutoML:
         fix_imbalance: bool = False,
         fix_imbalance_method: Union[str, Any] = "SMOTE",
     ):
+        if create_date_columns is None:
+            create_date_columns = ["day", "month", "year"]
         if self.model_type == "regressor":
             self.model = AutoRegression(
                 data=data,

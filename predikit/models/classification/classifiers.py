@@ -43,8 +43,10 @@ class Classifier(BaseClassifier):
     def __init__(
         self,
         strategy: ClassifierStrategies | None = None,
-        params: dict[str, str | int | float] = {},
+        params: dict[str, str | int | float] = None,
     ) -> None:
+        if params is None:
+            params = {}
         if strategy is None:
             raise ValueError("Select a classifier.")
         else:
