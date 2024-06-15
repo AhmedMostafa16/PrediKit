@@ -1,8 +1,3 @@
-from ._base import (
-    BaseVisualization,
-    VisualizationStrategies,
-)
-
 import pandas as pd
 from plotly import offline
 from plotly.express import (
@@ -20,7 +15,13 @@ from plotly.graph_objs import Figure
 from plotly.io import to_json
 import plotly.subplots as sp
 
+from ._base import (
+    BaseVisualization,
+    VisualizationStrategies,
+)
+
 pd.options.plotting.backend = "plotly"
+
 
 class Visualization(BaseVisualization):
     """

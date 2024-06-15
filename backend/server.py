@@ -9,7 +9,6 @@ import multiprocessing
 import os
 import sys
 import traceback
-import pandas
 from typing import (
     Any,
     Dict,
@@ -37,6 +36,7 @@ from events import (
 from motor.motor_asyncio import AsyncIOMotorClient
 from nodes.node_factory import NodeFactory
 from nodes.nodes.builtin_categories import category_order
+import pandas
 from process import (
     Executor,
     NodeExecutionError,
@@ -558,7 +558,9 @@ async def update_workflow(request: Request, workflow_id: str):
 @app.route("/workflows/<workflow_id:str>", methods=["DELETE"])
 async def delete_workflow(request: Request, workflow_id: str):
     try:
-        result = await workflows_collection.delete_one({"_id": ObjectId(workflow_id)})
+        result = await workflows_collection.delete_one(
+            {"_id": ObjectId(workflow_id)}
+        )
         if result.deleted_count == 0:
             return json(errorResponse("Workflow not found!", ""), status=404)
         return json(successResponse(""), status=200)

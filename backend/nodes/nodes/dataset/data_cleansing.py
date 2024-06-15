@@ -1,20 +1,23 @@
 from __future__ import annotations
+
 import os
 import re
 import sys
 
 import pandas
 
-
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
 
 from predikit import (
+    BasicFilteringProcessor,
     OutliersProcessor,
     StringOperationsProcessor,
-    BasicFilteringProcessor,
 )
 
+from . import category as DatasetCategory
+from ...node_base import NodeBase
+from ...node_factory import NodeFactory
 from ...properties.inputs.dataset_input import DatasetInput
 from ...properties.inputs.generic_inputs import (
     BoolInput,
@@ -23,10 +26,6 @@ from ...properties.inputs.generic_inputs import (
 )
 from ...properties.inputs.numeric_inputs import NumberInput
 from ...properties.outputs.dataset_output import DatasetOutput
-
-from . import category as DatasetCategory
-from ...node_base import NodeBase
-from ...node_factory import NodeFactory
 
 
 @NodeFactory.register("predikit:dataset:outliers")

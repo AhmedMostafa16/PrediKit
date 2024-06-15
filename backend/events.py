@@ -10,7 +10,11 @@ from typing import (
     Union,
 )
 
-from base_types import NodeId, InputId, OutputId
+from base_types import (
+    InputId,
+    NodeId,
+    OutputId,
+)
 
 
 class FinishData(TypedDict):

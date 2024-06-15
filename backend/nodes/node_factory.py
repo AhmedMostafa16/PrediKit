@@ -1,4 +1,8 @@
-from typing import Callable, Dict, TypeVar
+from typing import (
+    Callable,
+    Dict,
+    TypeVar,
+)
 
 from sanic.log import logger
 

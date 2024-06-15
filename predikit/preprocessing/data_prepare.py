@@ -40,9 +40,9 @@ class DataPreparer(BasePreprocessor):
     ) -> None:
         if cat_encoders_strategies is None:
             cat_encoders_strategies = [
-                    EncodingStrategies.HelmertEncoder,
-                    EncodingStrategies.CountEncoder,
-                ]
+                EncodingStrategies.HelmertEncoder,
+                EncodingStrategies.CountEncoder,
+            ]
         self.verbose = verbose
         self.cat_encoders_strategies = cat_encoders_strategies
         self.random_state = random_state

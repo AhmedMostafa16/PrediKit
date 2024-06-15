@@ -1,18 +1,25 @@
-from ._base import BaseRegressor, RegressorStrategies
-
-from ..._typing import MatrixLike, Any
-from numpy import ndarray
-from sklearn.exceptions import NotFittedError
-
-from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
-
-from lightgbm import LGBMRegressor
-from sklearn.svm import SVR
 from catboost import CatBoostRegressor
+from lightgbm import LGBMRegressor
+from numpy import ndarray
+from sklearn.ensemble import (
+    AdaBoostRegressor,
+    RandomForestRegressor,
+)
+from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LinearRegression
-from xgboost import XGBRegressor
 from sklearn.neighbors import KNeighborsRegressor
+from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
+from xgboost import XGBRegressor
+
+from ..._typing import (
+    Any,
+    MatrixLike,
+)
+from ._base import (
+    BaseRegressor,
+    RegressorStrategies,
+)
 
 
 class Regressor(BaseRegressor):

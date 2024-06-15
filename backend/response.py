@@ -1,7 +1,12 @@
-from typing import Literal, Optional, TypedDict, Union
+from typing import (
+    Literal,
+    Optional,
+    TypedDict,
+    Union,
+)
 
-from process import NodeExecutionError
 from events import ExecutionErrorSource
+from process import NodeExecutionError
 
 
 class SuccessResponse(TypedDict):

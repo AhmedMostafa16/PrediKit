@@ -1,9 +1,15 @@
-from abc import ABC, abstractmethod
-
-from numpy import ndarray
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from enum import StrEnum
 
-from sklearn.base import ClusterMixin, BaseEstimator
+from numpy import ndarray
+from sklearn.base import (
+    BaseEstimator,
+    ClusterMixin,
+)
+
 from ..._typing import MatrixLike
 
 
