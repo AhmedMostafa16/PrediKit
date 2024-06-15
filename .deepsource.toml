@@ -9,9 +9,13 @@ test_patterns = [
 exclude_patterns = [
   "migrations/**",
   "**/examples/**",
-  "public/**,",
-  "dist/**"
+  "*/public/**,",
+  "*/dist/**",
+  "*/docs/**"
 ]
+
+[[analyzers]]
+name = "test-coverage"
 
 [[analyzers]]
 name = "docker"
