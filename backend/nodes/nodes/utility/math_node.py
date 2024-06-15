@@ -1,12 +1,15 @@
 from __future__ import annotations
+
 import math
 from typing import Union
 
 from . import category as UtilityCategory
-
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import NumberInput, MathOpsDropdown
+from ...properties.inputs import (
+    MathOpsDropdown,
+    NumberInput,
+)
 from ...properties.outputs import NumberOutput
 
 

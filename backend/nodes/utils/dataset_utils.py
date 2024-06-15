@@ -1,8 +1,7 @@
 import pandas
 
-from ..properties.inputs.dataset_input import DatasetInput
-
 from ..properties.inputs.base_input import BaseInput
+from ..properties.inputs.dataset_input import DatasetInput
 
 
 def get_available_dataset_formats():

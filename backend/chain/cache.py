@@ -1,8 +1,18 @@
-from typing import Any, Dict, Iterable, Optional, Set
 import gc
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Optional,
+    Set,
+)
+
 from sanic.log import logger
 
-from .chain import NodeId, Chain
+from .chain import (
+    Chain,
+    NodeId,
+)
 
 
 class CacheStrategy:

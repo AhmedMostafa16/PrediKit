@@ -1,10 +1,19 @@
-from abc import ABC, abstractmethod
-
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from enum import StrEnum
 
-from sklearn.base import ClassifierMixin, BaseEstimator
 from numpy import ndarray
-from ..._typing import MatrixLike, Any
+from sklearn.base import (
+    BaseEstimator,
+    ClassifierMixin,
+)
+
+from ..._typing import (
+    Any,
+    MatrixLike,
+)
 
 
 class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):

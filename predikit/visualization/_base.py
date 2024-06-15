@@ -1,11 +1,7 @@
-from abc import (
-    ABC,
-)
+from abc import ABC
 from enum import StrEnum
 
-from .._typing import (
-    Any,
-)
+from .._typing import Any
 
 
 class BaseVisualization(ABC):

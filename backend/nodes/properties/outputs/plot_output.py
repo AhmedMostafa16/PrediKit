@@ -1,7 +1,11 @@
 import plotly
 from plotly.graph_objs._figure import Figure
+
 from ...properties import expression
-from ...properties.outputs.base_output import BaseOutput, OutputKind
+from ...properties.outputs.base_output import (
+    BaseOutput,
+    OutputKind,
+)
 
 
 class PlotOutput(BaseOutput):

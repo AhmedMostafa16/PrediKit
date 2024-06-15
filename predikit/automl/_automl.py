@@ -1,7 +1,20 @@
-from ._regression import AutoRegression
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Union,
+)
+
+from .._typing import (
+    DATAFRAME_LIKE,
+    SEQUENCE_LIKE,
+    TARGET_LIKE,
+    DataFrame,
+)
 from ._classification import AutoClassification
-from typing import Any, Callable, Dict, List, Optional, Union
-from .._typing import DATAFRAME_LIKE, TARGET_LIKE, SEQUENCE_LIKE, DataFrame
+from ._regression import AutoRegression
 
 
 class AutoML:
