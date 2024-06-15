@@ -1,7 +1,23 @@
 version = 1
 
+test_patterns = [
+  "tests/**",
+  "test_*.py",
+  "*/test/**"
+]
+
+exclude_patterns = [
+  "migrations/**",
+  "**/examples/**",
+  "public/**,",
+  "dist/**"
+]
+
 [[analyzers]]
-name = "shell"
+name = "docker"
+
+  [analyzers.meta]
+  dockerfile_paths = ["./Dockerfile"]
 
 [[analyzers]]
 name = "javascript"
@@ -9,9 +25,20 @@ name = "javascript"
   [analyzers.meta]
   plugins = ["react"]
   environment = ["browser"]
+  cyclomatic_complexity_threshold = "very-high"
 
 [[analyzers]]
 name = "python"
 
   [analyzers.meta]
   runtime_version = "3.x.x"
+  cyclomatic_complexity_threshold = "high"
+
+[[transformers]]
+name = "prettier"
+
+[[transformers]]
+name = "black"
+
+[[transformers]]
+name = "isort"
