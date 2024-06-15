@@ -15,9 +15,6 @@ exclude_patterns = [
 ]
 
 [[analyzers]]
-name = "test-coverage"
-
-[[analyzers]]
 name = "docker"
 
   [analyzers.meta]
