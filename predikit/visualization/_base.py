@@ -1,12 +1,10 @@
 from abc import (
     ABC,
-    abstractmethod,
 )
 from enum import StrEnum
 
 from .._typing import (
     Any,
-    MatrixLike,
 )
 
 
