@@ -1,25 +1,26 @@
-from plotly.express import (
-    bar,
-    box,
-    histogram,
-    line,
-    scatter,
-)
-import plotly.subplots as sp
-from plotly import offline
-from plotly.graph_objs import Figure
-from plotly.io import to_json
-
-from .._typing import (
-    Any,
-    MatrixLike,
-)
-
 from ._base import (
     BaseVisualization,
     VisualizationStrategies,
 )
 
+import pandas as pd
+from plotly import offline
+from plotly.express import (
+    area,
+    bar,
+    box,
+    density_heatmap,
+    histogram,
+    line,
+    pie,
+    scatter,
+)
+from plotly.figure_factory import create_distplot
+from plotly.graph_objs import Figure
+from plotly.io import to_json
+import plotly.subplots as sp
+
+pd.options.plotting.backend = "plotly"
 
 class Visualization(BaseVisualization):
     """
@@ -27,11 +28,17 @@ class Visualization(BaseVisualization):
 
     ### Parameters
     strategy : {"Bar", "Scatter", "Hist", "CountPlot", "HeatMap",
-    "PairPlot", "BoxPlot", "LinePlot"}, default= None
+    "PairPlot", "BoxPlot", "LinePlot", "PieChart" , "AreaPlot", "Hexbin", "Barh", "KDE"},
+    default= None
 
     params: a dictionary of parameters
     {'parameter': value -> (str, int or float)}.
     """
+
+    @staticmethod
+    def barh(df: pd.DataFrame, *args, **kwargs):
+        """Returns BarH plot for a Pandas dataframe"""
+        return df.plot.barh(*args, **kwargs)
 
     _VISUALIZATIONS: dict = {
         VisualizationStrategies.Bar: bar,
@@ -39,13 +46,15 @@ class Visualization(BaseVisualization):
         VisualizationStrategies.Hist: histogram,
         VisualizationStrategies.Box: box,
         VisualizationStrategies.Line: line,
+        VisualizationStrategies.Pie: pie,
+        VisualizationStrategies.Area: area,
+        VisualizationStrategies.HeatMap: density_heatmap,
+        VisualizationStrategies.KDE: create_distplot,
+        VisualizationStrategies.BarH: barh,
     }
     """
         VisualizationStrategies.CountPlot: countplot,
-        VisualizationStrategies.HeatMap: heatmap,
         VisualizationStrategies.PairPlot: pairplot,
-        VisualizationStrategies.LinePlot: lineplot,
-        VisualizationStrategies.BoxPlot: boxplot,
         """
 
     def __init__(
