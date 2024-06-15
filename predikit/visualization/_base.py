@@ -26,12 +26,14 @@ class VisualizationStrategies(StrEnum):
     Hist = "histogram"
     Box = "box"
     Line = "line"
+    Pie = "pie"
+    Area = "area"
+    HeatMap = "heatmap"
+    KDE = "kde"
+    BarH = "barh"
+    Hexbin = "hexbin"
     """
     CountPlot = 'countplot'
-    HeatMap = 'heatmap'
-    PairPlot = 'pairplot'
-    LinePlot = 'lineplot'
-    BoxPlot = 'boxplot'
     PairPlot = 'pairplot'
     """
 
@@ -62,6 +64,18 @@ class VisualizationStrategies(StrEnum):
                 return cls.Box
             case "line" | "lineplot":
                 return cls.Line
+            case "pie" | "pieplot" | "piechart":
+                return cls.Pie
+            case "area" | "areaplot":
+                return cls.Area
+            case "heatmap":
+                return cls.HeatMap
+            case "kde":
+                return cls.KDE
+            case "barh":
+                return cls.BarH
+            case "hexbin":
+                return cls.Hexbin
             case _:
                 raise ValueError(f"Invalid visualization strategy: {strategy}")
 
@@ -69,12 +83,6 @@ class VisualizationStrategies(StrEnum):
 """
             case "countplot" | "count":
                 return cls.CountPlot
-            case "heatmap":
-                return cls.HeatMap
-            case "boxplot" | "box":
-                return cls.BoxPlot
-            case "lineplot" | "line":
-                return cls.LinePlot
             case "pairplot" | "pair":
                 return cls.PairPlot
             """
