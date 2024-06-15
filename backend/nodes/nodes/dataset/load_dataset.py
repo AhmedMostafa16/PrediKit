@@ -7,18 +7,21 @@ from typing import Tuple
 
 import numpy as np
 import pandas
-from result import Ok, Result, Err
+from result import (
+    Err,
+    Ok,
+    Result,
+)
 from sanic.log import logger
-from ...properties.outputs.dataset_output import DatasetOutput
-
-from ...properties.outputs.file_outputs import DatasetFileOutput
-from ...utils.dataset_utils import get_available_dataset_formats
 
 from . import category as DatasetCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import DatasetFileInput
 from ...properties.outputs import TextOutput
+from ...properties.outputs.dataset_output import DatasetOutput
+from ...properties.outputs.file_outputs import DatasetFileOutput
+from ...utils.dataset_utils import get_available_dataset_formats
 
 
 @NodeFactory.register("predikit:dataset:load")

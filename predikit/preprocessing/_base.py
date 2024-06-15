@@ -6,10 +6,7 @@ from enum import (
     StrEnum,
     auto,
 )
-from typing import (
-    Self,
-    # override,
-)
+from typing import Self  # override,
 
 import numpy as np
 from pandas import DataFrame

@@ -1,11 +1,15 @@
 from __future__ import annotations
-from typing import Literal, Union
 
 import os
+from typing import (
+    Literal,
+    Union,
+)
+
+from .. import expression
 
 # pylint: disable=relative-beyond-top-level
 from ...utils.dataset_utils import get_available_dataset_formats
-from .. import expression
 from .base_input import BaseInput
 from .generic_inputs import DropDownInput
 

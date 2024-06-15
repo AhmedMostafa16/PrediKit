@@ -1,6 +1,20 @@
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    List,
+    Optional,
+    Union,
+)
+
 from pycaret.regression import *
-from typing import Any, Callable, Dict, List, Optional, Union
-from .._typing import DATAFRAME_LIKE, TARGET_LIKE, SEQUENCE_LIKE, DataFrame
+
+from .._typing import (
+    DATAFRAME_LIKE,
+    SEQUENCE_LIKE,
+    TARGET_LIKE,
+    DataFrame,
+)
 
 
 class AutoRegression:

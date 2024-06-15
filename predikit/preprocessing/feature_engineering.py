@@ -1,8 +1,5 @@
 import logging
-from typing import (
-    Self,
-    # override,
-)
+from typing import Self  # override,
 from xml.etree.ElementInclude import include
 
 from pandas import DataFrame
@@ -19,7 +16,6 @@ from ._base import (
     FeatureType,
 )
 from ._encoders import init_encoder
-from ._base import EncodingStrategies
 
 
 class FeatureSelection(BasePreprocessor):
