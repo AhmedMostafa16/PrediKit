@@ -1,7 +1,13 @@
-from abc import ABC, abstractmethod
-
+from abc import (
+    ABC,
+    abstractmethod,
+)
 from enum import StrEnum
-from .._typing import MatrixLike, Any
+
+from .._typing import (
+    Any,
+    MatrixLike,
+)
 
 
 class BaseVisualization(ABC):
@@ -31,7 +37,6 @@ class VisualizationStrategies(StrEnum):
     HeatMap = "heatmap"
     KDE = "kde"
     BarH = "barh"
-    Hexbin = "hexbin"
     """
     CountPlot = 'countplot'
     PairPlot = 'pairplot'
@@ -74,8 +79,6 @@ class VisualizationStrategies(StrEnum):
                 return cls.KDE
             case "barh":
                 return cls.BarH
-            case "hexbin":
-                return cls.Hexbin
             case _:
                 raise ValueError(f"Invalid visualization strategy: {strategy}")
 

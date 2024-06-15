@@ -10,6 +10,7 @@ from plotly.express import (
     pie,
     scatter,
 )
+from plotly.figure_factory import create_distplot
 from plotly.graph_objs import Figure
 from plotly.io import to_json
 import plotly.subplots as sp
@@ -39,16 +40,8 @@ class Visualization(BaseVisualization):
     """
 
     @staticmethod
-    def barh(df, *args, **kwargs):
+    def barh(df: pd.DataFrame, *args, **kwargs):
         return df.plot.barh(*args, **kwargs)
-
-    @staticmethod
-    def hexbin(df, *args, **kwargs):
-        return df.plot.hexbin(*args, **kwargs)
-
-    @staticmethod
-    def kde(df, *args, **kwargs):
-        return df.plot.kde(*args, **kwargs)
 
     _VISUALIZATIONS: dict = {
         VisualizationStrategies.Bar: bar,
@@ -59,9 +52,8 @@ class Visualization(BaseVisualization):
         VisualizationStrategies.Pie: pie,
         VisualizationStrategies.Area: area,
         VisualizationStrategies.HeatMap: density_heatmap,
-        VisualizationStrategies.KDE: kde,
+        VisualizationStrategies.KDE: create_distplot,
         VisualizationStrategies.BarH: barh,
-        VisualizationStrategies.Hexbin: hexbin,
     }
     """
         VisualizationStrategies.CountPlot: countplot,
