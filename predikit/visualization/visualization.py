@@ -2,10 +2,6 @@ from ._base import (
     BaseVisualization,
     VisualizationStrategies,
 )
-from .._typing import (
-    Any,
-    MatrixLike,
-)
 
 import pandas as pd
 from plotly import offline
