@@ -1,3 +1,12 @@
+from ._base import (
+    BaseVisualization,
+    VisualizationStrategies,
+)
+from .._typing import (
+    Any,
+    MatrixLike,
+)
+
 import pandas as pd
 from plotly import offline
 from plotly.express import (
@@ -17,23 +26,14 @@ import plotly.subplots as sp
 
 pd.options.plotting.backend = "plotly"
 
-from .._typing import (
-    Any,
-    MatrixLike,
-)
-from ._base import (
-    BaseVisualization,
-    VisualizationStrategies,
-)
-
-
 class Visualization(BaseVisualization):
     """
     A class that unifies various visualizations.
 
     ### Parameters
     strategy : {"Bar", "Scatter", "Hist", "CountPlot", "HeatMap",
-    "PairPlot", "BoxPlot", "LinePlot", "PieChart" , "AreaPlot", "Hexbin", "Barh", "KDE"}, default= None
+    "PairPlot", "BoxPlot", "LinePlot", "PieChart" , "AreaPlot", "Hexbin", "Barh", "KDE"},
+    default= None
 
     params: a dictionary of parameters
     {'parameter': value -> (str, int or float)}.
@@ -41,6 +41,7 @@ class Visualization(BaseVisualization):
 
     @staticmethod
     def barh(df: pd.DataFrame, *args, **kwargs):
+        """Returns BarH plot for a Pandas dataframe"""
         return df.plot.barh(*args, **kwargs)
 
     _VISUALIZATIONS: dict = {
