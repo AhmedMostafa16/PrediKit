@@ -43,3 +43,6 @@ name = "black"
 
 [[transformers]]
 name = "isort"
+
+[[transformers]]
+name = "ruff"
