@@ -1,8 +1,11 @@
+from nodes.utils.dataset_utils import get_dataframe_fields
 import pandas
 
-from nodes.utils.dataset_utils import get_dataframe_fields
 from ...properties import expression
-from ...properties.outputs.base_output import BaseOutput, OutputKind
+from ...properties.outputs.base_output import (
+    BaseOutput,
+    OutputKind,
+)
 
 
 class DatasetOutput(BaseOutput):

@@ -1,8 +1,15 @@
 from __future__ import annotations
 
-from typing import Literal, Optional, Tuple, TypedDict, Union, List, Dict
 import math
-
+from typing import (
+    Dict,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    TypedDict,
+    Union,
+)
 
 NumberJson = Union[int, float, Literal["inf"], Literal["-inf"], Literal["NaN"]]
 

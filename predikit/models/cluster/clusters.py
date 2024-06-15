@@ -1,9 +1,18 @@
-from ._base import BaseCluster, ClusterStrategies
 from numpy import ndarray
-from ..._typing import MatrixLike, Any
+from sklearn.cluster import (
+    DBSCAN,
+    KMeans,
+)
 from sklearn.exceptions import NotFittedError
 
-from sklearn.cluster import DBSCAN, KMeans
+from ..._typing import (
+    Any,
+    MatrixLike,
+)
+from ._base import (
+    BaseCluster,
+    ClusterStrategies,
+)
 
 
 class Cluster(BaseCluster):

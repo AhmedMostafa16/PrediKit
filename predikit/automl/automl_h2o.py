@@ -1,6 +1,7 @@
+from typing import Tuple
+
 import h2o
 from h2o.automl import H2OAutoML
-from typing import Tuple
 
 
 def initialize_cluster_server(
