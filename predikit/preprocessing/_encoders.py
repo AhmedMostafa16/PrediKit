@@ -1,7 +1,5 @@
-import numpy as np
-from pandas import DataFrame
-import hashlib
 from collections import defaultdict
+import hashlib
 
 from category_encoders import (
     BackwardDifferenceEncoder,
@@ -12,13 +10,17 @@ from category_encoders import (
     PolynomialEncoder,
     SumEncoder,
 )
-from sklearn.preprocessing import (
+import numpy as np
+from pandas import DataFrame
+from sklearn.preprocessing import (  # OneHotEncoder,
     LabelEncoder,
-    # OneHotEncoder,
     OrdinalEncoder,
 )
 
-from ._base import EncodingStrategies, Encoder
+from ._base import (
+    Encoder,
+    EncodingStrategies,
+)
 
 
 class OneHotEncoder:

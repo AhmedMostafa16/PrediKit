@@ -152,7 +152,7 @@ export const isDataset = (
         { readonly name: "data"; readonly type: AnyType },
         { readonly name: "index"; readonly type: AnyType },
         { readonly name: "shape"; readonly type: IntNumberType },
-        { readonly name: "dtypes"; readonly type: AnyType }
+        { readonly name: "dtypes"; readonly type: AnyType },
     ];
 } => {
     return type.type === "struct" && type.name === "Dataset" && type.fields.length === 5;

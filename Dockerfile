@@ -1,5 +1,5 @@
 # Use the official Python image as the base image for the container
-FROM python:latest
+FROM python:3.12
 
 # Set the working directory to /app in the container
 WORKDIR /app
