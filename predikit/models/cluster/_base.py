@@ -26,7 +26,6 @@ class BaseCluster(ClusterMixin, BaseEstimator, ABC):
 
 
 class ClusterStrategies(StrEnum):
-
     KMeans = "KMeans"
     DBSCAN = "DBSCAN"
 

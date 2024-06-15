@@ -184,12 +184,7 @@ class MissingValueStrategy(StrEnum):
             case "constant" | "fill" | "value":
                 return cls.CONSTANT
             # fmt: off
-            case "omit"\
-                | "drop"\
-                | "dropna"\
-                | "drop_na"\
-                | "drop na"\
-                | "drop-na":
+            case "omit" | "drop" | "dropna" | "drop_na" | "drop na" | "drop-na":
                 return cls.OMIT
             # fmt: on
             case _:
@@ -231,12 +226,14 @@ class OutlierDetectionMethod(StrEnum):
         method = method.lower()
         match method:
             # fmt: off
-            case "iqr"\
-                | "interquartile_range"\
-                | "interquartile range"\
-                | "inter quartile range"\
-                | "inter quartile_range"\
-                | "inter quartile":
+            case (
+                "iqr"
+                | "interquartile_range"
+                | "interquartile range"
+                | "inter quartile range"
+                | "inter quartile_range"
+                | "inter quartile"
+            ):
                 return cls.IQR
             # fmt: on
             case "z_score" | "zscore" | "z-score" | "z":
@@ -310,9 +307,11 @@ class EncodingStrategies(StrEnum):
             case "sum" | "sumencoder":
                 return cls.SumEncoder
             # fmt: off
-            case "backward_difference"\
-                | "backwarddifference"\
-                | "backwarddifferenceencoder":
+            case (
+                "backward_difference"
+                | "backwarddifference"
+                | "backwarddifferenceencoder"
+            ):
                 return cls.BackwardDifferenceEncoder
             # fmt: on
             case "one_hot" | "onehot" | "onehotencoder":

@@ -30,7 +30,6 @@ class BaseRegressor(RegressorMixin, BaseEstimator, ABC):
 
 
 class RegressorStrategies(StrEnum):
-
     SVR = "SVR"
     XGBRegressor = "XGBRegressor"
     LGBMRegressor = "LGBMRegressor"

@@ -40,7 +40,6 @@ class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
 
 
 class ClassifierStrategies(StrEnum):
-
     SVC = "SVC"
     XGBClassifier = "XGBClassifier"
     LGBMClassifier = "LGBMClassifier"

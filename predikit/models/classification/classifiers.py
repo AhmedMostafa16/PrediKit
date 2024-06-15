@@ -81,7 +81,11 @@ class Classifier(BaseClassifier):
         """
         if (
             self.strategy is ClassifierStrategies.XGBClassifier
-            and y.dtype in ["object", "string"]
+            and y.dtype
+            in [
+                "object",
+                "string",
+            ]
         ):
             y = LabelEncoder().fit_transform(y)
         return self.model.fit(X, y)
@@ -103,7 +107,11 @@ class Classifier(BaseClassifier):
         try:
             if (
                 self.strategy is ClassifierStrategies.XGBClassifier
-                and y.dtype in ["object", "string"]
+                and y.dtype
+                in [
+                    "object",
+                    "string",
+                ]
             ):
                 y = LabelEncoder().fit_transform(y)
             return self.model.score(X, y)
