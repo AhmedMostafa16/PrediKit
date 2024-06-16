@@ -112,8 +112,6 @@ class Subplots(BaseVisualization):
     ### Parameters
     figures: list
         A list of figures to be displayed.
-    titles: list[str]
-        A list of titles for each subplot.
     rows: int
         The number of rows in the subplot.
     cols: int
