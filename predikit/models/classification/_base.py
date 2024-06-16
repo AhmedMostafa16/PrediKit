@@ -10,9 +10,7 @@ from sklearn.base import (
     ClassifierMixin,
 )
 
-from ..._typing import (
-    MatrixLike,
-)
+from ..._typing import MatrixLike
 
 
 class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):

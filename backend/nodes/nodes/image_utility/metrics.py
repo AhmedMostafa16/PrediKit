@@ -1,9 +1,10 @@
 from __future__ import annotations
-from typing import Tuple
-import math
 
-import numpy as np
+import math
+from typing import Tuple
+
 import cv2
+import numpy as np
 
 from . import category as ImageUtilityCategory
 from ...node_base import NodeBase

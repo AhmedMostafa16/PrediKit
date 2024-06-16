@@ -1,20 +1,21 @@
 from __future__ import annotations
 
 import os
-from typing import Literal, Union
+from typing import (
+    Literal,
+    Union,
+)
 
-from nodes.properties.inputs.generic_inputs import DropDownInput
-from nodes.properties.inputs.file_inputs import DirectoryInput
 from nodes.properties.inputs.dataset_input import DatasetInput
+from nodes.properties.inputs.file_inputs import DirectoryInput
+from nodes.properties.inputs.generic_inputs import DropDownInput
 import pandas
 from sanic.log import logger
 
 from . import category as DatasetCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import (
-    TextInput,
-)
+from ...properties.inputs import TextInput
 
 
 @NodeFactory.register("predikit:dataset:save_feather")

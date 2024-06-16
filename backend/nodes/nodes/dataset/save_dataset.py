@@ -5,8 +5,8 @@ from __future__ import annotations
 import os
 from typing import Union
 
-from nodes.properties.inputs.file_inputs import DirectoryInput
 from nodes.properties.inputs.dataset_input import DatasetInput
+from nodes.properties.inputs.file_inputs import DirectoryInput
 import pandas
 from sanic.log import logger
 

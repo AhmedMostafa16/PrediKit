@@ -2,7 +2,10 @@ import cv2
 
 # pylint: disable=relative-beyond-top-level
 from ...utils.image_utils import BorderType
-from ...utils.pil_utils import InterpolationMethod, RotateExpandCrop
+from ...utils.pil_utils import (
+    InterpolationMethod,
+    RotateExpandCrop,
+)
 from ...utils.tile_util import TileMode
 from .generic_inputs import DropDownInput
 

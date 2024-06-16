@@ -1,6 +1,7 @@
 import math
-import numpy as np
+
 import cv2
+import numpy as np
 
 from .utils import get_h_w_c
 

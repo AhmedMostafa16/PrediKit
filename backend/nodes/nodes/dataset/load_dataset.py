@@ -1,8 +1,8 @@
 from __future__ import annotations
 
+import gc
 import os
 import pathlib
-import gc
 
 import pandas
 from sanic.log import logger
@@ -53,7 +53,9 @@ class DatasetReadNode(NodeBase):
             try:
                 match ext.lower():
                     case ".csv":
-                        temp_df = tuple(pandas.read_csv(path, header=None, nrows=5).dtypes)
+                        temp_df = tuple(
+                            pandas.read_csv(path, header=None, nrows=5).dtypes
+                        )
                         df_header = tuple(pandas.read_csv(path, nrows=5).dtypes)
                         has_header: bool = temp_df != df_header
                         df = pandas.read_csv(
@@ -62,7 +64,9 @@ class DatasetReadNode(NodeBase):
                             header=0 if has_header else None,
                         )
                     case ".xlsx" | ".xls":
-                        temp_df = tuple(pandas.read_excel(path, header=None, nrows=5).dtypes)
+                        temp_df = tuple(
+                            pandas.read_excel(path, header=None, nrows=5).dtypes
+                        )
                         df_header = tuple(pandas.read_excel(path, nrows=5).dtypes)
                         has_header: bool = temp_df != df_header
                         del temp_df, df_header
@@ -81,7 +85,9 @@ class DatasetReadNode(NodeBase):
                     case ".pickle" | ".pkl" | ".pk":
                         df = pandas.read_pickle(filepath_or_buffer=path)
                     case _:
-                        raise Exception(f"Unsupported file format: {ext if ext != "" else path}")
+                        raise Exception(
+                            f"Unsupported file format: {ext if ext != "" else path}"
+                        )
 
                 gc.collect()
             except Exception as e:

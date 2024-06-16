@@ -8,9 +8,7 @@ from pandas import (
     DataFrame,
     Series,
 )
-from result import (
-    Err,
-)
+from result import Err
 
 from predikit.errors import (
     DataNotFittedError,

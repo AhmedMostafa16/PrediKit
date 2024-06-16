@@ -6,11 +6,11 @@ from . import category as ImageUtilityCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import (
-    ImageInput,
-    SliderInput,
-    RotateInterpolationInput,
-    RotateExpansionInput,
     FillColorDropdown,
+    ImageInput,
+    RotateExpansionInput,
+    RotateInterpolationInput,
+    SliderInput,
 )
 from ...properties.outputs import ImageOutput
 from ...utils.pil_utils import rotate

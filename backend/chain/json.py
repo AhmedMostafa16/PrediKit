@@ -1,16 +1,29 @@
-from typing import Any, List, Literal, Optional, Tuple, TypedDict, Union
+from typing import (
+    Any,
+    List,
+    Literal,
+    Optional,
+    Tuple,
+    TypedDict,
+    Union,
+)
 
 from base_types import NodeId
 
 from .chain import (
     Chain,
-    IteratorNode,
-    FunctionNode,
     Edge,
     EdgeSource,
     EdgeTarget,
+    FunctionNode,
+    IteratorNode,
 )
-from .input import InputMap, EdgeInput, ValueInput, Input
+from .input import (
+    EdgeInput,
+    Input,
+    InputMap,
+    ValueInput,
+)
 
 
 class JsonEdgeInput(TypedDict):

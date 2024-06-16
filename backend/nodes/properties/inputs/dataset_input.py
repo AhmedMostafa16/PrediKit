@@ -1,4 +1,3 @@
-
 from ...properties.inputs.base_input import BaseInput
 
 
