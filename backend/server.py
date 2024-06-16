@@ -171,7 +171,7 @@ workflows_collection = db.workflows
 
 class SSEFilter(logging.Filter):
     def filter(self, record):
-        return not (record.request.endswith("/sse") and record.status == 200)  # type: ignore
+        return record.status != 200 or not record.request.endswith("/sse")  # type: ignore
 
 
 class ZeroCounter:
