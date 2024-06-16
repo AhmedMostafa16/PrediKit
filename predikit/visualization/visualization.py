@@ -112,31 +112,79 @@ class Subplots(BaseVisualization):
     ### Parameters
     figures: list
         A list of figures to be displayed.
+    titles: list[str]
+        A list of titles for each subplot.
     rows: int
         The number of rows in the subplot.
     cols: int
         The number of columns in the subplot.
     """
 
-    def __init__(self, figures: list, rows: int, cols: int) -> None:
+    def __init__(
+        self, figures: list, titles: list[str], rows: int, cols: int
+    ) -> None:
         self.figures = figures
+        self.titles = titles
         self.rows = rows
         self.cols = cols
 
     def subplots(self):
         """
-        Creates subplots.
+        Creates subplots with axis labels and titles.
         """
         # Create a subplot with the specified number of rows and columns
         this_figure = sp.make_subplots(rows=self.rows, cols=self.cols)
 
         # Loop through each figure and add its traces to the appropriate subplot
         for i, fig in enumerate(self.figures, 1):  # Start index from 1
+            # Get the actual Plotly figure from the Visualization object
+            plotly_fig = fig.vis if isinstance(fig, Visualization) else fig
             for trace in fig.get_traces():
                 # Calculate row and col indices based on total number of subplots
                 row_index = (i - 1) // self.cols + 1
                 col_index = (i - 1) % self.cols + 1
                 this_figure.add_trace(trace, row=row_index, col=col_index)
+
+                # Add title annotation to each subplot
+                this_figure.add_annotation(
+                    xref="x domain",
+                    yref="y domain",
+                    x=0.5,
+                    y=1.15,
+                    showarrow=False,
+                    text=self.titles[i - 1],
+                    row=row_index,
+                    col=col_index,
+                )
+
+        # Add axis labels to each subplot
+        for i in range(self.rows):
+            for j in range(self.cols):
+                index = i * self.cols + j
+                if index < len(self.figures):
+                    # Get the actual Plotly figure from the Visualization object
+                    plotly_fig = (
+                        self.figures[index].vis
+                        if isinstance(self.figures[index], Visualization)
+                        else self.figures[index]
+                    )
+                    # Extract labels from the individual figures
+                    x_label = plotly_fig.layout.xaxis.title.text
+                    y_label = plotly_fig.layout.yaxis.title.text
+
+                    # Update the subplot with the extracted labels
+                    this_figure.update_xaxes(
+                        title_text=x_label, row=i + 1, col=j + 1
+                    )
+                    this_figure.update_yaxes(
+                        title_text=y_label, row=i + 1, col=j + 1
+                    )
+
+        # Adjust layout to avoid overlapping of labels with plots
+        this_figure.update_layout(
+            autosize=True,
+            margin=dict(l=50, r=50, t=50, b=50),
+        )
 
         return this_figure
 
