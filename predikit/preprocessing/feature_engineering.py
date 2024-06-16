@@ -1,7 +1,9 @@
-from typing import Self, override
+from typing import (
+    Self,
+    override,
+)
 
 from pandas import DataFrame
-
 
 from ._base import (
     BasePreprocessor,
