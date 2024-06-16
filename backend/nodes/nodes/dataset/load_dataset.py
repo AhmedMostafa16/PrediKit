@@ -53,26 +53,19 @@ class DatasetReadNode(NodeBase):
             try:
                 match ext.lower():
                     case ".csv":
-                        temp_df: pandas.DataFrame = pandas.read_csv(
-                            filepath_or_buffer=path, nrows=1
-                        )
-                        has_header: bool = temp_df.columns.tolist() != list(
-                            range(len(temp_df.columns))
-                        )
-                        del temp_df
+                        temp_df = tuple(pandas.read_csv(path, header=None, nrows=5).dtypes)
+                        df_header = tuple(pandas.read_csv(path, nrows=5).dtypes)
+                        has_header: bool = temp_df != df_header
                         df = pandas.read_csv(
                             filepath_or_buffer=path,
                             engine="pyarrow",
                             header=0 if has_header else None,
                         )
                     case ".xlsx" | ".xls":
-                        temp_df: pandas.DataFrame = pandas.read_excel(
-                            io=path, nrows=1
-                        )
-                        has_header: bool = temp_df.columns.tolist() != list(
-                            range(len(temp_df.columns))
-                        )
-                        del temp_df
+                        temp_df = tuple(pandas.read_excel(path, header=None, nrows=5).dtypes)
+                        df_header = tuple(pandas.read_excel(path, nrows=5).dtypes)
+                        has_header: bool = temp_df != df_header
+                        del temp_df, df_header
                         df = pandas.read_excel(
                             io=path,
                             header=0 if has_header else None,
