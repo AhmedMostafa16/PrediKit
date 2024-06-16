@@ -1,15 +1,13 @@
 import logging
 import numbers
 from string import punctuation
-from typing import Self  # override,
+from typing import Self,  override
 
 import numpy as np
 from pandas import (
     DataFrame,
     Series,
 )
-from result import Err
-
 from predikit.errors import (
     DataNotFittedError,
     NoNumericColumnsError,
@@ -180,7 +178,7 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return self
 
-    # @ override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -430,7 +428,7 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    # @ override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -686,7 +684,7 @@ class StringOperationsProcessor(BasePreprocessor):
                 "No string columns found. "
                 "StringModifierProcessor will be skipped."
             )
-            Err(str(exc))
+            str(exc)
 
         self._operations = [
             (self.remove_punctuation, self._remove_punctuation),
@@ -947,7 +945,7 @@ class DataCleanser(BasePreprocessor):
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    # @ override
+    @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -1005,7 +1003,7 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return data
 
-    # @ override
+    @override
     def transform(
         self,
         data: DataFrame,

@@ -5,7 +5,7 @@ Auto parser for buffers or files into pandas DataFrames.
 from io import BytesIO
 import logging
 from os import PathLike
-from typing import (  # override,
+from typing import (  override,
     Any,
     Callable,
     LiteralString,
@@ -407,7 +407,7 @@ class DataFrameParser(DataFrame):
 
         return parsed_types
 
-    # @ override
+    @override
     def __new__(cls, *args, **kwargs) -> Self:
         """
         Creates a new instance of the DataFrameParser class.

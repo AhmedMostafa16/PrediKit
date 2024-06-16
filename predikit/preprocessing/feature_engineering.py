@@ -1,11 +1,7 @@
-from typing import Self  # override,
+from typing import Self, override
 
 from pandas import DataFrame
-from result import (
-    Err,
-    Ok,
-    Result,
-)
+
 
 from ._base import (
     BasePreprocessor,
@@ -38,7 +34,7 @@ class FeatureSelection(BasePreprocessor):
         self.stored_dtypes = None
 
     # ToDo: Add include/exclude dtypes parameter
-    # @ override
+    @override
     def fit(
         self,
         data: DataFrame,
@@ -77,15 +73,14 @@ class FeatureSelection(BasePreprocessor):
 
         return self
 
-    # @ override
+    @override
     def transform(
         self,
         data: DataFrame,
         columns: list[str] | None = None,
     ) -> DataFrame:
         if self.empty is True:
-            exc = ValueError("No columns or dtypes to be selected")
-            return Err(str(exc))
+            raise ValueError("No columns or dtypes to be selected")
         else:
             if self.stored_cols is None and self.stored_dtypes is not None:
                 data = data.select_dtypes(exclude=self.stored_dtypes)
@@ -97,10 +92,9 @@ class FeatureSelection(BasePreprocessor):
                 ].select_dtypes(exclude=self.stored_dtypes)
 
         if data.empty:
-            exc = ValueError("This results in an empty data frame")
-            return Err(str(exc))
+            raise ValueError("This results in an empty data frame")
 
-        return Ok(data)
+        return data
 
 
 class NumericalInteractionFeatures(BasePreprocessor):
@@ -122,18 +116,18 @@ class EncodingProcessor(BasePreprocessor):
         self._encoder_params = encoder_params
         self._encoder = init_encoder(strategy, **encoder_params)
 
-    # @ override
+    @override
     def fit(
         self,
         data: DataFrame,
     ) -> None:
         self._encoder.fit(data)
 
-    # @ override
+    @override
     def transform(
         self,
         data: DataFrame,
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         return self._encoder.transform(data)
 
     def fit_transform(self, data: DataFrame) -> list[str]:
