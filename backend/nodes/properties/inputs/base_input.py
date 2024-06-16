@@ -36,7 +36,8 @@ class BaseInput:
         self.id: InputId = InputId(-1)
 
     # This is the method that should be created by each input
-    def enforce(self, value):
+    @staticmethod
+    def enforce(value):
         """Enforce the input type"""
         return value
 

@@ -222,12 +222,12 @@ class MissingValuesProcessor(BasePreprocessor):
         data = data.fillna(value=self.fill_value)
         return data
 
-    def _omit_missing_values(
-        self, data: DataFrame, columns: list[str]
-    ) -> None:
+    @staticmethod
+    def _omit_missing_values(data: DataFrame, columns: list[str]) -> None:
         data.dropna(subset=columns, inplace=True)
 
-    def _missing_value_label(self, column: str) -> str:
+    @staticmethod
+    def _missing_value_label(column: str) -> str:
         return column + "_isNA"
 
     def _missing_value_labels(self, columns: list[str]) -> list[str]:
@@ -272,7 +272,8 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return data
 
-    def _log_missing_percent(self, data: DataFrame, threshold: float) -> None:
+    @staticmethod
+    def _log_missing_percent(data: DataFrame, threshold: float) -> None:
         """
         Log the percentage of missing values in each column of a DataFrame.
 
@@ -493,9 +494,8 @@ class OutliersProcessor(BasePreprocessor):
 
         return data
 
-    def _fit_z_score(
-        self, data: DataFrame, column: str
-    ) -> tuple[float, float]:
+    @staticmethod
+    def _fit_z_score(data: DataFrame, column: str) -> tuple[float, float]:
         """
         Calculates and returns the median and the Mean Absolute Deviation (MAD)
         of a specific column in a DataFrame.
@@ -516,8 +516,8 @@ class OutliersProcessor(BasePreprocessor):
         column_mad = (data[column] - column_median).abs().median()
         return (column_median, column_mad)
 
+    @staticmethod
     def _get_z_score(
-        self,
         median: float,
         mad: float,
         data: DataFrame,
@@ -554,8 +554,8 @@ class OutliersProcessor(BasePreprocessor):
         outliers_mask = absolute_z_scores > threshold
         return outliers_mask
 
+    @staticmethod
     def _IQR(
-        self,
         data: DataFrame,
         column: str,
         threshold: float = 1.5,
@@ -591,8 +591,9 @@ class OutliersProcessor(BasePreprocessor):
         upper_bound = Q3 + threshold * IQR
         return (lower_bound, upper_bound)
 
+    @staticmethod
     def _log_outliers_num_percent(
-        self, outliers_num: int, data: DataFrame, column: str
+        outliers_num: int, data: DataFrame, column: str
     ) -> None:
         logging.debug(
             f"Number of outliers detected: {outliers_num} in Feature {column}"
@@ -604,8 +605,8 @@ class OutliersProcessor(BasePreprocessor):
             )
         )
 
+    @staticmethod
     def _indicator_label(
-        self,
         column_name: str,
         method: OutlierDetectionMethod | str,
     ) -> str:
@@ -763,7 +764,8 @@ class StringOperationsProcessor(BasePreprocessor):
 
         return data
 
-    def _trim(self, data: DataFrame, column: str) -> DataFrame:
+    @staticmethod
+    def _trim(data: DataFrame, column: str) -> DataFrame:
         """
         Trims leading and trailing whitespace from the strings in the
         specified column of the data.
@@ -783,7 +785,8 @@ class StringOperationsProcessor(BasePreprocessor):
         data[column] = data[column].str.strip()
         return data
 
-    def _remove_whitespace(self, data: DataFrame, column: str) -> DataFrame:
+    @staticmethod
+    def _remove_whitespace(data: DataFrame, column: str) -> DataFrame:
         """
         Removes all whitespace from the strings in the specified column of
         the data.
@@ -803,7 +806,8 @@ class StringOperationsProcessor(BasePreprocessor):
         data[column] = data[column].str.replace(r"\s+", "", regex=True)
         return data
 
-    def _remove_numbers(self, data: DataFrame, column: str) -> DataFrame:
+    @staticmethod
+    def _remove_numbers(data: DataFrame, column: str) -> DataFrame:
         """
         Removes all numeric characters from the strings in the specified
         column of the data.
@@ -823,7 +827,8 @@ class StringOperationsProcessor(BasePreprocessor):
         data[column].replace(r"\d+", "", regex=True, inplace=True)
         return data
 
-    def _remove_letters(self, data: DataFrame, column: str) -> DataFrame:
+    @staticmethod
+    def _remove_letters(data: DataFrame, column: str) -> DataFrame:
         """
         Removes all alphabetic characters from the strings in the specified
         column of the data.
@@ -843,7 +848,8 @@ class StringOperationsProcessor(BasePreprocessor):
         data[column].replace(r"[a-zA-Z]+", "", regex=True, inplace=True)
         return data
 
-    def _remove_punctuation(self, data: DataFrame, column: str) -> DataFrame:
+    @staticmethod
+    def _remove_punctuation(data: DataFrame, column: str) -> DataFrame:
         """
         Removes all punctuation from the strings in the specified
         column of the data.

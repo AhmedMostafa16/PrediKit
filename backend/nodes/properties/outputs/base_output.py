@@ -103,7 +103,8 @@ class BaseOutput:
         """
         yield from self.toDict().items()
 
-    def get_broadcast_data(self, _value):
+    @staticmethod
+    def get_broadcast_data(_value):
         """
         Returns the broadcast data of the BaseOutput object.
 
