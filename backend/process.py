@@ -131,10 +131,10 @@ class IteratorContext:
         for node in self.chain.nodes.values():
             if node.schema_id == schema_id:
                 return node
-        if not (
-            False
-        ):
-            raise AssertionError(f"Unable to find {schema_id} helper node for iterator {self.iterator_id}")
+        if not (False):
+            raise AssertionError(
+                f"Unable to find {schema_id} helper node for iterator {self.iterator_id}"
+            )
 
     def __create_iterator_executor(self) -> Executor:
         """
@@ -297,10 +297,10 @@ class Executor:
         parent_cache: Optional[OutputCache] = None,
         parent_executor: Optional[Executor] = None,
     ) -> None:
-        if (
-            parent_cache and parent_executor
-        ):
-            raise AssertionError("Providing both a parent executor and a parent cache is not supported.")
+        if parent_cache and parent_executor:
+            raise AssertionError(
+                "Providing both a parent executor and a parent cache is not supported."
+            )
 
         self.execution_id: str = uuid.uuid4().hex
         self.chain = chain
