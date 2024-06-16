@@ -278,9 +278,7 @@ class DataFrameParser(DataFrame):
         return reader(path, **properties)
 
     @staticmethod
-    def __check_fix_properties(
-        func: Callable[..., Any], **kwargs
-    ) -> dict:
+    def __check_fix_properties(func: Callable[..., Any], **kwargs) -> dict:
         """
         Validate Keyword argument of a function (key/name only) value checker
         is not supported yet.

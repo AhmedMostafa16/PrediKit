@@ -223,9 +223,7 @@ class MissingValuesProcessor(BasePreprocessor):
         return data
 
     @staticmethod
-    def _omit_missing_values(
-        data: DataFrame, columns: list[str]
-    ) -> None:
+    def _omit_missing_values(data: DataFrame, columns: list[str]) -> None:
         data.dropna(subset=columns, inplace=True)
 
     @staticmethod
@@ -497,9 +495,7 @@ class OutliersProcessor(BasePreprocessor):
         return data
 
     @staticmethod
-    def _fit_z_score(
-        data: DataFrame, column: str
-    ) -> tuple[float, float]:
+    def _fit_z_score(data: DataFrame, column: str) -> tuple[float, float]:
         """
         Calculates and returns the median and the Mean Absolute Deviation (MAD)
         of a specific column in a DataFrame.
