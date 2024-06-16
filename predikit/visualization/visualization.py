@@ -120,11 +120,8 @@ class Subplots(BaseVisualization):
         The number of columns in the subplot.
     """
 
-    def __init__(
-        self, figures: list, titles: list[str], rows: int, cols: int
-    ) -> None:
+    def __init__(self, figures: list, rows: int, cols: int) -> None:
         self.figures = figures
-        self.titles = titles
         self.rows = rows
         self.cols = cols
 
@@ -145,6 +142,13 @@ class Subplots(BaseVisualization):
                 col_index = (i - 1) % self.cols + 1
                 this_figure.add_trace(trace, row=row_index, col=col_index)
 
+                # Extract the title from the figure
+                title = (
+                    plotly_fig.layout.title.text
+                    if plotly_fig.layout.title.text
+                    else ""
+                )
+
                 # Add title annotation to each subplot
                 this_figure.add_annotation(
                     xref="x domain",
@@ -152,7 +156,7 @@ class Subplots(BaseVisualization):
                     x=0.5,
                     y=1.15,
                     showarrow=False,
-                    text=self.titles[i - 1],
+                    text=title,
                     row=row_index,
                     col=col_index,
                 )
