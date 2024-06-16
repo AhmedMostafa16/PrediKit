@@ -567,7 +567,8 @@ class Executor:
                 output_nodes.append(node.id)
         return output_nodes
 
-    def __get_iterator_output_nodes(self, sub: SubChain) -> List[NodeId]:
+    @staticmethod
+    def __get_iterator_output_nodes(sub: SubChain) -> List[NodeId]:
         output_nodes: List[NodeId] = []
         for node in sub.nodes.values():
             if node.has_side_effects():

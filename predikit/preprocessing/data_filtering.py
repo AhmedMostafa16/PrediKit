@@ -143,7 +143,8 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         raise ValueError(f"Invalid operator: {operator}")
 
-    def _is_numeric(self, data: DataFrame, column: str) -> bool:
+    @staticmethod
+    def _is_numeric(data: DataFrame, column: str) -> bool:
         """
         Check if the column is numeric.
 

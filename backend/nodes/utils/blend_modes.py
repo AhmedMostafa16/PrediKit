@@ -101,7 +101,8 @@ class ImageBlender:
         """
         return self.modes[blend_mode](a, b)
 
-    def __normal(self, a: np.ndarray, _: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __normal(a: np.ndarray, _: np.ndarray) -> np.ndarray:
         """
         Blending mode: Normal.
 
@@ -114,7 +115,8 @@ class ImageBlender:
         """
         return a
 
-    def __multiply(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __multiply(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Multiply.
 
@@ -127,7 +129,8 @@ class ImageBlender:
         """
         return a * b
 
-    def __darken(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __darken(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Darken.
 
@@ -140,7 +143,8 @@ class ImageBlender:
         """
         return np.minimum(a, b)
 
-    def __lighten(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __lighten(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Lighten.
 
@@ -153,7 +157,8 @@ class ImageBlender:
         """
         return np.maximum(a, b)
 
-    def __add(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __add(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Add.
 
@@ -166,7 +171,8 @@ class ImageBlender:
         """
         return a + b
 
-    def __color_burn(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __color_burn(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Color Burn.
 
@@ -181,7 +187,8 @@ class ImageBlender:
             a == 0, 0, np.maximum(0, (1 - ((1 - b) / np.maximum(0.0001, a))))
         )
 
-    def __color_dodge(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __color_dodge(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Color Dodge.
 
@@ -196,7 +203,8 @@ class ImageBlender:
             a == 1, 1, np.minimum(1, b / np.maximum(0.0001, (1 - a)))
         )
 
-    def __reflect(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __reflect(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Reflect.
 
@@ -211,7 +219,8 @@ class ImageBlender:
             a == 1, 1, np.minimum(1, b * b / np.maximum(0.0001, 1 - a))
         )
 
-    def __glow(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __glow(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Glow.
 
@@ -226,7 +235,8 @@ class ImageBlender:
             b == 1, 1, np.minimum(1, a * a / np.maximum(0.0001, 1 - b))
         )
 
-    def __overlay(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __overlay(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Overlay.
 
@@ -239,7 +249,8 @@ class ImageBlender:
         """
         return np.where(b < 0.5, (2 * b * a), (1 - (2 * (1 - b) * (1 - a))))
 
-    def __difference(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __difference(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Difference.
 
@@ -252,7 +263,8 @@ class ImageBlender:
         """
         return cv2.absdiff(a, b)
 
-    def __negation(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __negation(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Negation.
 
@@ -265,7 +277,8 @@ class ImageBlender:
         """
         return 1 - cv2.absdiff(1 - b, a)
 
-    def __screen(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __screen(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Screen.
 
@@ -278,7 +291,8 @@ class ImageBlender:
         """
         return a + b - (a * b)  # type: ignore
 
-    def __xor(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __xor(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: XOR.
 
@@ -296,7 +310,8 @@ class ImageBlender:
             / 255
         )
 
-    def __subtract(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __subtract(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Subtract.
 
@@ -309,7 +324,8 @@ class ImageBlender:
         """
         return b - a  # type: ignore
 
-    def __divide(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __divide(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Divide.
 
@@ -322,7 +338,8 @@ class ImageBlender:
         """
         return b / np.maximum(0.0001, a)
 
-    def __exclusion(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __exclusion(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Exclusion.
 
@@ -335,7 +352,8 @@ class ImageBlender:
         """
         return a * (1 - b) + b * (1 - a)
 
-    def __soft_light(self, a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    @staticmethod
+    def __soft_light(a: np.ndarray, b: np.ndarray) -> np.ndarray:
         """
         Blending mode: Soft Light.
 

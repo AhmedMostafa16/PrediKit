@@ -42,7 +42,8 @@ class ImageReadNode(NodeBase):
         self.icon = "BsFillImageFill"
         self.sub = "Input & Output"
 
-    def read_cv(self, path: str) -> np.ndarray:
+    @staticmethod
+    def read_cv(path: str) -> np.ndarray:
         img = None
         try:
             img = cv2.imdecode(
@@ -68,7 +69,8 @@ class ImageReadNode(NodeBase):
 
         return img
 
-    def read_pil(self, path: str) -> np.ndarray:
+    @staticmethod
+    def read_pil(path: str) -> np.ndarray:
         im = Image.open(path)
         img = np.array(im)
         _, _, c = get_h_w_c(img)
