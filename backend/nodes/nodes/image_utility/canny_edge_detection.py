@@ -6,9 +6,12 @@ import numpy as np
 from . import category as ImageUtilityCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    ImageInput,
+    NumberInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.image_utils import normalize
 
 

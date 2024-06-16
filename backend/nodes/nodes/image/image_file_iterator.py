@@ -1,25 +1,34 @@
 from __future__ import annotations
 
 import os
-from typing import Tuple, List
+from typing import (
+    List,
+    Tuple,
+)
 
 import numpy as np
 from process import IteratorContext
 from sanic.log import logger
 
 from . import category as ImageCategory
-from ..image.load_image import ImageReadNode
-from ...node_base import IteratorNodeBase, NodeBase
+from ...node_base import (
+    IteratorNodeBase,
+    NodeBase,
+)
 from ...node_factory import NodeFactory
-from ...properties.inputs import IteratorInput, DirectoryInput
+from ...properties.inputs import (
+    DirectoryInput,
+    IteratorInput,
+)
 from ...properties.outputs import (
-    ImageOutput,
     DirectoryOutput,
-    TextOutput,
+    ImageOutput,
     NumberOutput,
+    TextOutput,
 )
 from ...utils.image_utils import get_available_image_formats
 from ...utils.utils import numerical_sort
+from ..image.load_image import ImageReadNode
 
 IMAGE_ITERATOR_NODE_ID = "predikit:image:file_iterator_load"
 

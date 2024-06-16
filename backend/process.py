@@ -46,6 +46,7 @@ from events import (
 )
 from nodes.node_base import NodeBase
 from nodes.utils.dataset_utils import get_dataframe_fields
+from nodes.utils.image_utils import get_h_w_c
 import numpy as np
 import pandas
 from progress import (
@@ -54,7 +55,6 @@ from progress import (
     ProgressToken,
 )
 from sanic.log import logger
-from nodes.utils.image_utils import get_h_w_c
 
 T = TypeVar("T")
 

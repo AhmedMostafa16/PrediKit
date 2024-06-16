@@ -2,10 +2,16 @@
 # From https://github.com/victorca25/iNNfer/blob/main/utils/utils.py
 from __future__ import annotations
 
-from typing import Callable, List, Tuple, Type, Union
-import cv2
 import re
+from typing import (
+    Callable,
+    List,
+    Tuple,
+    Type,
+    Union,
+)
 
+import cv2
 import numpy as np
 from sanic.log import logger
 

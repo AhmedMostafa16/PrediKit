@@ -1,8 +1,11 @@
 # pylint: disable=relative-beyond-top-level
 
-from ...utils.image_utils import normalize, get_h_w_c
-from .base_input import BaseInput
 from .. import expression
+from ...utils.image_utils import (
+    get_h_w_c,
+    normalize,
+)
+from .base_input import BaseInput
 
 
 class AudioInput(BaseInput):

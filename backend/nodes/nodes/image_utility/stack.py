@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import List
 
 import cv2
@@ -7,7 +8,10 @@ import numpy as np
 from . import category as ImageUtilityCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, StackOrientationDropdown
+from ...properties.inputs import (
+    ImageInput,
+    StackOrientationDropdown,
+)
 from ...properties.outputs import ImageOutput
 from ...utils.utils import get_h_w_c
 

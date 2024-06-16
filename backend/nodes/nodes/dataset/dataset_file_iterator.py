@@ -1,22 +1,32 @@
 from __future__ import annotations
 
 import os
-from typing import Tuple, List
+from typing import (
+    List,
+    Tuple,
+)
 
 import pandas
-from backend.nodes.nodes.dataset.load_dataset import DatasetReadNode
-from backend.nodes.properties.outputs.dataset_output import DatasetOutput
 from process import IteratorContext
 from sanic.log import logger
 
+from backend.nodes.nodes.dataset.load_dataset import DatasetReadNode
+from backend.nodes.properties.outputs.dataset_output import DatasetOutput
+
 from . import category as DatasetCategory
-from ...node_base import IteratorNodeBase, NodeBase
+from ...node_base import (
+    IteratorNodeBase,
+    NodeBase,
+)
 from ...node_factory import NodeFactory
-from ...properties.inputs import IteratorInput, DirectoryInput
+from ...properties.inputs import (
+    DirectoryInput,
+    IteratorInput,
+)
 from ...properties.outputs import (
     DirectoryOutput,
-    TextOutput,
     NumberOutput,
+    TextOutput,
 )
 from ...utils.dataset_utils import get_available_dataset_formats
 from ...utils.utils import numerical_sort

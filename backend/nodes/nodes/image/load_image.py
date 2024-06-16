@@ -3,17 +3,25 @@ from __future__ import annotations
 import os
 from typing import Tuple
 
+from PIL import Image
 import cv2
 import numpy as np
-from PIL import Image
 from sanic.log import logger
 
 from . import category as ImageCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import ImageFileInput
-from ...properties.outputs import LargeImageOutput, DirectoryOutput, TextOutput
-from ...utils.image_utils import get_opencv_formats, get_pil_formats, normalize
+from ...properties.outputs import (
+    DirectoryOutput,
+    LargeImageOutput,
+    TextOutput,
+)
+from ...utils.image_utils import (
+    get_opencv_formats,
+    get_pil_formats,
+    normalize,
+)
 from ...utils.utils import get_h_w_c
 
 

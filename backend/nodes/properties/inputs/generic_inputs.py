@@ -1,9 +1,16 @@
-from typing import Dict, List, Union
+from typing import (
+    Dict,
+    List,
+    Union,
+)
 
 from .. import expression
-from .base_input import BaseInput
 from ...utils.blend_modes import BlendModes as bm
-from ...utils.image_utils import FillColor, FlipAxis
+from ...utils.image_utils import (
+    FillColor,
+    FlipAxis,
+)
+from .base_input import BaseInput
 
 
 class DropDownInput(BaseInput):

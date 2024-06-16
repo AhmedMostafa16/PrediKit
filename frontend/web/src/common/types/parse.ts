@@ -49,7 +49,7 @@ export class ConversionError extends Error {
 
 const getOptional = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Uncapitalize<RuleNames>
+    K extends keyof T & Uncapitalize<RuleNames>,
 >(
     context: T,
     key: K
@@ -70,7 +70,7 @@ const getOptional = <
 };
 const getRequired = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Uncapitalize<RuleNames>
+    K extends keyof T & Uncapitalize<RuleNames>,
 >(
     context: T,
     key: K
@@ -86,7 +86,7 @@ const getRequired = <
 };
 const getMultiple = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Uncapitalize<RuleNames>
+    K extends keyof T & Uncapitalize<RuleNames>,
 >(
     context: T,
     key: K
@@ -111,7 +111,7 @@ interface Token {
 
 const getOptionalToken = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string
+    K extends keyof T & Capitalize<keyof T & string> & string,
 >(
     context: T,
     key: K
@@ -131,7 +131,7 @@ const getOptionalToken = <
 };
 const getRequiredToken = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string
+    K extends keyof T & Capitalize<keyof T & string> & string,
 >(
     context: T,
     key: K
@@ -147,7 +147,7 @@ const getRequiredToken = <
 };
 const getMultipleTokens = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string
+    K extends keyof T & Capitalize<keyof T & string> & string,
 >(
     context: T,
     key: K
@@ -169,7 +169,7 @@ interface OperatorToken<T> {
 }
 const getOperatorsInOrder = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string
+    K extends keyof T & Capitalize<keyof T & string> & string,
 >(
     context: T,
     keys: K[]

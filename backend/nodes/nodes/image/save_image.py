@@ -5,19 +5,19 @@ import random
 import string
 from typing import Union
 
+from PIL import Image
 import cv2
 import numpy as np
-from PIL import Image
 from sanic.log import logger
 
 from . import category as ImageCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import (
-    ImageInput,
     DirectoryInput,
-    TextInput,
     ImageExtensionDropdown,
+    ImageInput,
+    TextInput,
 )
 from ...utils.pil_utils import *  # noqa: F403
 from ...utils.utils import get_h_w_c

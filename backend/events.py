@@ -68,6 +68,7 @@ class ExecutionErrorSource(TypedDict):
         schemaId (str): The ID of the schema associated with the node.
         inputs (InputsDict): A dictionary containing the inputs to the node.
     """
+
     nodeId: NodeId
     schemaId: str
     inputs: InputsDict
@@ -82,6 +83,7 @@ class ExecutionErrorData(TypedDict):
         exception (str): The exception that caused the error.
         source (Optional[ExecutionErrorSource]): The source of the execution error.
     """
+
     message: str
     exception: str
     source: Optional[ExecutionErrorSource]
