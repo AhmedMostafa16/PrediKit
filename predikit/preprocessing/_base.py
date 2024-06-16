@@ -580,7 +580,7 @@ class FeatureType(StrEnum):
             A list of enumeration members corresponding to the given list
             of strings.
         """
-        return list(map(lambda dtype: cls.from_str(dtype), dtypes))
+        return list(map(cls.from_str, dtypes))
 
     def list(self):
         """
