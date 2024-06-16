@@ -47,7 +47,8 @@ class ColorConvertNode(NodeBase):
 
         def reverse3(image: np.ndarray) -> np.ndarray:
             c = get_h_w_c(image)[2]
-            assert c == 3, "Expected a 3-channel image"
+            if c != 3:
+                raise AssertionError("Expected a 3-channel image")
             return np.stack(
                 [image[:, :, 2], image[:, :, 1], image[:, :, 0]], axis=2
             )

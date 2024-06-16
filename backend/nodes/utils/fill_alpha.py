@@ -68,7 +68,8 @@ def with_self_as_background(img: np.ndarray):
     """Changes the given image to the image overlayed with itself."""
 
     _, _, c = get_h_w_c(img)
-    assert c == 4, "The image has to be an RGBA image"
+    if c != 4:
+        raise AssertionError("The image has to be an RGBA image")
     img[:, :, 3] = 1 - np.square(1 - img[:, :, 3])
 
 
@@ -77,7 +78,8 @@ def convert_to_binary_alpha(img: np.ndarray, threshold: float = 0.05):
     and sets the alpha to 1 otherwise."""
 
     _, _, c = get_h_w_c(img)
-    assert c == 4, "The image has to be an RGBA image"
+    if c != 4:
+        raise AssertionError("The image has to be an RGBA image")
 
     a = np.greater(img[:, :, 3], threshold).astype(np.float32)
     img[:, :, 0] *= a
@@ -90,8 +92,10 @@ def fragment_blur(
     img: np.ndarray, n: int, start_angle: float, distance: float
 ) -> np.ndarray:
     h, w, c = get_h_w_c(img)
-    assert c == 4, "The image has to be an RGBA image"
-    assert n >= 1
+    if c != 4:
+        raise AssertionError("The image has to be an RGBA image")
+    if n < 1:
+        raise AssertionError
 
     avg = ImageAverage()
     for i in range(n):
@@ -131,7 +135,8 @@ def fill_alpha_edge_extend(img: np.ndarray, distance: int) -> np.ndarray:
     """
 
     _, _, c = get_h_w_c(img)
-    assert c == 4, "The image has to be an RGBA image"
+    if c != 4:
+        raise AssertionError("The image has to be an RGBA image")
 
     proccessed_distance = 0
     it = 0

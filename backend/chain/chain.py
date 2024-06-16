@@ -86,7 +86,8 @@ class Chain:
         self.__edges_by_target: Dict[NodeId, List[Edge]] = {}
 
     def add_node(self, node: Node):
-        assert node.id not in self.nodes, f"Duplicate node id {node.id}"
+        if node.id in self.nodes:
+            raise AssertionError(f"Duplicate node id {node.id}")
         self.nodes[node.id] = node
 
     def add_edge(self, edge: Edge):

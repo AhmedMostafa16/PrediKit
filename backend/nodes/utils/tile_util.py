@@ -30,7 +30,8 @@ def tile_image(
             ]
         )
     else:
-        assert False, f"Invalid tile mode {mode}"
+        if not False:
+            raise AssertionError(f"Invalid tile mode {mode}")
 
     h, w, _ = get_h_w_c(img)
     img = np.tile(img, (math.ceil(height / h), math.ceil(width / w), 1))
