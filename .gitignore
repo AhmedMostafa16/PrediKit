@@ -662,4 +662,4 @@ examples/**
 .ignore
 
 examples/subplots_test_1.ipynb
-examples
+examples/**.ipynb
