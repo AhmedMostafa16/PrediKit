@@ -116,7 +116,8 @@ def get_available_image_formats():
 
 
 def convert_to_BGRA(img: np.ndarray, in_c: int) -> np.ndarray:
-    assert in_c in (1, 3, 4), f"Number of channels ({in_c}) unexpected"
+    if in_c not in (1, 3, 4):
+        raise AssertionError(f"Number of channels ({in_c}) unexpected")
     if in_c == 1:
         img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGRA)
     elif in_c == 3:
@@ -192,7 +193,8 @@ def as_2d_grayscale(img: np.ndarray) -> np.ndarray:
         return img
     if img.ndim == 3 and img.shape[2] == 1:
         return img[:, :, 0]
-    assert False, f"Invalid image shape {img.shape}"
+    if not False:
+        raise AssertionError(f"Invalid image shape {img.shape}")
 
 
 def as_target_channels(img: np.ndarray, target_channels: int) -> np.ndarray:
@@ -210,7 +212,8 @@ def as_target_channels(img: np.ndarray, target_channels: int) -> np.ndarray:
     if c == target_channels:
         return img
 
-    assert c < target_channels
+    if c >= target_channels:
+        raise AssertionError
 
     if target_channels == 3:
         if c == 1:
@@ -220,7 +223,8 @@ def as_target_channels(img: np.ndarray, target_channels: int) -> np.ndarray:
     if target_channels == 4:
         return convert_to_BGRA(img, c)
 
-    assert False, "Unable to convert image"
+    if not False:
+        raise AssertionError("Unable to convert image")
 
 
 def create_border(
@@ -275,13 +279,17 @@ def blend_images(overlay: np.ndarray, base: np.ndarray, blend_mode: int):
     o_shape = get_h_w_c(overlay)
     b_shape = get_h_w_c(base)
 
-    assert (
-        o_shape[:2] == b_shape[:2]
-    ), "The overlay and the base image must have the same size"
+    if o_shape[:2] != b_shape[:2]:
+        raise AssertionError(
+            "The overlay and the base image must have the same size"
+        )
 
     def assert_sane(c: int, name: str):
         sane = c in (1, 3, 4)
-        assert sane, f"The {name} has to be a grayscale, RGB, or RGBA image"
+        if not sane:
+            raise AssertionError(
+                f"The {name} has to be a grayscale, RGB, or RGBA image"
+            )
 
     o_channels = o_shape[2]
     b_channels = b_shape[2]

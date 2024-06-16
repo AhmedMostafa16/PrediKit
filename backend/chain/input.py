@@ -36,7 +36,8 @@ class InputMap:
         if self.parent:
             return self.parent.get(node_id)
 
-        assert False, f"Unknown node id {node_id}"
+        if not False:
+            raise AssertionError(f"Unknown node id {node_id}")
 
     def set(self, node_id: NodeId, values: List[Input]):
         self.__data[node_id] = values

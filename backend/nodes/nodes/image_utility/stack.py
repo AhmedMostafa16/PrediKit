@@ -126,7 +126,10 @@ class StackNode(NodeBase):
                         interpolation=cv2.INTER_NEAREST,
                     )
             else:
-                assert False, f"Invalid orientation '{orientation}'"
+                if not False:
+                    raise AssertionError(
+                        f"Invalid orientation '{orientation}'"
+                    )
 
             # Expand channel dims if necessary
             if c < max_c:
@@ -138,23 +141,28 @@ class StackNode(NodeBase):
 
         if orientation == "horizontal":
             for i in range(len(fixed_imgs)):
-                assert (
-                    fixed_imgs[i].shape[0] == fixed_imgs[0].shape[0]
-                ), "Inputted heights are not the same and could not be auto-fixed"
-                assert (
-                    fixed_imgs[i].dtype == fixed_imgs[0].dtype
-                ), "The image types are not the same and could not be auto-fixed"
+                if fixed_imgs[i].shape[0] != fixed_imgs[0].shape[0]:
+                    raise AssertionError(
+                        "Inputted heights are not the same and could not be auto-fixed"
+                    )
+                if fixed_imgs[i].dtype != fixed_imgs[0].dtype:
+                    raise AssertionError(
+                        "The image types are not the same and could not be auto-fixed"
+                    )
             img = cv2.hconcat(fixed_imgs)  # type: ignore
         elif orientation == "vertical":
             for i in range(len(fixed_imgs)):
-                assert (
-                    fixed_imgs[i].shape[1] == fixed_imgs[0].shape[1]
-                ), "Inputted widths are not the same and could not be auto-fixed"
-                assert (
-                    fixed_imgs[i].dtype == fixed_imgs[0].dtype
-                ), "The image types are not the same and could not be auto-fixed"
+                if fixed_imgs[i].shape[1] != fixed_imgs[0].shape[1]:
+                    raise AssertionError(
+                        "Inputted widths are not the same and could not be auto-fixed"
+                    )
+                if fixed_imgs[i].dtype != fixed_imgs[0].dtype:
+                    raise AssertionError(
+                        "The image types are not the same and could not be auto-fixed"
+                    )
             img = cv2.vconcat(fixed_imgs)  # type: ignore
         else:
-            assert False, f"Invalid orientation '{orientation}'"
+            if not False:
+                raise AssertionError(f"Invalid orientation '{orientation}'")
 
         return img

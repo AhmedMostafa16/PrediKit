@@ -49,8 +49,10 @@ class FileInput(BaseInput):
 
     def enforce(self, value) -> str:
         assert isinstance(value, str)
-        assert os.path.exists(value), f"File {value} does not exist"
-        assert os.path.isfile(value), f"The path {value} is not a file"
+        if not os.path.exists(value):
+            raise AssertionError(f"File {value} does not exist")
+        if not os.path.isfile(value):
+            raise AssertionError(f"The path {value} is not a file")
         return value
 
 
@@ -107,7 +109,8 @@ class DirectoryInput(BaseInput):
         )
 
     def enforce(self, value):
-        assert os.path.exists(value), f"Directory {value} does not exist"
+        if not os.path.exists(value):
+            raise AssertionError(f"Directory {value} does not exist")
         return value
 
 

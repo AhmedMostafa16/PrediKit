@@ -36,7 +36,8 @@ class DropDownInput(BaseInput):
 
     def enforce(self, value):
         accepted_values = [o["value"] for o in self.options]
-        assert value in accepted_values, f"{value} is not a valid option"
+        if value not in accepted_values:
+            raise AssertionError(f"{value} is not a valid option")
         return value
 
 
