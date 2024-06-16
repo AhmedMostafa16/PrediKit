@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 env:
-  DATE: $(date +%s)
+  DATE: ${{ github.run_number }}
 
 jobs:
   build:
