@@ -16,9 +16,7 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
-from ..._typing import (
-    MatrixLike,
-)
+from ..._typing import MatrixLike
 from ._base import (
     BaseClassifier,
     ClassifierStrategies,

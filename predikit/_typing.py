@@ -1,11 +1,11 @@
 from os import PathLike
 from typing import (
-    Any,  # noqa: F401
     Callable,
     Literal,
     TypeAlias,
     Union,
 )
+from typing import Any  # noqa: F401
 
 import numpy as np
 import numpy.typing

@@ -1,9 +1,12 @@
 import numpy as np
 
+from .. import expression
 from ...utils.image_utils import preview_encode
 from ...utils.utils import get_h_w_c
-from .base_output import BaseOutput, OutputKind
-from .. import expression
+from .base_output import (
+    BaseOutput,
+    OutputKind,
+)
 
 
 class NumPyOutput(BaseOutput):

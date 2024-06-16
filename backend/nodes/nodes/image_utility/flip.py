@@ -1,12 +1,15 @@
 from __future__ import annotations
 
-import numpy as np
 import cv2
+import numpy as np
 
 from . import category as ImageUtilityCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, FlipAxisInput
+from ...properties.inputs import (
+    FlipAxisInput,
+    ImageInput,
+)
 from ...properties.outputs import ImageOutput
 from ...utils.image_utils import FlipAxis
 
