@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 env:
-  DATE: $DATE
+  DATE: date +%s
 
 jobs:
   build:
