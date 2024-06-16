@@ -76,7 +76,7 @@ class IteratorNodeBase(NodeBase):
         self.icon = "MdLoop"
         self.sub = "Iteration"
         self.type = "iterator"
-        self.default_nodes = []
+        self.default_nodes: list = []
 
         self.side_effects = True
 

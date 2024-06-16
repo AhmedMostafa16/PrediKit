@@ -1,21 +1,9 @@
-from typing import (
-    Callable,
-    Dict,
-    List,
-    TypeVar,
-    Union,
-)
+from typing import Callable, Dict, List, TypeVar, Union
 
-from base_types import (
-    InputId,
-    NodeId,
-    OutputId,
-)
-from nodes.node_base import (
-    IteratorNodeBase,
-    NodeBase,
-)
+from base_types import NodeId, OutputId, InputId
+from nodes.node_base import NodeBase, IteratorNodeBase
 from nodes.node_factory import NodeFactory
+
 
 K = TypeVar("K")
 V = TypeVar("V")
@@ -119,9 +107,6 @@ class Chain:
             for n in list(self.nodes.values()):
                 if n.parent == node_id:
                     self.remove_node(n.id)
-
-    def get_node(self, node_id: NodeId) -> Node | None:
-        return self.nodes.get(node_id)
 
 
 class SubChain:

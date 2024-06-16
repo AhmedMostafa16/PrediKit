@@ -7,7 +7,9 @@ import { Type } from "../../../common/types/types";
 import { BackendContext } from "../../contexts/BackendContext";
 import { GlobalContext, GlobalVolatileContext } from "../../contexts/GlobalWorkflowState";
 import { DefaultDatasetOutput } from "../outputs/DefaultDatasetOutput";
+import { DefaultImageOutput } from "../outputs/DefaultImageOutput";
 import { GenericOutput } from "../outputs/GenericOutput";
+import { LargeImageOutput } from "../outputs/LargeImageOutput";
 import { OutputContainer } from "../outputs/OutputContainer";
 import { PlotOutput } from "../outputs/PlotOutput";
 import { OutputProps } from "../outputs/props";
@@ -21,12 +23,18 @@ const OutputComponents: Readonly<
     Record<OutputKind, React.MemoExoticComponent<(props: any) => JSX.Element>>
 > = {
     dataset: DefaultDatasetOutput,
+    image: DefaultImageOutput,
+    "large-image": LargeImageOutput,
+    directory: GenericOutput,
     text: GenericOutput,
     generic: GenericOutput,
     plot: PlotOutput,
 };
 const OutputIsGeneric: Readonly<Record<OutputKind, boolean>> = {
     dataset: true,
+    image: true,
+    "large-image": false,
+    directory: true,
     text: true,
     generic: true,
     plot: true,

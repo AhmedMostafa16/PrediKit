@@ -1,29 +1,16 @@
-from typing import (
-    Any,
-    List,
-    Literal,
-    Optional,
-    Tuple,
-    TypedDict,
-    Union,
-)
+from typing import Any, List, Literal, Optional, Tuple, TypedDict, Union
 
 from base_types import NodeId
 
 from .chain import (
     Chain,
+    IteratorNode,
+    FunctionNode,
     Edge,
     EdgeSource,
     EdgeTarget,
-    FunctionNode,
-    IteratorNode,
 )
-from .input import (
-    EdgeInput,
-    Input,
-    InputMap,
-    ValueInput,
-)
+from .input import InputMap, EdgeInput, ValueInput, Input
 
 
 class JsonEdgeInput(TypedDict):
@@ -41,6 +28,17 @@ JsonInput = Union[JsonEdgeInput, JsonValueInput]
 
 
 class JsonNode(TypedDict):
+    """
+    Represents a JSON node.
+
+    Attributes:
+        id (NodeId): The ID of the node.
+        schemaId (str): The ID of the schema.
+        inputs (List[JsonInput]): The list of input nodes.
+        parent (Optional[NodeId]): The ID of the parent node.
+        nodeType (str): The type of the node.
+    """
+
     id: NodeId
     schemaId: str
     inputs: List[JsonInput]

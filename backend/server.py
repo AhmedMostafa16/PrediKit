@@ -2,60 +2,42 @@ import asyncio
 from concurrent.futures import ThreadPoolExecutor
 import functools
 import gc
-import importlib
-from json import dumps as stringify
 import logging
 import multiprocessing
-import os
 import sys
 import traceback
-from typing import (
-    Any,
-    Dict,
-    List,
-    TypedDict,
-)
+from json import dumps as stringify
+from typing import Any, Dict, List, TypedDict
+import importlib
+import os
+from bson import ObjectId
+from motor.motor_asyncio import AsyncIOMotorClient
+
+# pylint: disable=unused-import
+from dotenv import load_dotenv
+import pandas
+from sanic import Sanic
+from sanic.log import logger, access_logger
+from sanic.request import Request
+from sanic.response import json
 
 from asyncio_locked_dict import AsyncioLockedDict
-from base_types import (
-    NodeId,
-    OutputId,
-)
-from bson import ObjectId
-from chain.cache import OutputCache
-from chain.json import (
-    JsonNode,
-    parse_json,
-)
-from chain.optimize import optimize
-from dotenv import load_dotenv
-from events import (
-    EventQueue,
-    ExecutionErrorData,
-)
-from motor.motor_asyncio import AsyncIOMotorClient
 from nodes.node_factory import NodeFactory
-from nodes.nodes.builtin_categories import category_order
-import pandas
-from process import (
-    Executor,
-    NodeExecutionError,
-    timed_supplier,
-)
+
+from base_types import NodeId, OutputId
+from chain.cache import OutputCache
+from chain.json import parse_json, JsonNode
+from chain.optimize import optimize
+from events import EventQueue, ExecutionErrorData
+from process import Executor, NodeExecutionError, timed_supplier
 from progress import Aborted  # type: ignore
 from response import (
-    alreadyRunningResponse,
     errorResponse,
+    alreadyRunningResponse,
     noExecutorResponse,
     successResponse,
 )
-from sanic import Sanic
-from sanic.log import (
-    access_logger,
-    logger,
-)
-from sanic.request import Request
-from sanic.response import json
+from nodes.nodes.builtin_categories import category_order
 
 # pylint: disable=unused-import, wrong-import-position
 root = os.path.dirname(os.path.abspath("../predikit/"))
@@ -63,7 +45,7 @@ sys.path.append(root)
 
 # pylint: disable=unused-import
 
-
+# Load environment variables from .env file
 dotenv_path = os.path.join(os.path.dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 
@@ -108,10 +90,16 @@ for root, dirs, files in os.walk(
             module = module.replace(os.path.sep, ".")[:-3]
             try:
                 # TODO: replace the category system with a dynamic factory
-                category = getattr(importlib.import_module(module), "category")
-                categories.add(category)
-            except:
-                pass
+                module = importlib.import_module(module)
+                if hasattr(module, "category"):
+                    category = getattr(module, "category")
+                    categories.add(category)
+                else:
+                    logger.warning(
+                        f"Module `{module}` does not have 'category' attribute."
+                    )
+            except Exception:
+                logger.warning(f"Failed to import {module}")
 
 
 categories = sorted(
@@ -250,6 +238,9 @@ async def nodes(_):
 
 class RunRequest(TypedDict):
     data: List[JsonNode]
+    isCpu: bool
+    isFp16: bool
+    pytorchGPU: int
 
 
 @app.route("/workflows/<workflow_id:str>/run", methods=["POST"])
@@ -364,7 +355,7 @@ async def run_individual(request: Request):
             ctx.cache[full_data["id"]] = output
 
         # Broadcast the output from the individual run
-        broadcast_data: Dict[OutputId, Any] = dict()
+        broadcast_data: Dict[OutputId, Any] = {}
         node_outputs = node_instance.outputs
         if len(node_outputs) > 0:
             output_idxable = [output] if len(node_outputs) == 1 else output
@@ -387,7 +378,7 @@ async def run_individual(request: Request):
                 }
             )
         del node_instance, run_func
-        # gc.collect()
+        gc.collect()
         return json({"success": True, "data": None})
     except Exception as exception:
         logger.error(exception, exc_info=True)
@@ -433,7 +424,7 @@ async def pause(request: Request, workflow_id: str):
     """Pauses the current execution"""
     ctx = AppContext.get(request.app)
 
-    if not workflow_id in ctx.executors:
+    if workflow_id not in ctx.executors:
         message = "No executor to pause"
         logger.warning(message + "!\n" + str(request.json))
         return json(noExecutorResponse(message), status=400)
@@ -456,7 +447,7 @@ async def resume(request: Request, workflow_id: str):
     """Pauses the current execution"""
     ctx = AppContext.get(request.app)
 
-    if not workflow_id in ctx.executors:
+    if workflow_id not in ctx.executors:
         message = "No executor to resume"
         logger.warning(message + "!\n" + str(request.json))
         return json(noExecutorResponse(message), status=400)
@@ -479,7 +470,7 @@ async def kill(request: Request, workflow_id: str):
     """Kills the current execution"""
     ctx = AppContext.get(request.app)
 
-    if not workflow_id in ctx.executors:
+    if workflow_id not in ctx.executors:
         message = "No executor to kill"
         logger.warning(message + "!\n" + str(request.json))
         return json(noExecutorResponse(message), status=400)
@@ -598,13 +589,12 @@ async def preview_node(request: Request, workflow_id: str):
                     }
                 )
 
-            page = full_data.get("page", 1)
-            start = (page - 1) * PAGE_SIZE
-            end = page * PAGE_SIZE
+            page: int = int(full_data.get("page", 1))
+            start: int = (page - 1) * PAGE_SIZE
+            end: int = page * PAGE_SIZE
             return json(
                 {
                     "success": True,
-                    # "data": df[start:end].to_dict(orient="records"),
                     "data": df[start:end].to_json(orient="records"),
                 }
             )

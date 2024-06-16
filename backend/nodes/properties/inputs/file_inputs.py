@@ -10,10 +10,19 @@ from .. import expression
 
 # pylint: disable=relative-beyond-top-level
 from ...utils.dataset_utils import get_available_dataset_formats
+from ...utils.image_utils import get_available_image_formats
 from .base_input import BaseInput
 from .generic_inputs import DropDownInput
 
-FileInputKind = Literal["dataset"]  # later it will be a Union
+FileInputKind = Union[
+    Literal["dataset"],
+    Literal["bin"],
+    Literal["image"],
+    Literal["onnx"],
+    Literal["param"],
+    Literal["pt"],
+    Literal["pth"],
+]
 
 
 class FileInput(BaseInput):
@@ -56,6 +65,52 @@ def DatasetFileInput() -> FileInput:
     )
 
 
+def ImageFileInput() -> FileInput:
+    """Input for submitting a local image file"""
+    return FileInput(
+        input_type="ImageFile",
+        label="Image File",
+        file_kind="image",
+        filetypes=get_available_image_formats(),
+        has_handle=False,
+    )
+
+
+def PthFileInput() -> FileInput:
+    """Input for submitting a local .pth file"""
+    return FileInput(
+        input_type="PthFile",
+        label="Pretrained Model",
+        file_kind="pth",
+        filetypes=[".pth"],
+    )
+
+
+def TorchFileInput() -> FileInput:
+    """Input for submitting a local .pth or .pt file"""
+    return FileInput(
+        input_type="PtFile",
+        label="Pretrained Model",
+        file_kind="pt",
+        filetypes=[".pt"],
+    )
+
+
+class DirectoryInput(BaseInput):
+    """Input for submitting a local directory"""
+
+    def __init__(
+        self, label: str = "Base Directory", has_handle: bool = False
+    ):
+        super().__init__(
+            "Directory", label, kind="directory", has_handle=has_handle
+        )
+
+    def enforce(self, value):
+        assert os.path.exists(value), f"Directory {value} does not exist"
+        return value
+
+
 def DatasetExtensionDropdown() -> DropDownInput:
     """Input for selecting file type from dropdown"""
     return DropDownInput(
@@ -95,4 +150,68 @@ def DatasetExtensionDropdown() -> DropDownInput:
                 "value": "xlsx",
             },
         ],
+    )
+
+
+def ImageExtensionDropdown() -> DropDownInput:
+    """Input for selecting file type from dropdown"""
+    return DropDownInput(
+        input_type="ImageExtension",
+        label="Image Extension",
+        options=[
+            {
+                "option": "PNG",
+                "value": "png",
+            },
+            {
+                "option": "JPG",
+                "value": "jpg",
+            },
+            {
+                "option": "GIF",
+                "value": "gif",
+            },
+            {
+                "option": "TIFF",
+                "value": "tiff",
+            },
+            {
+                "option": "WEBP",
+                "value": "webp",
+            },
+            {
+                "option": "TGA",
+                "value": "tga",
+            },
+        ],
+    )
+
+
+def BinFileInput() -> FileInput:
+    """Input for submitting a local .bin file"""
+    return FileInput(
+        input_type="NcnnBinFile",
+        label="NCNN Bin File",
+        file_kind="bin",
+        filetypes=[".bin"],
+    )
+
+
+def ParamFileInput() -> FileInput:
+    """Input for submitting a local .param file"""
+    return FileInput(
+        input_type="NcnnParamFile",
+        label="NCNN Param File",
+        file_kind="param",
+        filetypes=[".param"],
+    )
+
+
+def OnnxFileInput() -> FileInput:
+    """Input for submitting a local .onnx file"""
+    return FileInput(
+        input_type="OnnxFile",
+        label="ONNX Model File",
+        file_kind="onnx",
+        filetypes=[".onnx"],
     )

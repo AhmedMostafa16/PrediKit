@@ -10,10 +10,6 @@ from typing import Self  # override,
 
 import numpy as np
 from pandas import DataFrame
-from result import (
-    Err,
-    Result,
-)
 from scipy.sparse import csr_matrix
 from sklearn.base import (
     BaseEstimator,

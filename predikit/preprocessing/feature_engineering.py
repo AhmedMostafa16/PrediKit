@@ -1,6 +1,4 @@
-import logging
 from typing import Self  # override,
-from xml.etree.ElementInclude import include
 
 from pandas import DataFrame
 from result import (
@@ -85,7 +83,7 @@ class FeatureSelection(BasePreprocessor):
         data: DataFrame,
         columns: list[str] | None = None,
     ) -> DataFrame:
-        if self.empty == True:
+        if self.empty is True:
             exc = ValueError("No columns or dtypes to be selected")
             return Err(str(exc))
         else:

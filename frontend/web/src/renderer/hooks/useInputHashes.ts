@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { Edge, Node, useReactFlow } from "react-flow-renderer";
 import { EdgeData, NodeData } from "../../common/common-types";
 import { SchemaMap } from "../../common/SchemaMap";
-import { EMPTY_READONLYMAP, deriveUniqueId, stringifyTargetHandle } from "../../common/util";
+import { EMPTY_MAP, deriveUniqueId, stringifyTargetHandle } from "../../common/util";
 
 const EMPTY = "6227edf5-cc54-4d34-b863-f647d3a73509";
 
@@ -65,7 +65,7 @@ const computeInputHashes = (
 };
 
 export const useInputHashes = (schemata: SchemaMap, deps: readonly unknown[]) => {
-    const ref = useRef<ReadonlyMap<string, string>>(EMPTY_READONLYMAP);
+    const ref = useRef<ReadonlyMap<string, string>>(EMPTY_MAP);
 
     const { getNodes, getEdges } = useReactFlow();
     useEffect(() => {

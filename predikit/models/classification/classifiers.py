@@ -17,7 +17,6 @@ from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
 from ..._typing import (
-    Any,
     MatrixLike,
 )
 from ._base import (
@@ -115,7 +114,7 @@ class Classifier(BaseClassifier):
             ):
                 y = LabelEncoder().fit_transform(y)
             return self.model.score(X, y)
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")
 
     def predict(self, X: MatrixLike) -> ndarray:
@@ -130,7 +129,7 @@ class Classifier(BaseClassifier):
         """
         try:
             return self.model.predict(X)
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")
 
     def predict_proba(self, X: MatrixLike) -> ndarray:
@@ -145,7 +144,7 @@ class Classifier(BaseClassifier):
         """
         try:
             return self.model.predict_proba(X)
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")
 
     def predict_log_proba(self, X: MatrixLike) -> ndarray:
@@ -160,5 +159,5 @@ class Classifier(BaseClassifier):
         """
         try:
             return log(self.predict_proba(X))
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")

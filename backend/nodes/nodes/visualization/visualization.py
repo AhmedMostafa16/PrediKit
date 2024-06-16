@@ -1,12 +1,7 @@
-import os
-from re import T
-import sys
 from typing import Literal
 
 import pandas
 import plotly.io as pio
-
-pandas.options.plotting.backend = "plotly"
 
 from . import category as VisualizationsCategory
 from ...node_base import NodeBase
@@ -16,7 +11,9 @@ from ...properties.inputs.generic_inputs import (
     DropDownInput,
     TextInput,
 )
-from ...properties.outputs.plot_output import PlotOutput
+from ...properties.outputs.plot_outputs import PlotOutput
+
+pandas.options.plotting.backend = "plotly"
 
 
 @NodeFactory.register("predikit:visualization:visualize")

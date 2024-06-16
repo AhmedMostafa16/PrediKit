@@ -5,7 +5,6 @@ from typing import (
     List,
     Literal,
     Optional,
-    Tuple,
     TypedDict,
     Union,
 )
@@ -18,10 +17,36 @@ from base_types import (
 
 
 class FinishData(TypedDict):
+    """
+    Represents the data structure for finishing an event.
+
+    Attributes:
+        message (str): The message associated with the event.
+    """
+
     message: str
 
 
+class ImageInputInfo(TypedDict):
+    """Represents information about an image input."""
+
+    width: int
+    height: int
+    channels: int
+
+
 class DatasetInputInfo(TypedDict):
+    """
+    Represents the input information for a dataset.
+
+    Attributes:
+        columns (List[Any]): The list of column names.
+        data (Dict[Any, Any]): The dictionary containing the data.
+        index (List[Any]): The list of index values.
+        dtype (List[Any]): The list of data types for each column.
+        shape (List[int]): The shape of the dataset.
+    """
+
     columns: List[Any]
     data: Dict[Any, Any]
     index: List[Any]
@@ -29,16 +54,34 @@ class DatasetInputInfo(TypedDict):
     shape: List[int]
 
 
-InputsDict = Dict[InputId, Union[str, int, float, DatasetInputInfo, None]]
+InputsDict = Dict[
+    InputId, Union[str, int, float, DatasetInputInfo, ImageInputInfo, None]
+]
 
 
 class ExecutionErrorSource(TypedDict):
+    """
+    Represents the source of an execution error.
+
+    Attributes:
+        nodeId (NodeId): The ID of the node where the error occurred.
+        schemaId (str): The ID of the schema associated with the node.
+        inputs (InputsDict): A dictionary containing the inputs to the node.
+    """
     nodeId: NodeId
     schemaId: str
     inputs: InputsDict
 
 
 class ExecutionErrorData(TypedDict):
+    """
+    Represents the data associated with an execution error.
+
+    Attributes:
+        message (str): The error message.
+        exception (str): The exception that caused the error.
+        source (Optional[ExecutionErrorSource]): The source of the execution error.
+    """
     message: str
     exception: str
     source: Optional[ExecutionErrorSource]

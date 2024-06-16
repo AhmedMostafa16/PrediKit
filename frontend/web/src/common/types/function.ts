@@ -1,16 +1,16 @@
 import { Input, InputId, InputSchemaValue, NodeSchema, Output, OutputId } from "../common-types";
-import { EMPTY_READONLYMAP, lazy, topologicalSort } from "../util";
+import { EMPTY_MAP, lazy, topologicalSort } from "../util";
 import { evaluate } from "./evaluate";
 import { Expression } from "./expression";
 import { intersect, isDisjointWith } from "./intersection";
 import { fromJson } from "./json";
-import { getPrediKitScope } from "./predikit-scope";
+import { getPredikitScope } from "./predikit-scope";
 import { ParameterDefinition, Scope, ScopeBuilder } from "./scope";
 import { NonNeverType, Type } from "./types";
 import { getReferences } from "./util";
 
 const getConversionScope = lazy(() => {
-    const scope = new ScopeBuilder("Conversion scope", getPrediKitScope());
+    const scope = new ScopeBuilder("Conversion scope", getPredikitScope());
     scope.add(new ParameterDefinition("Input"));
     return scope.createScope();
 });
@@ -404,7 +404,7 @@ export class FunctionInstance {
         partialInputs:
             | ReadonlyMap<InputId, NonNeverType>
             | ((inputId: InputId) => NonNeverType | undefined),
-        outputNarrowing: ReadonlyMap<OutputId, Type> = EMPTY_READONLYMAP
+        outputNarrowing: ReadonlyMap<OutputId, Type> = EMPTY_MAP
     ): FunctionInstance {
         if (typeof partialInputs === "object") {
             if (partialInputs.size === 0) return definition.defaultInstance;

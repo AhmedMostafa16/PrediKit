@@ -211,12 +211,6 @@ export const setMainMenu = ({ mainWindow, menuData, enabled = false }: MainMenuA
                         await shell.openPath(app.getPath("logs"));
                     },
                 },
-                {
-                    label: "Get Models (Upscale Wiki)",
-                    click: async () => {
-                        await shell.openExternal("https://upscale.wiki/wiki/Model_Database");
-                    },
-                },
                 { type: "separator" },
                 {
                     label: "About PrediKit",

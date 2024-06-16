@@ -139,13 +139,13 @@ const doSplashScreenChecks = async (mainWindow: BrowserWindowWithSafeIpc) =>
             minimizable: true,
             maximizable: false,
             closable: false,
-            alwaysOnTop: true,
+            alwaysOnTop: false,
             movable: true,
             titleBarStyle: "hidden",
             transparent: true,
             roundedCorners: true,
             webPreferences: {
-                webSecurity: false,
+                webSecurity: true,
                 nodeIntegration: true,
                 contextIsolation: false,
             },
@@ -322,11 +322,11 @@ app.on("window-all-closed", () => {
 app.on("quit", () => {
     log.info("Cleaning up temp folders...");
     const tempDir = os.tmpdir();
-    // find all the folders starting with 'PrediKit-'
+    // find all the folders starting with 'prediKit-'
     const tempFolders = readdirSync(tempDir, { withFileTypes: true })
         .filter((dir) => dir.isDirectory())
         .map((dir) => dir.name)
-        .filter((name) => name.includes("PrediKit-"));
+        .filter((name) => name.includes("prediKit-"));
     tempFolders.forEach((folder) => {
         try {
             rmSync(path.join(tempDir, folder), { force: true, recursive: true });

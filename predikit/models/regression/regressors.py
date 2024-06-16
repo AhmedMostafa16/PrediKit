@@ -91,7 +91,7 @@ class Regressor(BaseRegressor):
         """
         try:
             return self.model.score(X, y)
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")
 
     def predict(self, X: MatrixLike) -> ndarray:
@@ -109,5 +109,5 @@ class Regressor(BaseRegressor):
         """
         try:
             return self.model.predict(X)
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")

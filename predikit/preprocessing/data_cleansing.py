@@ -10,8 +10,6 @@ from pandas import (
 )
 from result import (
     Err,
-    Ok,
-    Result,
 )
 
 from predikit.errors import (

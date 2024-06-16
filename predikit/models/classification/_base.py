@@ -11,7 +11,6 @@ from sklearn.base import (
 )
 
 from ..._typing import (
-    Any,
     MatrixLike,
 )
 

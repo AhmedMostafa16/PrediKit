@@ -66,7 +66,7 @@ class Cluster(BaseCluster):
         """
         try:
             return self.model.labels_
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")
 
     def fit_predict(self, X: MatrixLike) -> ndarray:
@@ -94,7 +94,7 @@ class Cluster(BaseCluster):
         """
         try:
             return self.model.labels_
-        except:
+        except Exception:
             raise NotFittedError("You have to fit the model first.")
 
     def get_inertia(self) -> float:
@@ -128,7 +128,7 @@ class Cluster(BaseCluster):
         if self.strategy is ClusterStrategies.KMeans:
             try:
                 return self.model.cluster_centers_
-            except:
+            except Exception:
                 raise NotFittedError("You have to fit the model first.")
         else:
             raise ValueError("This model does not support get_centroids.")

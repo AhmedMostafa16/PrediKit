@@ -9,7 +9,7 @@ import { Category, NodeType, SchemaId } from "../common/common-types";
 import { ipcRenderer } from "../common/safeIpc";
 import { SchemaMap } from "../common/SchemaMap";
 import { FunctionDefinition } from "../common/types/function";
-import { getPrediKitScope } from "../common/types/predikit-scope";
+import { getPredikitScope } from "../common/types/predikit-scope";
 import { getLocalStorage, getStorageKeys } from "../common/util";
 import { CustomEdge } from "./components/CustomEdge";
 import { EditorHeader } from "./components/EditorHeader";
@@ -44,7 +44,7 @@ export const processBackendResponse = ({
         try {
             functionDefinitions.set(
                 schema.schemaId,
-                FunctionDefinition.fromSchema(schema, getPrediKitScope())
+                FunctionDefinition.fromSchema(schema, getPredikitScope())
             );
         } catch (error) {
             errors.push(String(error));

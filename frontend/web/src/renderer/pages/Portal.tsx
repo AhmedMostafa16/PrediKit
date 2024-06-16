@@ -32,7 +32,7 @@ import { GlobalContext } from "../contexts/GlobalWorkflowState";
 export const Portal = memo(() => {
     const { setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } = useContext(GlobalContext);
     const { backend } = useContext(BackendContext);
-    const { showAlert } = useContext(AlertBoxContext);
+    const { showAlert, sendToast } = useContext(AlertBoxContext);
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const navigate = useNavigate();
     const { isOpen, onOpen, onClose } = useDisclosure();
@@ -126,8 +126,27 @@ export const Portal = memo(() => {
                                         ml={3}
                                         onClick={() => {
                                             try {
-                                                backend.deleteWorkflow(workflow.id);
-                                                fetchWorkflows();
+                                                backend
+                                                    .deleteWorkflow(workflow.id)
+                                                    .then(() => {
+                                                        sendToast({
+                                                            description:
+                                                                "The workflow has been successfully deleted.",
+                                                            status: "success",
+                                                        });
+                                                    })
+                                                    .catch((error: any) => {
+                                                        log.error(
+                                                            "Error deleting workflow:",
+                                                            error
+                                                        );
+                                                        showAlert({
+                                                            title: "Error deleting workflow",
+                                                            message: error.message,
+                                                            type: AlertType.ERROR,
+                                                        });
+                                                    });
+                                                fetchWorkflows().then(() => {});
                                             } catch (error: any) {
                                                 log.error("Error deleting workflow:", error);
                                                 showAlert({

@@ -54,11 +54,20 @@ from progress import (
     ProgressToken,
 )
 from sanic.log import logger
+from nodes.utils.image_utils import get_h_w_c
 
 T = TypeVar("T")
 
 
 class NodeExecutionError(Exception):
+    """Exception raised when there is an error during node execution.
+
+    Attributes:
+        node (Node): The node that caused the error.
+        cause (str): The cause of the error.
+        inputs (InputsDict): The inputs provided to the node.
+    """
+
     def __init__(
         self,
         node: Node,
@@ -71,6 +80,28 @@ class NodeExecutionError(Exception):
 
 
 class IteratorContext:
+    """
+    Represents the context for iterating over a collection of items.
+
+    Args:
+        executor (Executor): The executor object responsible for executing the iteration.
+        iterator_id (NodeId): The unique identifier for the iterator.
+
+    Attributes:
+        executor (Executor): The executor object responsible for executing the iteration.
+        progress (ProgressToken): The progress token associated with the executor.
+        iterator_id (NodeId): The unique identifier for the iterator.
+        chain (SubChain): The sub-chain of nodes associated with the iterator.
+        inputs (InputMap): The input map for the iterator.
+
+    Methods:
+        get_helper: Retrieves the helper node with the specified schema ID.
+        __create_iterator_executor: Creates a new executor for the iterator.
+        run_iteration: Runs a single iteration of the iterator.
+        run: Runs the iterator over a collection of items.
+
+    """
+
     def __init__(
         self,
         executor: Executor,
@@ -84,6 +115,19 @@ class IteratorContext:
         self.inputs = InputMap(parent=executor.inputs)
 
     def get_helper(self, schema_id: str) -> FunctionNode:
+        """
+        Retrieves the helper node with the specified schema ID.
+
+        Args:
+            schema_id (str): The schema ID of the helper node to retrieve.
+
+        Returns:
+            FunctionNode: The helper node with the specified schema ID.
+
+        Raises:
+            AssertionError: If the helper node with the specified schema ID is not found.
+
+        """
         for node in self.chain.nodes.values():
             if node.schema_id == schema_id:
                 return node
@@ -92,6 +136,13 @@ class IteratorContext:
         ), f"Unable to find {schema_id} helper node for iterator {self.iterator_id}"
 
     def __create_iterator_executor(self) -> Executor:
+        """
+        Creates a new executor for the iterator.
+
+        Returns:
+            Executor: The new executor for the iterator.
+
+        """
         return Executor(
             self.executor.chain,
             self.inputs,
@@ -102,6 +153,14 @@ class IteratorContext:
         )
 
     async def run_iteration(self, index: int, total: int):
+        """
+        Runs a single iteration of the iterator.
+
+        Args:
+            index (int): The index of the current iteration.
+            total (int): The total number of iterations.
+
+        """
         executor = self.__create_iterator_executor()
 
         await self.progress.suspend()
@@ -135,6 +194,18 @@ class IteratorContext:
         collection: Iterable[T],
         before: Callable[[T, int], Union[None, Literal[False]]],
     ):
+        """
+        Runs the iterator over a collection of items.
+
+        Args:
+            collection (Iterable[T]): The collection of items to iterate over.
+            before (Callable[[T, int], Union[None, Literal[False]]]): A callback function to be called before each iteration.
+
+        Raises:
+            Aborted: If the iteration is aborted.
+            Exception: If any errors occur during the iteration.
+
+        """
         items = list(collection)
         length = len(items)
 
@@ -166,6 +237,17 @@ class IteratorContext:
 def timed_supplier(
     supplier: Callable[[], Any]
 ) -> Callable[[], Tuple[Any, float]]:
+    """
+    Decorator function that measures the execution time of a supplier function.
+
+    Args:
+        supplier: A function that takes no arguments and returns a value.
+
+    Returns:
+        A wrapper function that calls the supplier function and returns a tuple
+        containing the result of the supplier function and the duration of its execution.
+    """
+
     def wrapper():
         start = time.time()
         result = supplier()
@@ -185,6 +267,23 @@ async def timed_supplier_async(supplier):
 class Executor:
     """
     Class for executing PrediKit's processing logic
+
+    Attributes:
+        chain (Chain): The chain of nodes to be executed.
+        inputs (InputMap): The input map containing the input values for each node.
+        loop (asyncio.AbstractEventLoop): The event loop used for asynchronous execution.
+        queue (EventQueue): The event queue for communication between nodes.
+        pool (ThreadPoolExecutor): The thread pool executor for running nodes in parallel.
+        parent_cache (Optional[OutputCache]): The parent cache, if this executor is a child executor.
+        parent_executor (Optional[Executor]): The parent executor, if this executor is a child executor.
+        execution_id (str): The unique ID for the execution.
+        cache (OutputCache): The cache for storing node outputs.
+        __broadcast_tasks (List[asyncio.Task[None]]): The list of broadcast tasks for sending node outputs to other nodes.
+        progress (ProgressController): The progress controller for tracking the execution progress.
+        cache_strategy (Dict[NodeId, CacheStrategy]): The cache strategy for each node.
+
+    Methods:
+        process: Process a specific node in the chain.
     """
 
     def __init__(
@@ -228,6 +327,19 @@ class Executor:
         )
 
     async def process(self, node_id: NodeId) -> Any:
+        """
+        Process the node with the given node_id.
+
+        Args:
+            node_id (NodeId): The ID of the node to be processed.
+
+        Returns:
+            Any: The result of processing the node.
+
+        Raises:
+            Aborted: If the processing is aborted.
+            NodeExecutionError: If there is an error during node execution.
+        """
         node = self.chain.nodes[node_id]
         try:
             return await self.__process(node)
@@ -239,7 +351,19 @@ class Executor:
             raise NodeExecutionError(node, str(e), {}) from e
 
     async def __process(self, node: Node) -> Any:
-        """Process a single node"""
+        """Process a single node.
+
+        Args:
+            node (Node): The node to be processed.
+
+        Returns:
+            Any: The output of the processed node.
+
+        Raises:
+            Aborted: If the processing is aborted.
+            NodeExecutionError: If there is an error during node execution.
+
+        """
 
         logger.debug(f"node: {node}")
         logger.debug(f"Running node {node.id}")
@@ -328,6 +452,13 @@ class Executor:
                             "dtype": dtype,
                             "shape": shape,
                         }
+                    elif isinstance(input_value, np.ndarray):
+                        h, w, c = get_h_w_c(input_value)
+                        input_dict[input_id] = {
+                            "width": w,
+                            "height": h,
+                            "channels": c,
+                        }
                 raise NodeExecutionError(node, str(e), input_dict) from e
 
             await self.__broadcast_data(
@@ -358,11 +489,11 @@ class Executor:
     ) -> None:
         node_outputs = node_instance.outputs
         finished = list(self.cache.keys())
-        if not node_id in finished:
+        if node_id not in finished:
             finished.append(node_id)
 
         def compute_broadcast_data():
-            broadcast_data: Dict[OutputId, Any] = dict()
+            broadcast_data: Dict[OutputId, Any] = {}
             output_list: List[Any] = (
                 [output] if len(node_outputs) == 1 else output
             )
@@ -412,7 +543,7 @@ class Executor:
 
     def __create_node_finish(self, node_id: NodeId) -> Event:
         finished = list(self.cache.keys())
-        if not node_id in finished:
+        if node_id not in finished:
             finished.append(node_id)
 
         return {

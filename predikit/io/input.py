@@ -182,7 +182,7 @@ class DataFrameParser(DataFrame):
 
         if self.verbose:
             logging.debug(
-                f"✅ Done! Data ingestion process completed. DataFrame is "
+                "✅ Done! Data ingestion process completed. DataFrame is "
                 "ready for use."
             )
             shape = df.shape

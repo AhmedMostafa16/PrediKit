@@ -7,7 +7,16 @@ from base_types import OutputId
 
 from .. import expression
 
-OutputKind = Literal["dataset", "text", "generic", "plot"]
+OutputKind = Literal[
+    "dataset",
+    "image",
+    "large-image",
+    "text",
+    "directory",
+    "generic",
+    "plot",
+    "list",
+]
 
 
 class BaseOutput:

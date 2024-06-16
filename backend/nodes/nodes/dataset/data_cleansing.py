@@ -1,11 +1,12 @@
+# ruff: noqa: E402
 from __future__ import annotations
 
 import os
-import re
 import sys
 
 import pandas
 
+# noqa: E402
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
 
@@ -56,7 +57,7 @@ class OutliersNode(NodeBase):
                 default=1.5,
                 minimum=0,
                 maximum=10,
-                precision=3,
+                precision=5,
                 hide_trailing_zeros=True,
                 controls_step=0.1,
             ),
@@ -184,14 +185,6 @@ class BasicFilterNode(NodeBase):
         self.description = "Filter a dataset based on a condition."
         self.inputs = [
             DatasetInput(),
-            # DropDownInput(
-            #     label="Column",
-            #     options=[
-            #         {"option": col, "value": col, "type": "string"}
-            #         for col in get_column_names_from_node_input(self.inputs[0])
-            #     ],
-            #     input_type="string",
-            # ),
             TextInput(
                 label="Column",
                 allow_numbers=True,

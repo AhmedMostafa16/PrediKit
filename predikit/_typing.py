@@ -1,6 +1,6 @@
 from os import PathLike
 from typing import (
-    Any,
+    Any,  # noqa: F401
     Callable,
     Literal,
     TypeAlias,

@@ -13,6 +13,7 @@ InputKind = Literal[
     "dropdown",
     "text",
     "text-line",
+    "directory",
     "file",
     "generic",
 ]

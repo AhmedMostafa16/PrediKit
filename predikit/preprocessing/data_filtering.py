@@ -5,11 +5,6 @@ from typing import (  # override,
 )
 
 from pandas import DataFrame
-from result import (
-    Err,
-    Ok,
-    Result,
-)
 
 from ._base import (
     BasePreprocessor,

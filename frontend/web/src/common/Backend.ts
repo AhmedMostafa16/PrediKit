@@ -19,6 +19,12 @@ export interface Dataset {
     dtypes: any[];
 }
 
+export interface Image {
+    width: number;
+    height: number;
+    channels: number;
+}
+
 export interface BackendSuccessResponse {
     type: "success";
     message: string;
@@ -27,7 +33,7 @@ export interface BackendSuccessResponse {
 export interface BackendExceptionSource {
     nodeId: string;
     schemaId: SchemaId;
-    inputs: Partial<Record<InputId, Dataset | string | number | null>>;
+    inputs: Partial<Record<InputId, Dataset | Image | string | number | null>>;
 }
 export interface BackendExceptionResponse {
     type: "error";

@@ -2,8 +2,6 @@
 
 import asyncio
 import itertools
-import threading
-from typing import no_type_check
 
 __all__ = ["AsyncioLockedDict"]
 

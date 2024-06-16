@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
 import { memo, useEffect, useRef, useState } from "react";
 import { Edge, Node, useReactFlow } from "react-flow-renderer";
 import { useHotkeys } from "react-hotkeys-hook";
@@ -166,6 +165,12 @@ const getExecutionErrorMessage = (
             valueStr = String(value);
         } else if (typeof value === "string") {
             valueStr = JSON.stringify(value);
+        } else if ("channels" in value && "width" in value && "height" in value) {
+            let type = "Image";
+            if (value.channels === 1) type = "Grayscale image";
+            if (value.channels === 3) type = "RGB image";
+            if (value.channels === 4) type = "RGBA image";
+            valueStr = `${type} ${value.width}x${value.height}`;
         } else {
             valueStr = `Dataset: (${value.shape[0]}, ${value.shape[1]})`;
         }

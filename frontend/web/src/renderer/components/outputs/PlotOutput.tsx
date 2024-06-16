@@ -58,6 +58,7 @@ export const PlotOutput = memo(({ label, id, outputId, useOutputData }: OutputPr
                     cursor="pointer"
                     disabled={!plotParams}
                     h="1.75rem"
+                    isDisabled={!plotParams}
                     leftIcon={
                         <Icon
                             as={BsEyeFill}
@@ -69,7 +70,6 @@ export const PlotOutput = memo(({ label, id, outputId, useOutputData }: OutputPr
                     minW="1.75rem"
                     transition="0.15s ease-in-out"
                     onClick={onOpen}
-                    isDisabled={!plotParams}
                 >
                     Show Plot
                 </Button>
