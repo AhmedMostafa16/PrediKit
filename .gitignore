@@ -661,3 +661,5 @@ examples/**
 # .ignore file
 .ignore
 
+examples/subplots_test_1.ipynb
+examples/**.ipynb
