@@ -7,16 +7,16 @@ from .._typing import Any
 class BaseVisualization(ABC):
     """Base class for all visualizations."""
 
-    def send_json() -> Any:
+    def send_json(self) -> Any:
         pass
 
-    def show() -> Any:
+    def show(self) -> Any:
         pass
 
-    def subplots() -> Any:
+    def subplots(self) -> Any:
         pass
 
-    def get_traces() -> list[dict]:
+    def get_traces(self) -> list[dict]:
         pass
 
 
