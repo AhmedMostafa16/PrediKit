@@ -64,6 +64,9 @@ __all__ = [
     "Cluster",
     "AutoML",
     "Visualization",
+    "import_file",
+    "initialize_cluster_server",
+    "split_train_test",
 ]
 
 
