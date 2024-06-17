@@ -1,11 +1,17 @@
 from os import PathLike
-import numpy as np
-from scipy import sparse
-import pandas as pd
-import numpy.typing
-from typing import Callable, Literal, TypeAlias, Union, Any
+from typing import (
+    Any,
+    Callable,
+    Literal,
+    TypeAlias,
+    Union,
+)
 
+import numpy as np
+import numpy.typing
+import pandas as pd
 from pandas import DataFrame
+from scipy import sparse
 
 Number: TypeAlias = int | float
 ArrayLike: TypeAlias = numpy.typing.ArrayLike
@@ -22,3 +28,10 @@ PdReader: TypeAlias = Callable[..., DataFrame]
 FilePath: TypeAlias = str | PathLike[str]
 DfExporter: TypeAlias = Callable[..., str | None]
 MemoryUnit: TypeAlias = Literal["B", "KB", "MB", "GB"]
+
+# sort_index
+SortKind: TypeAlias = Literal["quicksort", "mergesort", "heapsort", "stable"]
+NaPosition: TypeAlias = Literal["first", "last"]
+
+# merger
+MergeHow = Literal["left", "right", "inner", "outer", "cross"]

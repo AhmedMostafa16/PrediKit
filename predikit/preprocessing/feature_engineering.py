@@ -1,16 +1,6 @@
-import logging
-from typing import (
-    Self,
-    # override,
-)
-from xml.etree.ElementInclude import include
+from typing import Self
 
 from pandas import DataFrame
-from result import (
-    Err,
-    Ok,
-    Result,
-)
 
 from ._base import (
     BasePreprocessor,
@@ -19,7 +9,6 @@ from ._base import (
     FeatureType,
 )
 from ._encoders import init_encoder
-from ._base import EncodingStrategies
 
 
 class FeatureSelection(BasePreprocessor):
@@ -91,7 +80,7 @@ class FeatureSelection(BasePreprocessor):
     ) -> DataFrame:
         if self.empty == True:
             exc = ValueError("No columns or dtypes to be selected")
-            return Err(str(exc))
+            raise exc
         else:
             if self.stored_cols is None and self.stored_dtypes is not None:
                 data = data.select_dtypes(exclude=self.stored_dtypes)
@@ -104,9 +93,9 @@ class FeatureSelection(BasePreprocessor):
 
         if data.empty:
             exc = ValueError("This results in an empty data frame")
-            return Err(str(exc))
+            raise exc
 
-        return Ok(data)
+        return data
 
 
 class NumericalInteractionFeatures(BasePreprocessor):
@@ -139,7 +128,7 @@ class EncodingProcessor(BasePreprocessor):
     def transform(
         self,
         data: DataFrame,
-    ) -> Result[DataFrame, str]:
+    ) -> DataFrame:
         return self._encoder.transform(data)
 
     def fit_transform(self, data: DataFrame) -> list[str]:

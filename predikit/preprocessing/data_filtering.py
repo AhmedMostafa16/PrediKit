@@ -2,15 +2,9 @@ import logging
 from typing import (
     Self,
     cast,
-    # override,
 )
 
 from pandas import DataFrame
-from result import (
-    Err,
-    Ok,
-    Result,
-)
 
 from ._base import (
     BasePreprocessor,
@@ -166,9 +160,3 @@ class BasicFilteringProcessor(BasePreprocessor):
             True if the column is numeric, False otherwise.
         """
         return data[column].dtype.kind in "biufc"
-
-    # def fit_transform(self, data, column=None):
-    #     # TODO: fix this Result workaround
-    #     bfp = self.fit(data, column)
-    #     bfp = bfp.unwrap()
-    #     return bfp.transform(data, column).unwrap()

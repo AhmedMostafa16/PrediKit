@@ -1,20 +1,12 @@
 import logging
 import numbers
 from string import punctuation
-from typing import (
-    Self,
-    # override,
-)
+from typing import Self
 
 import numpy as np
 from pandas import (
     DataFrame,
     Series,
-)
-from result import (
-    Err,
-    Ok,
-    Result,
 )
 
 from predikit.errors import (
@@ -45,7 +37,7 @@ class MissingValuesProcessor(BasePreprocessor):
     Replace missing values using a descriptive statistic (e.g. mean, median,or
     most frequent) along each column, or using a constant value, or omitting.
 
-    Parameters
+    Attributes
     ----------
     strategy : MissingValueStrategy, default='MEAN'
         The processor strategy.
@@ -75,21 +67,16 @@ class MissingValuesProcessor(BasePreprocessor):
     verbose : bool, default=False
         If True, prints information about missing values in the dataset.
 
-    Attributes
-    ----------
-    method : MissingValuesStrategy
-        The strategy to use for handling missing values. Default is 'MEDIAN'.
-
     Examples
     --------
     >>> import pandas as pd
-    >>> from predikit import MissingValuesProcessor
-    >>> df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
-    >>>
-    >>> mvp = MissingValuesProcessor()
-    >>> cleaned_X_train = mvp.fit_transform(df)
-    >>> cleaned_X_test = mvp.transform(df)
-    >>> df
+    ... from predikit import MissingValuesProcessor
+    ... df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
+    ...
+    ... mvp = MissingValuesProcessor()
+    ... cleaned_X_train = mvp.fit_transform(df)
+    ... cleaned_X_test = mvp.transform(df)
+    ... df
     """
 
     def __init__(
@@ -303,7 +290,7 @@ class MissingValuesProcessor(BasePreprocessor):
         Examples
         --------
         >>> df = DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, np.nan]})
-        >>> _log_missing_percent(df, 0.5)
+        ... _log_missing_percent(df, 0.5)
         Warning: ! Attention B - 67% Missing!
         """
         for col in data.columns:
@@ -692,7 +679,8 @@ class StringOperationsProcessor(BasePreprocessor):
                 "No string columns found. "
                 "StringModifierProcessor will be skipped."
             )
-            Err(str(exc))
+
+            raise exc
 
         self._operations = [
             (self.remove_punctuation, self._remove_punctuation),
