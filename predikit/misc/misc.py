@@ -69,6 +69,9 @@ class RowSelector(BasePreprocessor):
                 "Data must be fitted first using the 'fit' method"
             )
 
+        if not self.zero_indexed:
+            data.index += 1
+
         return data.iloc[self.selection]
 
 
