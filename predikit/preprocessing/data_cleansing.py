@@ -1,13 +1,17 @@
 import logging
 import numbers
 from string import punctuation
-from typing import Self,  override
+from typing import (
+    Self,
+    override,
+)
 
 import numpy as np
 from pandas import (
     DataFrame,
     Series,
 )
+
 from predikit.errors import (
     DataNotFittedError,
     NoNumericColumnsError,
