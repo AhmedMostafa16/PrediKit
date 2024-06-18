@@ -96,9 +96,7 @@ for root, dirs, files in os.walk(
                 init_module[-1] = "__init__"
                 init_module = ".".join(init_module)
                 try:
-                    category = getattr(
-                        importlib.import_module(init_module), "category"
-                    )
+                    category = getattr(importlib.import_module(init_module), "category")
                     missing_categories.add(category.name)
                 except ImportError as ie:
                     logger.warning(ie)
@@ -144,9 +142,7 @@ class AppContext:
         # This will be initialized by setup_queue.
         # This is necessary because we don't know Sanic's event loop yet.
         self.queue: EventQueue = None  # type: ignore
-        self.pool = ThreadPoolExecutor(
-            max_workers=multiprocessing.cpu_count() // 2
-        )
+        self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count() // 2)
 
     @staticmethod
     def get(app_instance: Sanic) -> "AppContext":
@@ -224,9 +220,7 @@ async def nodes(_):
     # sort nodes in category order
     sorted_registry = sorted(
         registry.items(),
-        key=lambda x: category_order.index(
-            NodeFactory.get_node(x[0]).category.name
-        ),
+        key=lambda x: category_order.index(NodeFactory.get_node(x[0]).category.name),
     )
     node_list = []
     for schema_id, _node_class in sorted_registry:
@@ -275,9 +269,7 @@ async def run(request: Request, workflow_id: str):
             )
         if ctx.executors[workflow_id].is_paused():
             ctx.executors[workflow_id].resume()
-            return json(
-                successResponse("Successfully resumed execution!"), status=200
-            )
+            return json(successResponse("Successfully resumed execution!"), status=200)
 
     try:
         # wait until all previews are done
@@ -329,9 +321,7 @@ async def run(request: Request, workflow_id: str):
             }
 
         await ctx.queue.put({"event": "execution-error", "data": error})
-        return json(
-            errorResponse("Error running nodes!", exception), status=500
-        )
+        return json(errorResponse("Error running nodes!", exception), status=500)
 
 
 class RunIndividualRequest(TypedDict):
@@ -364,9 +354,7 @@ async def run_individual(request: Request):
 
         with runIndividualCounter:
             # Run the node and pass in inputs as args
-            run_func = functools.partial(
-                node_instance.run, *full_data["inputs"]
-            )
+            run_func = functools.partial(node_instance.run, *full_data["inputs"])
             output, execution_time = await app.loop.run_in_executor(
                 None, timed_supplier(run_func)
             )
@@ -381,8 +369,8 @@ async def run_individual(request: Request):
             output_idxable = [output] if len(node_outputs) == 1 else output
             for idx, node_output in enumerate(node_outputs):
                 try:
-                    broadcast_data[node_output.id] = (
-                        node_output.get_broadcast_data(output_idxable[idx])
+                    broadcast_data[node_output.id] = node_output.get_broadcast_data(
+                        output_idxable[idx]
                     )
                 except Exception as error:
                     logger.error(f"Error broadcasting output: {error}")
@@ -405,9 +393,7 @@ async def run_individual(request: Request):
         return json({"success": False, "error": str(exception)})
 
 
-@app.route(
-    "/workflows/<workflow_id:str>/clearcache/individual", methods=["POST"]
-)
+@app.route("/workflows/<workflow_id:str>/clearcache/individual", methods=["POST"])
 async def clear_cache_individual(request: Request):
     ctx = AppContext.get(request.app)
     try:
@@ -424,9 +410,7 @@ async def clear_cache_individual(request: Request):
 async def sse(request: Request):
     ctx = AppContext.get(request.app)
     headers = {"Cache-Control": "no-cache"}
-    response = await request.respond(
-        headers=headers, content_type="text/event-stream"
-    )
+    response = await request.respond(headers=headers, content_type="text/event-stream")
     while True:
         message = await ctx.queue.get()
         if response is not None:
@@ -452,14 +436,10 @@ async def pause(request: Request, workflow_id: str):
     try:
         logger.info("Executor found. Attempting to pause...")
         ctx.executors[workflow_id].pause()
-        return json(
-            successResponse("Successfully paused execution!"), status=200
-        )
+        return json(successResponse("Successfully paused execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error pausing execution!", exception), status=500
-        )
+        return json(errorResponse("Error pausing execution!", exception), status=500)
 
 
 @app.route("/workflows/<workflow_id:str>/resume", methods=["POST"])
@@ -475,14 +455,10 @@ async def resume(request: Request, workflow_id: str):
     try:
         logger.info("Executor found. Attempting to resume...")
         ctx.executors[workflow_id].resume()
-        return json(
-            successResponse("Successfully resumed execution!"), status=200
-        )
+        return json(successResponse("Successfully resumed execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error resuming execution!", exception), status=500
-        )
+        return json(errorResponse("Error resuming execution!", exception), status=500)
 
 
 @app.route("/workflows/<workflow_id:str>/kill", methods=["POST"])
@@ -498,14 +474,10 @@ async def kill(request: Request, workflow_id: str):
     try:
         logger.info("Executor found. Attempting to kill...")
         ctx.executors[workflow_id].kill()
-        return json(
-            successResponse("Successfully killed execution!"), status=200
-        )
+        return json(successResponse("Successfully killed execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error killing execution!", exception), status=500
-        )
+        return json(errorResponse("Error killing execution!", exception), status=500)
 
 
 @app.route("/ping", methods=["GET"])
@@ -538,9 +510,7 @@ async def create_workflow(request: Request):
 @app.route("/workflows/<workflow_id:str>", methods=["GET"])
 async def get_workflow(request: Request, workflow_id: str):
     try:
-        workflow = await workflows_collection.find_one(
-            {"_id": ObjectId(workflow_id)}
-        )
+        workflow = await workflows_collection.find_one({"_id": ObjectId(workflow_id)})
         if workflow:
             workflow["id"] = str(workflow["_id"])
             del workflow["_id"]
@@ -569,9 +539,7 @@ async def update_workflow(request: Request, workflow_id: str):
 @app.route("/workflows/<workflow_id:str>", methods=["DELETE"])
 async def delete_workflow(request: Request, workflow_id: str):
     try:
-        result = await workflows_collection.delete_one(
-            {"_id": ObjectId(workflow_id)}
-        )
+        result = await workflows_collection.delete_one({"_id": ObjectId(workflow_id)})
         if result.deleted_count == 0:
             return json(errorResponse("Workflow not found!", ""), status=404)
         return json(successResponse(""), status=200)
@@ -634,9 +602,7 @@ if __name__ == "__main__":
     host: str = os.getenv("HOST", "localhost")
     port = int(os.getenv("PORT", 5001))
     workers = int(os.getenv("WORKERS", multiprocessing.cpu_count()))
-    is_production: bool = (
-        os.environ.get("Production", "True").lower() == "true"
-    )
+    is_production: bool = os.environ.get("Production", "True").lower() == "true"
 
     # Ensure at least one worker is running
     if workers < 1 and not is_production:

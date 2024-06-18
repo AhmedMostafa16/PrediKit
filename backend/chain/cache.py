@@ -113,9 +113,7 @@ class OutputCache(Generic[T]):
         static_data: Optional[Dict[NodeId, T]] = None,
     ):
         super().__init__()
-        self.__static: Dict[NodeId, T] = (
-            static_data.copy() if static_data else {}
-        )
+        self.__static: Dict[NodeId, T] = static_data.copy() if static_data else {}
         self.__counted: Dict[NodeId, _CacheEntry[T]] = {}
         self.parent: Optional[OutputCache[T]] = parent
 
