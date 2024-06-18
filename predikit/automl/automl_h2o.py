@@ -41,6 +41,46 @@ def split_train_test(
 
 
 class AutoML:
+    """
+    AutoML class for automated machine learning using H2O AutoML.
+
+    Args:
+        model_type (str): The type of model to train. Default is None.
+        max_runtime_secs (int): The maximum runtime in seconds for the AutoML process. Default is None.
+        max_models (int): The maximum number of models to train. Default is None.
+        balance_classes (bool): Whether to balance the class distribution of the target variable. Default is False.
+        class_sampling_factors (list[float]): The per-class (in lexicographical order) over/under-sampling ratios for the training data. Default is None.
+        stopping_metric (str): The metric to use for early stopping. Default is "AUTO".
+        nfolds (int): The number of folds for cross-validation. Default is -1.
+        include_algos (list[str]): The list of algorithms to include in the AutoML process. Default is None.
+        exclude_algos (list[str]): The list of algorithms to exclude from the AutoML process. Default is None.
+        seed (int): The random seed for reproducibility. Default is None.
+
+    Attributes:
+        model_type (str): The type of model to train.
+        model (H2OAutoML): The H2O AutoML model.
+        best_model: The best model selected by AutoML.
+        train_cols_length: The number of columns in the training data.
+        target: The target variable.
+        train_frame: The training data frame.
+        test_frame: The test data frame.
+
+    Methods:
+        train: Trains the AutoML model.
+        user_feedback: Provides feedback on the performance of the AutoML model.
+        get_best_model: Returns the best model selected by AutoML.
+        model_performance: Computes the performance of the best model on test data.
+        confusion_matrix: Computes and displays the confusion matrix for the best model.
+        explain: Generates an explanation for the best model.
+        learning_curve_plot: Generates a learning curve plot for the best model.
+        varimp_heatmap: Generates a variable importance heatmap for the best model.
+        model_correlation_heatmap: Generates a correlation heatmap for the best model.
+        save_mojo: Saves the best model as a MOJO file.
+        save_model: Saves a given model as a file.
+        classification_feedback: Provides feedback on the classification performance of the best model.
+
+    """
+
     def __init__(
         self,
         model_type: str = None,
@@ -80,6 +120,19 @@ class AutoML:
         training_frame: h2o.H2OFrame = None,
         validation_frame: h2o.H2OFrame = None,
     ):
+        """
+        Trains the AutoML model.
+
+        Args:
+            x (list[str]): The list of predictor columns. Default is None.
+            y (str): The target column. Default is None.
+            training_frame (h2o.H2OFrame): The training data frame. Default is None.
+            validation_frame (h2o.H2OFrame): The validation data frame. Default is None.
+
+        Returns:
+            The best model selected by AutoML.
+
+        """
         # changes all columns with less than or equal to 2 unique values to factor (categorical).
         factor_cols = []
         for col in training_frame.columns:
@@ -112,6 +165,13 @@ class AutoML:
         return self.best_model
 
     def user_feedback(self) -> str:
+        """
+        Provides feedback on the performance of the AutoML model.
+
+        Returns:
+            The feedback string.
+
+        """
         predictions_train = self.model.predict(self.train_frame)
         predictions_test = self.model.predict(self.test_frame)
         if self.model_type == "classifier":
@@ -212,15 +272,39 @@ class AutoML:
         return feedback
 
     def get_best_model(self):
+        """
+        Returns the best model selected by AutoML.
+
+        Returns:
+            The best model.
+
+        """
         return self.best_model
 
     def model_performance(
         self,
         test_data: h2o.H2OFrame,
     ):
+        """
+        Computes the performance of the best model on test data.
+
+        Args:
+            test_data (h2o.H2OFrame): The test data frame.
+
+        Returns:
+            The model performance.
+
+        """
         return self.best_model.model_performance(test_data=test_data)
 
     def confusion_matrix(self):
+        """
+        Computes and displays the confusion matrix for the best model.
+
+        Returns:
+            The confusion matrix plot.
+
+        """
         predictions_test = self.model.predict(self.test_frame)
         with h2o.utils.threading.local_context(
             polars_enabled=True, datatable_enabled=True
@@ -246,24 +330,73 @@ class AutoML:
         ).plot()
 
     def explain(self, data: h2o.H2OFrame):
+        """
+        Generates an explanation for the best model.
+
+        Args:
+            data (h2o.H2OFrame): The data frame to explain.
+
+        Returns:
+            The explanation.
+
+        """
         return self.model.explain(data)
 
     def learning_curve_plot(self):
+        """
+        Generates a learning curve plot for the best model.
+
+        Returns:
+            The learning curve plot.
+
+        """
         return self.best_model.learning_curve_plot()
 
     def varimp_heatmap(self):
+        """
+        Generates a variable importance heatmap for the best model.
+
+        Returns:
+            The variable importance heatmap.
+
+        """
         return h2o.varimp_heatmap(self.model)
 
     def model_correlation_heatmap(self, data: h2o.H2OFrame):
+        """
+        Generates a correlation heatmap for the best model.
+
+        Args:
+            data (h2o.H2OFrame): The data frame.
+
+        Returns:
+            The correlation heatmap.
+
+        """
         return h2o.model_correlation_heatmap(self.model, data)
 
-    # saves the model as MOJO.
     def save_mojo(self, path: str, force: bool = False):
+        """
+        Saves the best model as a MOJO file.
+
+        Args:
+            path (str): The path to save the MOJO file.
+            force (bool): Whether to overwrite an existing file. Default is False.
+
+        """
         self.best_model.save_mojo(path, force)
 
-    # saves the model as file.
     @classmethod
     def save_model(cls, model, path: str, force: bool = False):
+        """
+        Saves a given model as a file.
+
+        Args:
+            model: The model to save.
+            path (str): The path to save the model file.
+            force (bool): Whether to overwrite an existing file. Default is False.
+
+        """
         h2o.save_model(model=model, path=path, force=force)
 
     def classification_feedback(
@@ -273,6 +406,19 @@ class AutoML:
         y_true_train: np.array,
         y_pred_train: np.array,
     ) -> str:
+        """
+        Provides feedback on the classification performance of the best model.
+
+        Args:
+            y_true_test (np.array): The true labels of the test data.
+            y_pred_test (np.array): The predicted labels of the test data.
+            y_true_train (np.array): The true labels of the training data.
+            y_pred_train (np.array): The predicted labels of the training data.
+
+        Returns:
+            The feedback string.
+
+        """
         auc_roc = AUC(curve="ROC")
         acc_test = Accuracy()
         acc_train = Accuracy()
@@ -302,59 +448,47 @@ class AutoML:
         train_vs_test_accuracy = abs(acc_train_score - acc_test_score) / (
             acc_train_score
         )
-
+        
         feedback = ""
         if acc_test_score >= 0.9:
-            feedback += f"Good model accuracy (Accuracy: {(acc_test_score * 100):.3f}%)\n"
+            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Good model accuracy)\n"
         elif acc_test_score >= 0.7:
-            feedback += f"Moderate model accuracy (Accuracy: {(acc_test_score * 100):.3f}%)\n"
+            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Moderate model accuracy)\n"
         else:
-            feedback += f"Low model accuracy. this indicates insufficient training data or model complexity (Accuracy: {(acc_test_score * 100):.3f}%)\n"
+            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Low model accuracy. This indicates insufficient training data or model complexity)\n"
         if auc_roc_score >= 0.9:
-            feedback += f"Excellent AUC_ROC score (AUC_ROC: {(auc_roc_score * 100):.3f}%)\n"
+            feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Excellent AUC_ROC score)\n"
         elif auc_roc_score >= 0.7:
-            feedback += (
-                f"Good AUC_ROC score (AUC_ROC: {(auc_roc_score * 100):.3f}%)\n"
-            )
+            feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Good AUC_ROC score)\n"
         else:
-            feedback += f"Poor AUC_ROC score. Poor AUC_ROC may indicate need for more data or model tuning (AUC_ROC: {(auc_roc_score * 100):.3f}%)\n"
+            feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Poor AUC_ROC score. Poor AUC_ROC may indicate need for more data or model tuning)\n"
         if pr_score >= 0.75:
-            feedback += (
-                f"High model precision (Precision: {(pr_score * 100):.3f}%)\n"
-            )
+            feedback += f"Precision: {(pr_score * 100):.3f}% (High model precision)\n"
         elif pr_score >= 0.5:
-            feedback += f"Moderate model precision (Precision: {(pr_score * 100):.3f}%)\n"
+            feedback += f"Precision: {(pr_score * 100):.3f}% (Moderate model precision)\n"
         else:
-            feedback += f"Low model precision. Low precision suggests class imbalance (Precision: {(pr_score * 100):.3f}%)\n"
+            feedback += f"Precision: {(pr_score * 100):.3f}% (Low model precision. Low precision suggests class imbalance)\n"
         if recall_score >= 0.75:
-            feedback += (
-                f"High model recall (Recall: {(recall_score * 100):.3f}%)\n"
-            )
+            feedback += f"Recall: {(recall_score * 100):.3f}% (High model recall)\n"
         elif recall_score >= 0.5:
-            feedback += f"Moderate model recall (Recall: {(recall_score * 100):.3f}%)\n"
+            feedback += f"Recall: {(recall_score * 100):.3f}% (Moderate model recall)\n"
         else:
-            feedback += f"Low model recall. Low recall can indicate a need for more training data (Recall: {(recall_score * 100):.3f}%)\n"
+            feedback += f"Recall: {(recall_score * 100):.3f}% (Low model recall. Low recall can indicate a need for more training data)\n"
         if f1score >= 0.75:
-            feedback += (
-                f"High model F1 Score (F1 Score: {(f1score * 100):.3f}%)\n"
-            )
+            feedback += f"F1 Score: {(f1score * 100):.3f}% (High model F1 Score)\n"
         elif f1score >= 0.5:
-            feedback += (
-                f"Moderate model F1 Score (F1 Score: {(f1score * 100):.3f}%)\n"
-            )
+            feedback += f"F1 Score: {(f1score * 100):.3f}% (Moderate model F1 Score)\n"
         else:
-            feedback += f"Low model F1 Score. Low F1 Score can indicate class imbalance or insufficient training (F1Score: {(f1score * 100):.3f}%)\n"
+            feedback += f"F1 Score: {(f1score * 100):.3f}% (Low model F1 Score. Low F1 Score can indicate class imbalance or insufficient training)\n"
         if len(np.unique(y_true_test)) <= 2:
             if logloss_score < 0.5:
-                feedback += (
-                    f"Good model Log Loss (LogLoss: {(logloss_score):.3f}%)\n"
-                )
+                feedback += f"Log Loss: {(logloss_score):.3f}% (Good model Log Loss)\n"
             else:
-                feedback += f"Poor model Log Loss. High log loss can indicate a need for more data or model tuning. Lower Log Loss is better (LogLoss: {(logloss_score):.3f})\n"
+                feedback += f"Log Loss: {(logloss_score):.3f} (Poor model Log Loss. High log loss can indicate a need for more data or model tuning. Lower Log Loss is better)\n"
         if train_vs_test_accuracy <= 0.05:
-            feedback += f"The model is not overfitting the data. (Train vs Test accuracy: {(train_vs_test_accuracy * 100):.3f}%)\n"
+            feedback += f"Train vs Test accuracy: {(train_vs_test_accuracy * 100):.3f}% (The model is not overfitting the data)\n"
         else:
-            feedback += f"The model is overfitting the data. Large differences can indicate overfitting (Train vs Test accuracy: {(train_vs_test_accuracy * 100):.3f}%)\n"
+            feedback += f"Train vs Test accuracy: {(train_vs_test_accuracy * 100):.3f}% (The model is overfitting the data. Large differences can indicate overfitting)\n"
 
         return feedback
 
@@ -379,29 +513,27 @@ class AutoML:
 
         feedback = ""
         if r2_test >= 0.8:
-            feedback += f"Good R2 score (R2 score: {(r2_test * 100):.3f}%)\n"
+            feedback += f"R2 score: {(r2_test * 100):.3f}% (Good R2 score)\n"
         elif r2_test >= 0.5:
-            feedback += (
-                f"Moderate R2 score (R2 score: {(r2_test * 100):.3f}%)\n"
-            )
+            feedback += f"R2 score: {(r2_test * 100):.3f}% (Moderate R2 score)\n"
         else:
-            feedback += f"Poor R2 score. Low R2 score can indicate model underfitting or insufficient data. (R2 score: {(r2_test * 100):.3f}%)\n"
+            feedback += f"R2 score: {(r2_test * 100):.3f}% (Poor R2 score. Low R2 score can indicate model underfitting or insufficient data)\n"
         if adjusted_r2 >= 0.8:
-            feedback += f"Good Adjusted R2 score (Adjusted R2 score: {(adjusted_r2 * 100):.3f}%)\n"
+            feedback += f"Adjusted R2 score: {(adjusted_r2 * 100):.3f}% (Good Adjusted R2 score)\n"
         elif adjusted_r2 >= 0.5:
-            feedback += f"Moderate Adjusted R2 score (Adjusted R2 score: {(adjusted_r2 * 100):.3f}%)\n"
+            feedback += f"Adjusted R2 score: {(adjusted_r2 * 100):.3f}% (Moderate Adjusted R2 score)\n"
         else:
-            feedback += f"Poor Adjusted R2 score. Low Adjusted R2 score can indicate model underfitting or insufficient data. (Adjusted R2 score: {(adjusted_r2 * 100):.3f}%)\n"
+            feedback += f"Adjusted R2 score: {(adjusted_r2 * 100):.3f}% (Poor Adjusted R2 score. Low Adjusted R2 score can indicate model underfitting or insufficient data)\n"
         if mape <= 0.1:
-            feedback += f"Good MAPE score (MAPE: {(mape * 100):.3f}%)\n"
+            feedback += f"MAPE: {(mape * 100):.3f}% (Good MAPE score)\n"
         elif mape <= 0.2:
-            feedback += f"Moderate MAPE score (MAPE: {(mape * 100):.3f}%)\n"
+            feedback += f"MAPE: {(mape * 100):.3f}% (Moderate MAPE score)\n"
         else:
-            feedback += f"Poor MAPE score. High MAPE indicates a need for more training or data quality issues. (MAPE: {(mape * 100):.3f}%)\n"
+            feedback += f"MAPE: {(mape * 100):.3f}% (Poor MAPE score. High MAPE indicates a need for more training or data quality issues)\n"
         if train_vs_test_r2_score <= 0.1:
-            feedback += f"The model is not overfitting the data. (Train vs Test R2 score: {(train_vs_test_r2_score * 100):.3f}%)\n"
+            feedback += f"Train vs Test R2 score: {(train_vs_test_r2_score * 100):.3f}% (The model is not overfitting the data)\n"
         else:
-            feedback += f"The model is overfitting the data. Large differences can indicate overfitting (Train vs Test R2 score: {(train_vs_test_r2_score * 100):.3f}%)\n"
+            feedback += f"Train vs Test R2 score: {(train_vs_test_r2_score * 100):.3f}% (The model is overfitting the data. Large differences can indicate overfitting)\n"
         feedback += f"MAE: {mae}\nMSE: {mse}\nRMSE: {rmse_test}"
 
         return feedback
