@@ -63,13 +63,13 @@ class AutoML:
                 - ``"GBM"``
                 - ``"DeepLearning"``
                 - ``"StackedEnsemble"``
-                
+
             Defaults to ``None``
             Usage example::
 
                 include_algos = ["GLM", "DeepLearning", "DRF"]
 
-        exclude_algos (list[str]): The list of algorithms to exclude from the AutoML process. 
+        exclude_algos (list[str]): The list of algorithms to exclude from the AutoML process.
             This can't be used in combination with ``include_algos`` param.
             Defaults to ``None``
             Usage example::
