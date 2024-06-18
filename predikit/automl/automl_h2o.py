@@ -52,8 +52,30 @@ class AutoML:
         class_sampling_factors (list[float]): The per-class (in lexicographical order) over/under-sampling ratios for the training data. Default is None.
         stopping_metric (str): The metric to use for early stopping. Default is "AUTO".
         nfolds (int): The number of folds for cross-validation. Default is -1.
-        include_algos (list[str]): The list of algorithms to include in the AutoML process. Default is None.
-        exclude_algos (list[str]): The list of algorithms to exclude from the AutoML process. Default is None.
+        include_algos (list[str]): The list of algorithms to include in the AutoML process.
+            This can't be used in combination with ``exclude_algos`` param.
+
+            The full list of options is:
+            
+                - ``"DRF"`` (Random Forest and Extremely-Randomized Trees)
+                - ``"GLM"``
+                - ``"XGBoost"``
+                - ``"GBM"``
+                - ``"DeepLearning"``
+                - ``"StackedEnsemble"``
+                
+            Defaults to ``None``, which means that all appropriate H2O algorithms will be used, if the search stopping criteria allow. Optional.
+            Usage example::
+
+                include_algos = ["GLM", "DeepLearning", "DRF"]
+                
+        exclude_algos (list[str]): The list of algorithms to exclude from the AutoML process. 
+            This can't be used in combination with ``include_algos`` param.
+            Defaults to ``None``
+            Usage example::
+            
+                exclude_algos = ["GLM", "DeepLearning", "DRF"]
+                
         seed (int): The random seed for reproducibility. Default is None.
 
     Attributes:
