@@ -15,7 +15,7 @@ export const createSearchPredicate = (query: string): ((name: string) => boolean
         `(?is)^${[...query]
             .map((char) => {
                 const hex = `\\u{${char.codePointAt(0)!.toString(16)}}`;
-                const before = isLetter().isMatch(char) ? `[^a-z]` : `.`;
+                const before = isLetter().isMatch(char) ? "[^a-z]" : ".";
                 return `(?:.*${before})?${hex}`;
             })
             .join("")}`

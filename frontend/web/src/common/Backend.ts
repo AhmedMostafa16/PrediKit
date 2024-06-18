@@ -117,7 +117,7 @@ export class Backend {
      * Gets a list of all nodes as well as the node information
      */
     nodes(): Promise<BackendNodesResponse> {
-        return this.fetchJson(`/workflows/nodes`, "GET");
+        return this.fetchJson("/workflows/nodes", "GET");
     }
 
     /**

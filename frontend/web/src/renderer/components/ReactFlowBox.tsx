@@ -386,7 +386,7 @@ export const ReactFlowBox = memo(({ wrapperRef, nodeTypes, edgeTypes }: ReactFlo
 
                 sendAlert({
                     type: AlertType.WARN,
-                    message: `Unable to transfer dragged item(s).`,
+                    message: "Unable to transfer dragged item(s).",
                 });
             } catch (error) {
                 log.error(error);

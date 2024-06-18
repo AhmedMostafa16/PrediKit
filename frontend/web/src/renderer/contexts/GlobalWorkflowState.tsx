@@ -661,7 +661,7 @@ export const GlobalProvider = memo(
                         sendToast({
                             status: "error",
                             duration: 10_000,
-                            description: `Failed to save chain`,
+                            description: "Failed to save chain",
                         });
                     }
                 })();

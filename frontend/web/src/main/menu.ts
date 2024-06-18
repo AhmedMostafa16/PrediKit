@@ -218,7 +218,7 @@ export const setMainMenu = ({ mainWindow, menuData, enabled = false }: MainMenuA
                         const response = await dialog.showMessageBox(mainWindow, {
                             title: "About PrediKit",
                             message: `PrediKit ${app.getVersion()}`,
-                            detail: `PrediKit is a cloud-based, no-code platform for data science and machine learning. PrediKit revolutionizes the way organizations approach data pipelines, model building, and deployment, offering an intuitive drag-and-drop user interface (UI) that simplifies the entire process. With PrediKit, users can accelerate their analytic workflows, leverage AI/ML-based suggestions, and effortlessly put AI projects into production in a matter of days.`,
+                            detail: "PrediKit is a cloud-based, no-code platform for data science and machine learning. PrediKit revolutionizes the way organizations approach data pipelines, model building, and deployment, offering an intuitive drag-and-drop user interface (UI) that simplifies the entire process. With PrediKit, users can accelerate their analytic workflows, leverage AI/ML-based suggestions, and effortlessly put AI projects into production in a matter of days.",
                             buttons: ["Close"],
                         });
                     },

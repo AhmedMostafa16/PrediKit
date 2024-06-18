@@ -39,7 +39,7 @@ class ReplacementString {
                 if (interpolation === "") {
                     throw new Error(
                         "Invalid replacement pattern. {} is not a valid replacement." +
-                            ` Either specify a name or id number, or escape a single "{" as "{{".` +
+                            ' Either specify a name or id number, or escape a single "{" as "{{".' +
                             ` Full pattern: ${pattern}`
                     );
                 }
