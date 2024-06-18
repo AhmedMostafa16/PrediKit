@@ -23,9 +23,7 @@ from tensorflow.python.keras.metrics import (
 )
 
 
-def initialize_cluster_server(
-    params: dict[str, str | int | float | bool] = None
-):
+def initialize_cluster_server(params: dict[str, str | int | float | bool] = None):
     h2o.init() if params is None else h2o.init(**params)
 
 
@@ -217,9 +215,9 @@ class AutoML:
                 test_frame = (test_frame - test_frame.min()) / (
                     test_frame.max() - test_frame.min()
                 )
-                pred_train_frame = (
-                    pred_train_frame - pred_train_frame.min()
-                ) / (pred_train_frame.max() - pred_train_frame.min())
+                pred_train_frame = (pred_train_frame - pred_train_frame.min()) / (
+                    pred_train_frame.max() - pred_train_frame.min()
+                )
                 train_frame = (train_frame - train_frame.min()) / (
                     train_frame.max() - train_frame.min()
                 )
@@ -435,11 +433,7 @@ class AutoML:
         pr.update_state(y_true_test, y_pred_test)
         recall.update_state(y_true_test, y_pred_test)
 
-        f1score = (
-            2
-            * (pr.result() * recall.result())
-            / (pr.result() + recall.result())
-        )
+        f1score = 2 * (pr.result() * recall.result()) / (pr.result() + recall.result())
         auc_roc_score = auc_roc.result()
         acc_test_score = acc_test.result()
         acc_train_score = acc_train.result()
@@ -448,16 +442,22 @@ class AutoML:
         train_vs_test_accuracy = abs(acc_train_score - acc_test_score) / (
             acc_train_score
         )
-        
+
         feedback = ""
         if acc_test_score >= 0.9:
-            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Good model accuracy)\n"
+            feedback += (
+                f"Accuracy: {(acc_test_score * 100):.3f}% (Good model accuracy)\n"
+            )
         elif acc_test_score >= 0.7:
-            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Moderate model accuracy)\n"
+            feedback += (
+                f"Accuracy: {(acc_test_score * 100):.3f}% (Moderate model accuracy)\n"
+            )
         else:
             feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Low model accuracy. This indicates insufficient training data or model complexity)\n"
         if auc_roc_score >= 0.9:
-            feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Excellent AUC_ROC score)\n"
+            feedback += (
+                f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Excellent AUC_ROC score)\n"
+            )
         elif auc_roc_score >= 0.7:
             feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Good AUC_ROC score)\n"
         else:
@@ -465,7 +465,9 @@ class AutoML:
         if pr_score >= 0.75:
             feedback += f"Precision: {(pr_score * 100):.3f}% (High model precision)\n"
         elif pr_score >= 0.5:
-            feedback += f"Precision: {(pr_score * 100):.3f}% (Moderate model precision)\n"
+            feedback += (
+                f"Precision: {(pr_score * 100):.3f}% (Moderate model precision)\n"
+            )
         else:
             feedback += f"Precision: {(pr_score * 100):.3f}% (Low model precision. Low precision suggests class imbalance)\n"
         if recall_score >= 0.75:
