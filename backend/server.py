@@ -618,13 +618,12 @@ async def preview_node(request: Request, workflow_id: str):
                     "data": df[start:end].to_json(orient="records"),
                 }
             )
-        else:
-            return json(
-                {
-                    "success": False,
-                    "error": "Run the workflow first.",
-                }
-            )
+        return json(
+            {
+                "success": False,
+                "error": "Run the workflow first.",
+            }
+        )
     except Exception as exception:
         logger.error(exception, exc_info=True)
         return json({"success": False, "error": str(exception)})

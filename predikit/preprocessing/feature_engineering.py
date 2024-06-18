@@ -140,7 +140,6 @@ class EncodingProcessor(BasePreprocessor):
             EncodingStrategies.OneHotEncoder,
         ]:
             return self._encoder.get_features_names_out()
-        else:
-            raise ValueError(
-                "This Encoder does not support get_features_names_out."
-            )
+        raise ValueError(
+            "This Encoder does not support get_features_names_out."
+        )

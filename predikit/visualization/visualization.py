@@ -84,10 +84,9 @@ class Visualization(BaseVisualization):
         """
         if isinstance(self.vis, Figure):
             return self.vis.data
-        else:
-            raise TypeError(
-                "Visualization object does not contain valid data."
-            )
+        raise TypeError(
+            "Visualization object does not contain valid data."
+        )
 
     def send_json(self):
         """

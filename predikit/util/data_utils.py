@@ -196,9 +196,9 @@ def data_memory_usage(
     """
     if unit == "MB":
         return df.memory_usage(deep=deep).sum() / 1024**2
-    elif unit == "GB":
+    if unit == "GB":
         return df.memory_usage(deep=deep).sum() / 1024**3
-    elif unit == "KB":
+    if unit == "KB":
         return df.memory_usage(deep=deep).sum() / 1024
 
     return df.memory_usage(deep=deep).sum()
@@ -247,9 +247,9 @@ def str_data_memory_usage(
     """
     if unit == "MB":
         return f"{df.memory_usage(deep=deep).sum() / 1024**2:.2f} MB"
-    elif unit == "GB":
+    if unit == "GB":
         return f"{df.memory_usage(deep=deep).sum() / 1024**3:.2f} GB"
-    elif unit == "KB":
+    if unit == "KB":
         return f"{df.memory_usage(deep=deep).sum() / 1024:.2f} KB"
 
     return f"{df.memory_usage(deep=deep).sum():.2f} B"
