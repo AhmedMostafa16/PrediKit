@@ -256,7 +256,7 @@ export class StructDefinition implements DefinitionBase {
         for (const f of fields) {
             if (names.has(f.name)) {
                 throw new Error(
-                    `Invalid strut definition. ` +
+                    "Invalid strut definition. " +
                         `The field ${f.name} was used twice in ${this.toString()}`
                 );
             }

@@ -420,7 +420,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
                 sendAlert(
                     AlertType.ERROR,
                     null,
-                    `Cannot start because a previous executor is still running.`
+                    "Cannot start because a previous executor is still running."
                 );
             }
         } catch (err: unknown) {

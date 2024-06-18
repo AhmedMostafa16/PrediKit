@@ -80,7 +80,7 @@ export const App = memo(() => {
                     type: AlertType.CRIT_ERROR,
                     title: "Unable to process backend nodes",
                     message:
-                        `A critical error occurred while processing the node data returned by the backend.` +
+                        "A critical error occurred while processing the node data returned by the backend." +
                         `\n\n${String(e)}`,
                     copyToClipboard: true,
                 });
