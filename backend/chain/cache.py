@@ -192,7 +192,7 @@ class OutputCache(Generic[T]):
         """
         if strategy.no_caching:
             return
-        elif strategy.static:
+        if strategy.static:
             self.__static[node_id] = value
         else:
             self.__counted[node_id] = _CacheEntry(value, strategy.hits_to_live)

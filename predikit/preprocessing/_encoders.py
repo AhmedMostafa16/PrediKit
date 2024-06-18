@@ -193,8 +193,7 @@ def init_encoder(strategy: EncodingStrategies, **params):
         raise TypeError(f"Unsupported encoding strategy: {strategy}")
     if encoder is EncoderFetch:
         return encoder(strategy, **params)
-    else:
-        return encoder(**params)
+    return encoder(**params)
 
 
 class HashingEncoder:
