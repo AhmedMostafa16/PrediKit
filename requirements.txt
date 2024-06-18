@@ -59,6 +59,7 @@ patsy==0.5.6
 pillow==10.3.0
 platformdirs==4.2.1
 plotly==5.21.0
+polars==0.20.31
 portalocker==2.8.2
 protobuf==5.27.1
 pur==7.3.1

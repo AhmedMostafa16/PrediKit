@@ -140,10 +140,9 @@ class AutoML:
                 training_frame[col] = training_frame[col].asfactor()
                 factor_cols.append(col)
 
-        # changes all columns with less than or equal to 2 unique values to factor (categorical) if validation_frame was provided.
+        # changes the same columns as training frame to factor (categorical) if validation_frame was provided.
         if validation_frame and factor_cols:
             for col in factor_cols:
-                # if len(validation_frame[col].unique()) <= 2:
                 validation_frame[col] = validation_frame[col].asfactor()
 
         # ensures target column is identified as factor if the model is set to classifier.
@@ -176,7 +175,7 @@ class AutoML:
         predictions_test = self.model.predict(self.test_frame)
         if self.model_type == "classifier":
             with h2o.utils.threading.local_context(
-                polars_enabled=True, datatable_enabled=True
+                polars_enabled=True, datatable_enabled=False
             ):
                 pred_train_frame = LabelEncoder().fit_transform(
                     predictions_train["predict"]
@@ -223,12 +222,12 @@ class AutoML:
                 train_frame = (train_frame - train_frame.min()) / (
                     train_frame.max() - train_frame.min()
                 )
-            feedback = self.classification_feedback(
+            feedback = AutoML.classification_feedback(
                 test_frame, pred_test_frame, train_frame, pred_train_frame
             )
         else:
             with h2o.utils.threading.local_context(
-                polars_enabled=True, datatable_enabled=True
+                polars_enabled=True, datatable_enabled=False
             ):
                 pred_train_frame = (
                     predictions_train["predict"]
@@ -262,7 +261,7 @@ class AutoML:
                         -1,
                     )
                 )
-            feedback = self.regression_feedback(
+            feedback = AutoML.regression_feedback(
                 test_frame,
                 pred_test_frame,
                 train_frame,
@@ -399,8 +398,8 @@ class AutoML:
         """
         h2o.save_model(model=model, path=path, force=force)
 
+    @staticmethod
     def classification_feedback(
-        self,
         y_true_test: np.array,
         y_pred_test: np.array,
         y_true_train: np.array,
@@ -496,8 +495,8 @@ class AutoML:
 
         return feedback
 
+    @staticmethod
     def regression_feedback(
-        self,
         y_true_test: np.array,
         y_pred_test: np.array,
         y_true_train: np.array,
