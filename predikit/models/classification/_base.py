@@ -33,7 +33,7 @@ class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
         pass
 
     def predict_log_proba(X: MatrixLike) -> ndarray:
-        pass
+        raise NotImplementedError()
 
 
 class ClassifierStrategies(StrEnum):

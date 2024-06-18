@@ -8,16 +8,16 @@ class BaseVisualization(ABC):
     """Base class for all visualizations."""
 
     def send_json(self) -> Any:
-        pass
+        raise NotImplementedError()
 
     def show(self) -> Any:
-        pass
+        raise NotImplementedError()
 
     def subplots(self) -> Any:
-        pass
+        raise NotImplementedError()
 
     def get_traces(self) -> list[dict]:
-        pass
+        raise NotImplementedError()
 
 
 class VisualizationStrategies(StrEnum):
