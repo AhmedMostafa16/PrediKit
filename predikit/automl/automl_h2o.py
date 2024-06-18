@@ -56,7 +56,7 @@ class AutoML:
             This can't be used in combination with ``exclude_algos`` param.
 
             The full list of options is:
-            
+
                 - ``"DRF"`` (Random Forest and Extremely-Randomized Trees)
                 - ``"GLM"``
                 - ``"XGBoost"``
@@ -73,9 +73,9 @@ class AutoML:
             This can't be used in combination with ``include_algos`` param.
             Defaults to ``None``
             Usage example::
-            
+
                 exclude_algos = ["GLM", "DeepLearning", "DRF"]
-                
+
         seed (int): The random seed for reproducibility. Default is None.
 
     Attributes:
