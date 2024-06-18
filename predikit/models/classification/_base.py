@@ -33,7 +33,7 @@ class BaseClassifier(ClassifierMixin, BaseEstimator, ABC):
         pass
 
     def predict_log_proba(X: MatrixLike) -> ndarray:
-        pass
+        raise NotImplementedError()
 
 
 class ClassifierStrategies(StrEnum):
@@ -80,9 +80,7 @@ class ClassifierStrategies(StrEnum):
                 return cls.KNeighborsClassifier
             case "decisiontreeclassifier" | "dcclassifier":
                 return cls.DecisionTreeClassifier
-            case (
-                "forestclassifier" | "rfclassifier" | "randomforestclassifier"
-            ):
+            case "forestclassifier" | "rfclassifier" | "randomforestclassifier":
                 return cls.RandomForestClassifier
             case _:
                 raise ValueError(f"Invalid classifier strategy: {strategy}")
