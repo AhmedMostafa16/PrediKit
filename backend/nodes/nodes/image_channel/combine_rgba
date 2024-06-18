@@ -1,0 +1,58 @@
+from __future__ import annotations
+###############################################
+
+import cv2
+import numpy as np
+###############################################
+from ...node_factory import NodeFactory
+from . import category as ImageChannelCategory
+from ...node_base import NodeBase
+from ...properties.inputs import (
+    ImageInput
+    )
+from ...properties.outputs import ImageOutput
+from ...properties import expression
+###############################################
+
+@NodeFactory.register("predikit:image:combine_rgba")
+class CombineRGBA(NodeBase):
+    def __init__(self):
+        super().__init__()
+        self.description = """Merges the given channels together and returns an RGBA image.
+            All channel images must be a single channel image."""
+        self.inputs = [
+            ImageInput(
+                label ="Red Channel",
+                image_type=expression.Image(channels=1)
+                ),
+            ImageInput(
+                label ="Green Channel",
+                image_type=expression.Image(channels=1)
+                ),
+            ImageInput(
+                label ="Blue Channel",
+                image_type=expression.Image(channels=1)
+                ),
+            ImageInput(
+                label ="Alpha Channel",
+                image_type=expression.Image(channels=1)
+                ).make_optional(),
+        ]
+        self.outputs = [
+            ImageOutput()
+        ]
+        self.category = ImageChannelCategory
+        self.name = "Combine RGBA"
+        self.icon = "ImCombineRGBA"
+        self.sub = "Channels"
+
+
+    def run(
+        self,
+        red_channel: np.ndarray,
+        green_channel: np.ndarray,
+        blue_channel: np.ndarray,
+        alpha_channel: np.ndarray,
+    ) -> np.ndarray:
+        rgba_image = cv2.merge([red_channel, green_channel, blue_channel, alpha_channel])
+        return rgba_image
