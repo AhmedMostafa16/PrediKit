@@ -1,17 +1,20 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
-from ...properties.inputs import (
-    ImageInput,
-    )
-from ...properties.outputs import ImageOutput
+
+###############################################
+from ...node_factory import NodeFactory
 from ...properties import expression
+from ...properties.inputs import ImageInput
+from ...properties.outputs import ImageOutput
+
+###############################################
+
+
 ###############################################
 @NodeFactory.register("predikit:image:average_color_fix")
 class AverageColorFix(NodeBase):
@@ -23,19 +26,17 @@ class AverageColorFix(NodeBase):
             ImageInput(label="Input Image"),
             ImageInput(label="Reference Image"),
         ]
-        self.outputs = [
-            ImageOutput(size_as="Input0")
-        ]
+        self.outputs = [ImageOutput(size_as="Input0")]
         self.category = ImageFilterCategory
         self.name = "Average Color Fix"
         self.icon = "ImAverageColorFix"
         self.sub = "Filters"
 
     def run(
-            self,
-            input_image: np.ndarray,
-            reference_image: np.ndarray,
-            ) -> np.ndarray:
+        self,
+        input_image: np.ndarray,
+        reference_image: np.ndarray,
+    ) -> np.ndarray:
         input_avg_color = cv2.mean(input_image)[:3]
         reference_avg_color = cv2.mean(reference_image)[:3]
         color_difference = np.subtract(reference_avg_color, input_avg_color)

@@ -3,15 +3,16 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from ...node_factory import NodeFactory
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
 )
 from ...properties.outputs import ImageOutput
-from ...properties import expression
+
 
 @NodeFactory.register("predikit:image:crop_edges")
 class CropEdges(NodeBase):
@@ -42,14 +43,14 @@ class CropEdges(NodeBase):
         self.sub = "dimensions"
 
     def run(
-            self,
-            image: np.ndarray,
-            top_margin: int,
-            bottom_margin: int,
-            left_margin: int,
-            right_margin: int
-            ) -> np.ndarray: 
+        self,
+        image: np.ndarray,
+        top_margin: int,
+        bottom_margin: int,
+        left_margin: int,
+        right_margin: int,
+    ) -> np.ndarray:
         # Crop the image
         cropped_image = image[top_margin:-bottom_margin, left_margin:-right_margin]
 
-        return cropped_image,
+        return (cropped_image,)

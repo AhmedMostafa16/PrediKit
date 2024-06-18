@@ -1,19 +1,25 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
+
+###############################################
+from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
-from ...properties import expression
+
 ###############################################
+
+
+###############################################
+
 
 @NodeFactory.register("predikit:image:color_transfer")
 class ColorTransfer(NodeBase):
@@ -24,13 +30,12 @@ class ColorTransfer(NodeBase):
             ImageInput(label="Input Image"),
             ImageInput(label="Reference Image"),
         ]
-        self.outputs = [
-            ImageOutput(size_as="Input0")
-        ]
+        self.outputs = [ImageOutput(size_as="Input0")]
         self.category = ImageFilterCategory
         self.name = "Color Transfer"
         self.icon = "ImColorTransfer"
         self.sub = "Filters"
+
 
 @NodeFactory.register("predikit:image:normal_addition")
 class NormalAddition(NodeBase):
@@ -41,23 +46,28 @@ class NormalAddition(NodeBase):
             ImageInput(label="Input Normal Map 1"),
             ImageInput(label="Input Normal Map 2"),
         ]
-        self.outputs = [
-            ImageOutput(size_as="Input0")
-        ]
+        self.outputs = [ImageOutput(size_as="Input0")]
         self.category = ImageFilterCategory
         self.name = "Normal Addition"
         self.icon = "ImNormalAddition"
         self.sub = "Filters"
 
     def run(
-            self,
-            input_normal_map: np.ndarray,
-    ) -> np.ndarray: 
+        self,
+        input_normal_map: np.ndarray,
+    ) -> np.ndarray:
         ###copy past ###
         # Extract the R and G channels from the input normal map
         normal_map = input_normal_map[:, :, :2]
 
         # Normalize the normal map
-        normalized_normal_map = cv2.normalize(normal_map, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        normalized_normal_map = cv2.normalize(
+            normal_map,
+            None,
+            alpha=0,
+            beta=1,
+            norm_type=cv2.NORM_MINMAX,
+            dtype=cv2.CV_32F,
+        )
 
         return normalized_normal_map

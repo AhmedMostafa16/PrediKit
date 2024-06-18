@@ -1,20 +1,25 @@
 from __future__ import annotations
-################################################
 
 from PIL import Image
 import numpy as np
-###############################################
 
-from ...node_factory import NodeFactory
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
 
+################################################
+
+
 ###############################################
+
+
+###############################################
+
 
 @NodeFactory.register("predikit:image:resize_resolution")
 class ResizeResolution(NodeBase):
@@ -23,11 +28,13 @@ class ResizeResolution(NodeBase):
         self.description = "Resize an image to an exact resolution."
         self.inputs = [
             ImageInput(),
-            NumberInput(label="Width"),  
-            NumberInput(label="Height"),  
+            NumberInput(label="Width"),
+            NumberInput(label="Height"),
         ]
         self.outputs = [
-            ImageOutput(channels_as="Input0")#width_as = "input1" , height_as = "input2"
+            ImageOutput(
+                channels_as="Input0"
+            )  # width_as = "input1" , height_as = "input2"
         ]
         self.category = ImageDimensionCategory
         self.name = "Resize Resolution"
@@ -35,11 +42,11 @@ class ResizeResolution(NodeBase):
         self.sub = "dimensions"
 
     def run(
-            self,
-            image: np.ndarray,
-            width: int,
-            height: int,
-    ) -> np.ndarray: 
+        self,
+        image: np.ndarray,
+        width: int,
+        height: int,
+    ) -> np.ndarray:
         pil_image = Image.fromarray(image)
         new_size = (width, height)
         if width < pil_image.width or height < pil_image.height:

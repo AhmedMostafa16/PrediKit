@@ -1,22 +1,28 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
+
+###############################################
+from ...node_factory import NodeFactory
 from ...properties import expression
 from ...properties.inputs import (
-    ImageInput,
-    SliderInput,
     AdaptiveMethodInput,
     AdaptiveThresholdInput,
-    NumberInput
-    )
+    ImageInput,
+    NumberInput,
+    SliderInput,
+)
 from ...properties.outputs import ImageOutput
+
 ###############################################
+
+
+###############################################
+
 
 @NodeFactory.register("predikit:image:adaptive_threshold")
 class AdaptiveThreshold(NodeBase):
@@ -38,9 +44,7 @@ class AdaptiveThreshold(NodeBase):
             NumberInput("Block Radius", default=1, minimum=1),
             NumberInput("Mean Subtraction"),
         ]
-        self.outputs = [
-            ImageOutput(image_type="Input0")
-            ]
+        self.outputs = [ImageOutput(image_type="Input0")]
         self.name = "Adaptive Threshold"
         self.icon = "ImAdaptiveThreshold"
         self.sub = "Adjustments"
@@ -55,5 +59,12 @@ class AdaptiveThreshold(NodeBase):
         mean_subtraction: int,
     ) -> np.ndarray:
         block_size = 2 * block_radius + 1
-        thresholded_image = cv2.adaptiveThreshold(img, max_value, adaptive_method, adaptive_threshold, block_size, mean_subtraction)
+        thresholded_image = cv2.adaptiveThreshold(
+            img,
+            max_value,
+            adaptive_method,
+            adaptive_threshold,
+            block_size,
+            mean_subtraction,
+        )
         return thresholded_image

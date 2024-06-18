@@ -1,19 +1,25 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
+
+###############################################
+from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
-from ...properties import expression
+
 ###############################################
+
+
+###############################################
+
 
 @NodeFactory.register("predikit:image:color_transfer")
 class ColorTransfer(NodeBase):
@@ -24,28 +30,30 @@ class ColorTransfer(NodeBase):
             ImageInput(label="Input Image"),
             ImageInput(label="Reference Image"),
         ]
-        self.outputs = [
-            ImageOutput(size_as="Input0")
-        ]
+        self.outputs = [ImageOutput(size_as="Input0")]
         self.category = ImageFilterCategory
         self.name = "Color Transfer"
         self.icon = "ImColorTransfer"
         self.sub = "Filters"
 
     def run(
-            self,
-            input_image: np.ndarray,
-            reference_image: np.ndarray,
-    ) -> np.ndarray: 
+        self,
+        input_image: np.ndarray,
+        reference_image: np.ndarray,
+    ) -> np.ndarray:
         ###copy past ###
-        
+
         # Convert the images from the RGB to L*a*b* color space
         input_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2LAB)
         reference_image = cv2.cvtColor(reference_image, cv2.COLOR_BGR2LAB)
 
         # Compute color statistics for the input and reference images
-        (lMeanSrc, lStdSrc, aMeanSrc, aStdSrc, bMeanSrc, bStdSrc) = self.image_stats(input_image)
-        (lMeanRef, lStdRef, aMeanRef, aStdRef, bMeanRef, bStdRef) = self.image_stats(reference_image)
+        (lMeanSrc, lStdSrc, aMeanSrc, aStdSrc, bMeanSrc, bStdSrc) = self.image_stats(
+            input_image
+        )
+        (lMeanRef, lStdRef, aMeanRef, aStdRef, bMeanRef, bStdRef) = self.image_stats(
+            reference_image
+        )
 
         # Subtract the means from the input image
         (l, a, b) = cv2.split(input_image)
