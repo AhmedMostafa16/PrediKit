@@ -1,5 +1,4 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
@@ -10,7 +9,7 @@ from ...node_base import NodeBase
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
 from ...properties import expression
 ###############################################

@@ -1,5 +1,4 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
@@ -35,10 +34,10 @@ class AverageColorFix(NodeBase):
         self.sub = "Filters"
 
     def run(
-            self,
-            input_image: np.ndarray,
-            reference_image: np.ndarray,
-            ) -> np.ndarray:
+        self,
+        input_image: np.ndarray,
+        reference_image: np.ndarray,
+    ) -> np.ndarray:
         input_avg_color = cv2.mean(input_image)[:3]
         reference_avg_color = cv2.mean(reference_image)[:3]
         color_difference = np.subtract(reference_avg_color, input_avg_color)

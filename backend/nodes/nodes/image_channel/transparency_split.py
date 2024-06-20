@@ -1,17 +1,15 @@
 from __future__ import annotations
-###############################################
 
 from typing import Tuple
+
 import cv2
 import numpy as np
-###############################################
 
-from ...node_factory import NodeFactory
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
-from ...properties.inputs import (
-    ImageInput
-    )
+from ...node_factory import NodeFactory
+from ...properties import expression
+from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
 from ...properties import expression
 ###############################################
@@ -41,9 +39,9 @@ class TransparencySplit(NodeBase):
         self.sub = "Channels"
 
     def run(
-            self,
-            rgba_image: np.ndarray,
-            ) -> Tuple[np.ndarray, np.ndarray]: 
+        self,
+        rgba_image: np.ndarray,
+    ) -> Tuple[np.ndarray, np.ndarray]:
         red_channel, green_channel, blue_channel, alpha_channel = cv2.split(rgba_image)
         rgb_image = cv2.merge([red_channel, green_channel, blue_channel])
         return rgb_image, alpha_channel

@@ -1,19 +1,25 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
+
+###############################################
+from ...node_factory import NodeFactory
 from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
-    SliderInput
-    )
+    SliderInput,
+)
 from ...properties.outputs import ImageOutput
+
 ###############################################
+
+
+###############################################
+
 
 @NodeFactory.register("predikit:image:threshold")
 class Threshold(NodeBase):
@@ -30,14 +36,10 @@ class Threshold(NodeBase):
                 maximum=100,
                 default=0,
                 precision=1,
-                controls_step= 1,
-            )
+                controls_step=1,
+            ),
         ]
-        self.outputs = [
-            ImageOutput(
-                image_type=expression.Image(size_as="Input0")
-            )
-        ]
+        self.outputs = [ImageOutput(image_type=expression.Image(size_as="Input0"))]
 
     def run(
         self,

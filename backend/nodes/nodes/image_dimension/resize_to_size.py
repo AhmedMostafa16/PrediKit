@@ -1,17 +1,15 @@
 from __future__ import annotations
-################################################
 
 from PIL import Image
 import numpy as np
-###############################################
 
-from ...node_factory import NodeFactory
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
 from ...properties import expression
 ###############################################
@@ -20,7 +18,9 @@ from ...properties import expression
 class ResizeToSize(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Resize an image to a given side length while keeping aspect ratio."
+        self.description = (
+            "Resize an image to a given side length while keeping aspect ratio."
+        )
         self.inputs = [
             ImageInput(),
             NumberInput(label="Side Length"),  
@@ -28,16 +28,17 @@ class ResizeToSize(NodeBase):
         self.outputs = [
             ImageOutput(image_type=expression.Image(channels_as="Input0"))
         ]
+        self.outputs = [ImageOutput(channels_as="Input0")]
         self.category = ImageDimensionCategory
         self.name = "Resize To Size"
         self.icon = "ImResizeToSize"
         self.sub = "dimensions"
 
     def run(
-            self,
-            image: np.ndarray,
-            side_length: int,
-    ) -> np.ndarray: 
+        self,
+        image: np.ndarray,
+        side_length: int,
+    ) -> np.ndarray:
         pil_image = Image.fromarray(image)
         aspect_ratio = pil_image.width / pil_image.height
         if pil_image.width > pil_image.height:

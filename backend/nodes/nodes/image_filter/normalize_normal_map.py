@@ -1,5 +1,4 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
@@ -10,7 +9,7 @@ from ...node_base import NodeBase
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
 from ...properties import expression
 ###############################################
@@ -24,13 +23,12 @@ class ColorTransfer(NodeBase):
             ImageInput(label="Input Image"),
             ImageInput(label="Reference Image"),
         ]
-        self.outputs = [
-            ImageOutput(size_as="Input0")
-        ]
+        self.outputs = [ImageOutput(size_as="Input0")]
         self.category = ImageFilterCategory
         self.name = "Color Transfer"
         self.icon = "ImColorTransfer"
         self.sub = "Filters"
+
 
 @NodeFactory.register("predikit:image:normal_addition")
 class NormalAddition(NodeBase):
@@ -41,9 +39,7 @@ class NormalAddition(NodeBase):
             ImageInput(label="Input Normal Map 1"),
             ImageInput(label="Input Normal Map 2"),
         ]
-        self.outputs = [
-            ImageOutput(size_as="Input0")
-        ]
+        self.outputs = [ImageOutput(size_as="Input0")]
         self.category = ImageFilterCategory
         self.name = "Normal Addition"
         self.icon = "ImNormalAddition"

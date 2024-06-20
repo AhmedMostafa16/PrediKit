@@ -1,18 +1,22 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
-from ...properties.inputs import (
-    ImageInput
-    )
-from ...properties.outputs import ImageOutput
-from ...properties import expression
+
 ###############################################
+from ...node_factory import NodeFactory
+from ...properties import expression
+from ...properties.inputs import ImageInput
+from ...properties.outputs import ImageOutput
+
+###############################################
+
+
+###############################################
+
 
 @NodeFactory.register("predikit:image:transparency_merge")
 class TransparencyMerge(NodeBase):
@@ -27,11 +31,7 @@ class TransparencyMerge(NodeBase):
                 image_type=expression.Image(channels=1)
             ).make_optional(),
         ]
-        self.outputs = [
-            ImageOutput(
-                image_type=expression.Image(channels=4)
-            )
-        ]
+        self.outputs = [ImageOutput(image_type=expression.Image(channels=4))]
         self.category = ImageChannelCategory
         self.name = "Transparency Merge"
         self.icon = "ImTransparencyMerge"

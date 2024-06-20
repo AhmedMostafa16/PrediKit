@@ -1,13 +1,11 @@
 from __future__ import annotations
-################################################
 
 from PIL import Image
 import numpy as np
-###############################################
 
-from ...node_factory import NodeFactory
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
@@ -38,6 +36,7 @@ class TileFill(NodeBase):
                     )
                 )
         ]
+        self.outputs = [ImageOutput(channels_as="Input0")]
         self.category = ImageDimensionCategory
         self.name = "Tile Fill"
         self.icon = "ImTileFill"

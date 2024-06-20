@@ -1,21 +1,21 @@
 from __future__ import annotations
-###############################################
 
 import cv2
 import numpy as np
-###############################################
-from ...node_factory import NodeFactory
+
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
 from ...properties import expression
 from ...utils.image_utils import normalize_normals
 from ...utils.utils import get_h_w_c
-###############################################
+
 @NodeFactory.register("predikit:image:normal_addition")
 class NormalAddition(NodeBase):
     def __init__(self):
