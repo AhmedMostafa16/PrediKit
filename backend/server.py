@@ -9,6 +9,7 @@ import multiprocessing
 import os
 import sys
 import traceback
+from passlib.hash import argon2  # type: ignore
 from typing import (
     Any,
     Dict,
@@ -16,6 +17,7 @@ from typing import (
     TypedDict,
 )
 
+import jwt
 from asyncio_locked_dict import AsyncioLockedDict
 from base_types import (
     NodeId,
@@ -51,7 +53,7 @@ from response import (
     noExecutorResponse,
     successResponse,
 )
-from sanic import Sanic
+from sanic import Blueprint, Sanic
 from sanic.log import (
     access_logger,
     logger,
@@ -150,9 +152,13 @@ class AppContext:
         return app_instance.ctx
 
 
+login = Blueprint("login", url_prefix="/users/login")
+
 app = Sanic("PrediKit", ctx=AppContext())
 app.config.REQUEST_TIMEOUT = sys.maxsize
 app.config.RESPONSE_TIMEOUT = sys.maxsize
+app.config.SECRET = "Drmhze6EPcv0fN_81Bj-nA"
+app.blueprint(login)
 # CORS(app)
 
 # Set up MongoDB
@@ -163,6 +169,36 @@ client = AsyncIOMotorClient(mongodb_url)
 # Set up the database
 db = client.predikit
 workflows_collection = db.workflows
+users_collection = db.users
+
+
+def check_token(request) -> bool:
+    if not request.token:
+        return False
+
+    try:
+        jwt.decode(request.token, request.app.config.SECRET, algorithms=["HS256"])
+    except jwt.exceptions.InvalidTokenError:
+        return False
+    else:
+        return True
+
+
+def protected(wrapped):
+    def decorator(f):
+        @functools.wraps(f)
+        async def decorated_function(request, *args, **kwargs):
+            is_authenticated = check_token(request)
+
+            if is_authenticated:
+                response = await f(request, *args, **kwargs)
+                return response
+            else:
+                return json({"success": True, "message": "You are unauthorized."}, 401)
+
+        return decorated_function
+
+    return decorator(wrapped)
 
 
 class SSEFilter(logging.Filter):
@@ -252,9 +288,6 @@ async def nodes(_):
 
 class RunRequest(TypedDict):
     data: List[JsonNode]
-    isCpu: bool
-    isFp16: bool
-    pytorchGPU: int
 
 
 @app.route("/workflows/<workflow_id:str>/run", methods=["POST"])
@@ -486,9 +519,20 @@ async def ping(_):
 
 
 @app.route("/workflows", methods=["GET"])
-async def get_all_workflows(_):
+async def get_all_workflows(request: Request):
     try:
-        workflows = await workflows_collection.find().to_list(None)
+        user_id = request.args.get("userId")
+        print("User ID: ", user_id)
+        if not user_id:
+            return json(errorResponse("User ID is not provided!", ""), status=400)
+        user = await users_collection.find_one({"_id": ObjectId(user_id)})
+        if not user:
+            return json(errorResponse("User not found!", ""), status=404)
+
+        workflows = await workflows_collection.find(
+            {"_id": {"$in": [ObjectId(x) for x in user["workflows"]]}}
+        ).to_list(length=None)
+
         for workflow in workflows:
             workflow["id"] = str(workflow["_id"])
             del workflow["_id"]
@@ -501,7 +545,21 @@ async def get_all_workflows(_):
 async def create_workflow(request: Request):
     try:
         workflow = request.json
+        user_id = workflow.get("userId")
+        if not user_id:
+            return json(errorResponse("User ID is not provided!", ""), status=400)
+        del workflow["userId"]
         result = await workflows_collection.insert_one(workflow)
+        if result.inserted_id:
+            user_result = await users_collection.update_one(
+                {"_id": user_id},
+                {"$push": {"workflows": str(result.inserted_id)}},
+            )
+            if user_result.modified_count == 0:
+                return json(
+                    errorResponse("Workflow not added to user!", ""),
+                    status=500,
+                )
         return json(successResponse(str(result.inserted_id)), status=201)
     except Exception as e:
         return json(errorResponse("Error creating workflow!", e), status=500)
@@ -539,9 +597,28 @@ async def update_workflow(request: Request, workflow_id: str):
 @app.route("/workflows/<workflow_id:str>", methods=["DELETE"])
 async def delete_workflow(request: Request, workflow_id: str):
     try:
+        # Delete the workflow from the workflows collection
         result = await workflows_collection.delete_one({"_id": ObjectId(workflow_id)})
+
+        # Delete the workflow from the owner's workflows list
+        user_id = request.json.get("userId")
+        if not user_id:
+            return json(errorResponse("User ID is not provided!", ""), status=400)
+
+        user_result = await users_collection.update_one(
+            {"_id": user_id},
+            {"$pull": {"workflows": workflow_id}},
+        )
+
+        if user_result.modified_count == 0:
+            return json(
+                errorResponse("Workflow not removed from user!", ""),
+                status=500,
+            )
+
         if result.deleted_count == 0:
             return json(errorResponse("Workflow not found!", ""), status=404)
+
         return json(successResponse(""), status=200)
     except Exception as e:
         return json(errorResponse("Error deleting workflow!", e), status=500)
@@ -595,6 +672,117 @@ async def preview_node(request: Request, workflow_id: str):
     except Exception as exception:
         logger.error(exception, exc_info=True)
         return json({"success": False, "error": str(exception)})
+
+
+@app.route("/users", methods=["GET"])
+async def get_all_users(_):
+    try:
+        users = await users_collection.find().to_list(None)
+        for user in users:
+            user["id"] = str(user["_id"])
+            del user["_id"]
+        return json(users, status=200)
+    except Exception as e:
+        return json(errorResponse("Error fetching users!", e), status=500)
+
+
+@app.route("/users/register", methods=["POST"])
+async def register(request: Request):
+    # Get the request data
+    fullname = request.json.get("fullname")
+    email = request.json.get("email")
+    password = request.json.get("password")
+
+    # Validate the input data
+    if not fullname or not email or not password:
+        return json({"success": False, "error": "Invalid input"}, status=400)
+
+    # Check if the username or email is already taken
+    if await users_collection.find_one({"email": email}):
+        return json({"success": False, "error": "Email already taken"}, status=400)
+
+    # Hash the password
+    hashed_password = argon2.hash(password)
+
+    # Create a new user
+    user: dict = {
+        "fullname": fullname,
+        "email": email,
+        "password": hashed_password,
+        "workflows": [],
+    }
+
+    # Insert the user into the database
+    await users_collection.insert_one(user)
+
+    # Return a success response
+    return json(
+        {
+            "success": True,
+            "data": {
+                "token": jwt.encode(
+                    {"email": user["email"]},
+                    app.config.SECRET,
+                    algorithm="HS256",
+                ),
+                "user": {
+                    "id": str(user["_id"]),
+                    "email": user["email"],
+                    "fullname": user["fullname"],
+                },
+            },
+        },
+        status=201,
+    )
+
+
+@login.post("/")
+async def do_login(request: Request):
+    try:
+        data = request.json
+        user = await users_collection.find_one({"email": data["email"]})
+        # Verify the password hash with the input password
+        if user and argon2.verify(data["password"], user["password"]):
+            token: str = jwt.encode(
+                {"email": user["email"]},
+                app.config.SECRET,
+                algorithm="HS256",
+            )
+            return json(
+                {
+                    "success": True,
+                    "data": {
+                        "token": token,
+                        "user": {
+                            "id": str(user["_id"]),
+                            "email": user["email"],
+                            "fullname": user["fullname"],
+                        },
+                    },
+                }
+            )
+
+        return json(
+            {
+                "success": False,
+                "error": "Invalid email or password.",
+            }
+        )
+    except Exception as e:
+        return json(errorResponse("Error logging in!", e), status=500)
+
+
+@app.route("/users/<user_id:str>", methods=["GET"])
+async def get_user(request: Request, user_id: str):
+    try:
+        user = await users_collection.find_one({"_id": ObjectId(user_id)})
+        if user:
+            user["id"] = str(user["_id"])
+            del user["_id"]
+            return json(user, status=200)
+        return json(errorResponse("User not found!", ""), status=404)
+    except Exception as e:
+        return json(errorResponse("Error fetching user!", e), status=500)
 
 
 # Main entry point for the application

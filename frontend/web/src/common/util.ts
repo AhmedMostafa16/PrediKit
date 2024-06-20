@@ -42,11 +42,9 @@ export const stringifySourceHandle: (nodeId: string, inOutId: OutputId) => strin
 export const stringifyTargetHandle: (nodeId: string, inOutId: InputId) => string = stringifyHandle;
 
 export const getLocalStorage = (): Storage => {
-    const storage = (global as Record<string, unknown>).customLocalStorage;
-    if (storage === undefined)
-        // create a new storage if it doesn't exist
-        throw new Error("Local storage not initialized");
-    return storage as Storage;
+    const storage = window.localStorage;
+    if (!storage) throw new Error("Local storage not available");
+    return storage;
 };
 
 export const getStorageKeys = (storage: Storage): string[] => {

@@ -86,11 +86,11 @@ class AsyncioLockedDict(dict):
     def __getstate__(self):
         """Enable Pickling inside context blocks,
         through inclusion of the slot entries without the lock."""
-        return dict(
-            (slot, getattr(self, slot))
+        return {
+            slot: getattr(self, slot)
             for slot in self.__slots__
             if hasattr(self, slot) and slot != "_lock"
-        )
+        }
 
     def __setstate__(self, state):
         """Restore the instance from pickle including the slot entries,

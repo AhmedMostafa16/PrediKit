@@ -97,7 +97,7 @@ interface GlobalVolatile {
     outputDataMap: ReadonlyMap<string, OutputDataEntry>;
     useConnectingFrom: readonly [
         OnConnectStartParams | null,
-        SetState<OnConnectStartParams | null>,
+        SetState<OnConnectStartParams | null>
     ];
 }
 interface Global {

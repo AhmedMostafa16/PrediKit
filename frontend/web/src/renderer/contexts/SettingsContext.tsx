@@ -12,7 +12,7 @@ interface Settings {
         snapToGrid: boolean,
         setSnapToGrid: React.Dispatch<React.SetStateAction<boolean>>,
         snapToGridAmount: number,
-        setSnapToGridAmount: React.Dispatch<React.SetStateAction<number>>,
+        setSnapToGridAmount: React.Dispatch<React.SetStateAction<number>>
     ];
     useIsDarkMode: readonly [boolean, React.Dispatch<React.SetStateAction<boolean>>];
     useAnimateChain: readonly [boolean, React.Dispatch<React.SetStateAction<boolean>>];
@@ -20,7 +20,7 @@ interface Settings {
     // Node Settings
     useNodeFavorites: readonly [
         readonly SchemaId[],
-        React.Dispatch<React.SetStateAction<readonly SchemaId[]>>,
+        React.Dispatch<React.SetStateAction<readonly SchemaId[]>>
     ];
     useNodeSelectorCollapsed: readonly [boolean, React.Dispatch<React.SetStateAction<boolean>>];
 }

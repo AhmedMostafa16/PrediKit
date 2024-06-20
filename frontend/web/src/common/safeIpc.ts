@@ -32,7 +32,7 @@ export interface InvokeChannels {
         [
             filters: Electron.FileFilter[],
             allowMultiple: boolean | undefined,
-            dirPath: string | undefined,
+            dirPath: string | undefined
         ]
     >;
 

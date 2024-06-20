@@ -28,6 +28,7 @@ import { PortalHeader } from "../components/PortalHeader";
 import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
+import { UserContext } from "../contexts/UserContext";
 
 export const Portal = memo(() => {
     const { setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } = useContext(GlobalContext);
@@ -36,12 +37,15 @@ export const Portal = memo(() => {
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const navigate = useNavigate();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { getUserInfo } = useContext(UserContext);
 
     const cancelRef = useRef<HTMLDivElement | HTMLButtonElement | null>(null);
 
+    const userId = getUserInfo().user.id;
+
     const fetchWorkflows = async () => {
         try {
-            const result = await backend.getAllWorkflows();
+            const result = await backend.getAllWorkflows(userId);
             setWorkflows(result); // Update workflows state
             log.info("Workflows: ", result); // Log the updated result
         } catch (error) {
@@ -127,7 +131,7 @@ export const Portal = memo(() => {
                                         onClick={() => {
                                             try {
                                                 backend
-                                                    .deleteWorkflow(workflow.id)
+                                                    .deleteWorkflow(workflow.id, userId)
                                                     .then(() => {
                                                         sendToast({
                                                             description:
@@ -168,8 +172,6 @@ export const Portal = memo(() => {
             </Tr>
         );
     });
-
-    // console.log("Workflows: ", elements);
 
     const columns = useMemo(() => {
         return (

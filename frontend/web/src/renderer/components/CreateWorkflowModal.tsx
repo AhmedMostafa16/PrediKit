@@ -23,6 +23,7 @@ import { currentMigration } from "../../common/migrations";
 import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
+import { UserContext } from "../contexts/UserContext";
 
 interface CreateWorkflowModalProps {
     isOpen: boolean;
@@ -37,6 +38,7 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
     const { backend } = useContext(BackendContext);
     const { loadWorkflow, setCurrentWorkflowId } = useContext(GlobalContext);
     const { sendAlert } = useContext(AlertBoxContext);
+    const { getUserInfo } = useContext(UserContext);
 
     const navigate = useNavigate();
 
@@ -76,34 +78,33 @@ export const CreateWorkflowModal = memo(({ isOpen, onClose }: CreateWorkflowModa
                     <HStack>
                         <Button
                             onClick={async () => {
-                                console.log("Backend", backend.port);
                                 if (backend) {
-                                    const response = await backend.createWorkflow({
-                                        title: input,
-                                        nodes: [],
-                                        edges: [],
-                                        viewport: { x: 0, y: 0, zoom: 1 },
-                                        migration: currentMigration,
-                                        version: (await ipcRenderer.invoke(
-                                            "get-app-version"
-                                        )) as string,
-                                        createdAt: new Date().getTime(),
-                                        updatedAt: new Date().getTime(),
-                                    });
-
-                                    console.log("Response: ", response);
+                                    const userId = getUserInfo().user.id;
+                                    const response = await backend.createWorkflow(
+                                        {
+                                            title: input,
+                                            nodes: [],
+                                            edges: [],
+                                            viewport: { x: 0, y: 0, zoom: 1 },
+                                            migration: currentMigration,
+                                            version: (await ipcRenderer.invoke(
+                                                "get-app-version"
+                                            )) as string,
+                                            createdAt: new Date().getTime(),
+                                            updatedAt: new Date().getTime(),
+                                        },
+                                        userId
+                                    );
 
                                     if (response.type === "success") {
                                         const workflowId: string = response.message;
-                                        console.log("Workflow created", workflowId);
 
-                                        // Sleep for 1 second to allow the backend to update the workflow
-                                        await new Promise((resolve) => setTimeout(resolve, 1000));
+                                        // Sleep for 1.5 second to allow the backend to update the workflow
+                                        await new Promise((resolve) => setTimeout(resolve, 1500));
 
                                         // eslint-disable-next-line @typescript-eslint/no-floating-promises
                                         loadWorkflow(workflowId).then(() => {
                                             onClose();
-
                                             setCurrentWorkflowId(workflowId);
                                             navigate(`/workflows/${workflowId}`);
                                         });

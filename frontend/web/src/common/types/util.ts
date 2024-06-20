@@ -152,7 +152,7 @@ export const isDataset = (
         { readonly name: "data"; readonly type: AnyType },
         { readonly name: "index"; readonly type: AnyType },
         { readonly name: "shape"; readonly type: IntNumberType },
-        { readonly name: "dtypes"; readonly type: AnyType },
+        { readonly name: "dtypes"; readonly type: AnyType }
     ];
 } => {
     return type.type === "struct" && type.name === "Dataset" && type.fields.length === 5;
@@ -165,7 +165,7 @@ export const isImage = (
     readonly fields: readonly [
         { readonly name: "width"; readonly type: IntNumberType },
         { readonly name: "height"; readonly type: IntNumberType },
-        { readonly name: "channels"; readonly type: IntNumberType },
+        { readonly name: "channels"; readonly type: IntNumberType }
     ];
 } => {
     return type.type === "struct" && type.name === "Image" && type.fields.length === 3;
