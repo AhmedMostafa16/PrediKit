@@ -12,7 +12,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-###############################################
 
 @NodeFactory.register("predikit:image:resize_resolution")
 class ResizeResolution(NodeBase):

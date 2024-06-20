@@ -5,8 +5,6 @@ import numpy as np
 
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
-
-###############################################
 from ...node_factory import NodeFactory
 from ...properties import expression
 from ...properties.inputs import (
@@ -14,12 +12,6 @@ from ...properties.inputs import (
     SliderInput,
 )
 from ...properties.outputs import ImageOutput
-
-###############################################
-
-
-###############################################
-
 
 @NodeFactory.register("predikit:image:threshold")
 class Threshold(NodeBase):
@@ -39,7 +31,9 @@ class Threshold(NodeBase):
                 controls_step=1,
             ),
         ]
-        self.outputs = [ImageOutput(image_type=expression.Image(size_as="Input0"))]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
 
     def run(
         self,

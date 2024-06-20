@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-from typing import Tuple
-
-import cv2
 import numpy as np
 
 from . import category as ImageDimensionCategory
@@ -14,7 +11,6 @@ from ...properties.inputs import (
     NumberInput,
 )
 from ...properties.outputs import ImageOutput
-
 
 @NodeFactory.register("predikit:image:crop_border")
 class CropBorder(NodeBase):
@@ -39,6 +35,10 @@ class CropBorder(NodeBase):
         self.icon = "MdCrop"
         self.sub = "dimensions"
 
-    def run(self, image: np.ndarray, border_width: int) -> np.ndarray:
+    def run(
+            self, 
+            image: np.ndarray, 
+            border_width: int
+            ) -> np.ndarray:
         cropped_image = image[border_width:-border_width, border_width:-border_width]
         return (cropped_image,)

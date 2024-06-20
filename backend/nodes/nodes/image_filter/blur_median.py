@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-###############################################
+
 from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
@@ -12,7 +12,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-###############################################
 
 @NodeFactory.register("predikit:image:blur_median")
 class BlurMedian(NodeBase):

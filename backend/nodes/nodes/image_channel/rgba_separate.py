@@ -12,14 +12,6 @@ from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
 
-###############################################
-
-
-###############################################
-
-
-###############################################
-
 
 @NodeFactory.register("predikit:image:rgba_separate")
 class RGBASeparate(NodeBase):

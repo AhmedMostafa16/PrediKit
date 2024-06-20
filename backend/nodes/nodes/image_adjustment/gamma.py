@@ -13,13 +13,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
-###############################################
-
-
-###############################################
-
-
-###############################################
 @NodeFactory.register("predikit:image:gamma")
 class Gamma(NodeBase):
     def __init__(self):
@@ -36,7 +29,9 @@ class Gamma(NodeBase):
                 controls_step=1,
             ),
         ]
-        self.outputs = [ImageOutput(image_type=expression.Image(size_as="Input0"))]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
         self.category = ImageAdjustmentCategory
         self.name = "Gamma"
         self.icon = "ImGamma"

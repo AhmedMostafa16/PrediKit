@@ -12,7 +12,7 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-###############################################
+
 
 @NodeFactory.register("predikit:image:resize_to_size")
 class ResizeToSize(NodeBase):

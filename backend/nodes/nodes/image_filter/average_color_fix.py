@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-###############################################
+
 from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
@@ -12,7 +12,7 @@ from ...properties.inputs import (
     )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-###############################################
+
 @NodeFactory.register("predikit:image:average_color_fix")
 class AverageColorFix(NodeBase):
     def __init__(self):
@@ -22,8 +22,6 @@ class AverageColorFix(NodeBase):
         self.inputs = [
             ImageInput(label="Input Image"),
             ImageInput(label="Reference Image"),
-
-
         ]
         self.outputs = [
             ImageOutput(image_type=expression.Image(size_as="Input0"))

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-###############################################
+
 from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
@@ -12,22 +12,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-###############################################
-
-@NodeFactory.register("predikit:image:color_transfer")
-class ColorTransfer(NodeBase):
-    def __init__(self):
-        super().__init__()
-        self.description = "Transfers colors from the reference image. Different combinations of settings may perform better for different images. Try multiple setting combinations to find the best results."
-        self.inputs = [
-            ImageInput(label="Input Image"),
-            ImageInput(label="Reference Image"),
-        ]
-        self.outputs = [ImageOutput(size_as="Input0")]
-        self.category = ImageFilterCategory
-        self.name = "Color Transfer"
-        self.icon = "ImColorTransfer"
-        self.sub = "Filters"
 
 
 @NodeFactory.register("predikit:image:normal_addition")
@@ -39,7 +23,9 @@ class NormalAddition(NodeBase):
             ImageInput(label="Input Normal Map 1"),
             ImageInput(label="Input Normal Map 2"),
         ]
-        self.outputs = [ImageOutput(size_as="Input0")]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
         self.category = ImageFilterCategory
         self.name = "Normal Addition"
         self.icon = "ImNormalAddition"

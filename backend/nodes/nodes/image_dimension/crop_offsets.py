@@ -6,7 +6,6 @@ import numpy as np
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 
-###############################################
 from ...node_factory import NodeFactory
 from ...properties import expression
 from ...properties.inputs import (
@@ -15,10 +14,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
-###############################################
-
-
-###############################################
 @NodeFactory.register("predikit:image:crop_offsets")
 class CropOffsets(NodeBase):
     def __init__(self):

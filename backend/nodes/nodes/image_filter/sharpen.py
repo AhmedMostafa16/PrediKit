@@ -3,15 +3,15 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
+from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
-from ...node_factory import NodeFactory
-from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-)
+    )
 from ...properties.outputs import ImageOutput
+from ...properties import expression
 
 @NodeFactory.register("predikit:image:sharpen")
 class Sharpen(NodeBase):
@@ -21,7 +21,9 @@ class Sharpen(NodeBase):
         self.inputs = [
             ImageInput(label="Input Image"),
         ]
-        self.outputs = [ImageOutput(size_as="Input0")]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
         self.category = ImageFilterCategory
         self.name = "Sharpen"
         self.icon = "ImSharpen"

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from PIL import Image
 import numpy as np
 
 from . import category as ImageDimensionCategory
@@ -14,7 +13,7 @@ from ...properties.inputs import (
 from ...properties.outputs import ImageOutput
 from ...properties import expression
 from ...utils.tile_util import tile_image
-###############################################
+
 
 @NodeFactory.register("predikit:image:tile_fill")
 class TileFill(NodeBase):
@@ -42,11 +41,11 @@ class TileFill(NodeBase):
         self.icon = "ImTileFill"
         self.sub = "dimensions"
 
-def run(
-        self,
-        img: np.ndarray, 
-        width: int, 
-        height: int, 
-        tile_mode: int
-    ) -> np.ndarray:
-        return tile_image(img, width, height, tile_mode)
+    def run(
+            self,
+            img: np.ndarray, 
+            width: int, 
+            height: int, 
+            tile_mode: int
+        ) -> np.ndarray:
+            return tile_image(img, width, height, tile_mode)

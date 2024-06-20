@@ -13,13 +13,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
-###############################################
-
-
-###############################################
-
-
-###############################################
 @NodeFactory.register("predikit:image:hue_and_saturation")
 class HueAndSaturation(NodeBase):
     def __init__(self):
@@ -44,7 +37,9 @@ class HueAndSaturation(NodeBase):
                 controls_step=1,
             ),
         ]
-        self.outputs = [ImageOutput(image_type=expression.Image(size_as="Input0"))]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
         self.category = ImageAdjustmentCategory
         self.name = "Hue & Saturation"
         self.icon = "ImHueSaturation"

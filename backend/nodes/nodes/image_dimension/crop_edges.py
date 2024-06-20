@@ -13,7 +13,6 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
-
 @NodeFactory.register("predikit:image:crop_edges")
 class CropEdges(NodeBase):
     def __init__(self):
@@ -50,7 +49,6 @@ class CropEdges(NodeBase):
         left_margin: int,
         right_margin: int,
     ) -> np.ndarray:
-        # Crop the image
         cropped_image = image[top_margin:-bottom_margin, left_margin:-right_margin]
 
         return (cropped_image,)

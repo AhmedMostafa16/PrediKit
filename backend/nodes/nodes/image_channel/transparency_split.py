@@ -12,7 +12,6 @@ from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-###############################################
 
 @NodeFactory.register("predikit:image:transparency_split")
 class TransparencySplit(NodeBase):

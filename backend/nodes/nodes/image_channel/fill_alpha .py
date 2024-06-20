@@ -1,8 +1,8 @@
 from __future__ import annotations
-###############################################
+
 
 import numpy as np
-###############################################
+
 from ...node_factory import NodeFactory
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
@@ -12,8 +12,10 @@ from ...properties.inputs import (
     )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
-from ...utils.fill_alpha import convert_to_binary_alpha,fill_alpha_edge_extend
-###############################################
+from ...utils.fill_alpha import (
+    convert_to_binary_alpha,
+    fill_alpha_edge_extend,
+    )
 
 @NodeFactory.register("predikit:image:fill_alpha")
 class FillAlpha(NodeBase):
