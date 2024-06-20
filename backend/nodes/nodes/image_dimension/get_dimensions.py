@@ -28,7 +28,7 @@ class GetDimensions(NodeBase):
         ]
         self.category = ImageDimensionCategory
         self.name = "Get Dimensions"
-        self.icon = "ImGetDimensions"
+        self.icon = "RxDimensions"
         self.sub = "dimensions"
 
     def run(

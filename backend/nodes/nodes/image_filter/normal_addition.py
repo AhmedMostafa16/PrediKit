@@ -33,7 +33,7 @@ class NormalAddition(NodeBase):
         ]
         self.category = ImageFilterCategory
         self.name = "Normal Addition"
-        self.icon = "ImNormalAddition"
+        self.icon = "MdAddCircleOutline"
         self.sub = "Filters"
 
     def run(

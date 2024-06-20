@@ -9,6 +9,7 @@ from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...properties.inputs import (
     ImageInput,
+    numpy_inputs,
     )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
@@ -22,13 +23,15 @@ class AverageColorFix(NodeBase):
         self.inputs = [
             ImageInput(label="Input Image"),
             ImageInput(label="Reference Image"),
+
+
         ]
         self.outputs = [
             ImageOutput(image_type=expression.Image(size_as="Input0"))
         ]
         self.category = ImageFilterCategory
         self.name = "Average Color Fix"
-        self.icon = "ImAverageColorFix"
+        self.icon = "MdAutoFixHigh"
         self.sub = "Filters"
 
     def run(

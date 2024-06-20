@@ -30,7 +30,7 @@ class ResizeFactor(NodeBase):
         ]
         self.category = ImageDimensionCategory
         self.name = "Resize Factor"
-        self.icon = "ImResizeFactor"
+        self.icon = "PiResizeBold"
         self.sub = "dimensions"
 
     def run(

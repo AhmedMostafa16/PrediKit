@@ -11,9 +11,11 @@ from ...node_base import NodeBase
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
+    TileModeInput,
     )
 from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...utils.tile_util import tile_image
 ###############################################
 
 @NodeFactory.register("predikit:image:tile_fill")
@@ -23,8 +25,9 @@ class TileFill(NodeBase):
         self.description = "Tiles an image to an exact resolution."
         self.inputs = [
             ImageInput(),
-            NumberInput(label="Width"),  
-            NumberInput(label="Height"),  
+            NumberInput("Width", minimum=1, default=1, unit="px"),
+            NumberInput("Height", minimum=1, default=1, unit="px"),
+            TileModeInput(),  
         ]
         self.outputs = [
             ImageOutput(
@@ -40,15 +43,11 @@ class TileFill(NodeBase):
         self.icon = "ImTileFill"
         self.sub = "dimensions"
 
-    def run(
-            self,
-            image: np.ndarray,
-            width: int,
-            height: int,
-    ) -> np.ndarray: 
-        pil_image = Image.fromarray(image)
-        new_image = Image.new('RGB', (width, height))
-        for i in range(0, width, pil_image.width):
-            for j in range(0, height, pil_image.height):
-                new_image.paste(pil_image, (i, j))
-        return np.array(new_image)
+def run(
+        self,
+        img: np.ndarray, 
+        width: int, 
+        height: int, 
+        tile_mode: int
+    ) -> np.ndarray:
+        return tile_image(img, width, height, tile_mode)

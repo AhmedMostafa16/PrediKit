@@ -38,7 +38,7 @@ class CropEdges(NodeBase):
         ]
         self.category = ImageDimensionCategory
         self.name = "Crop Edges"
-        self.icon = "ImCropEdges"
+        self.icon = "MdCrop"
         self.sub = "dimensions"
 
     def run(

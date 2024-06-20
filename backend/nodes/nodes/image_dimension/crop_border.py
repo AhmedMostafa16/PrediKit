@@ -29,7 +29,7 @@ class CropBorder(NodeBase):
         ]
         self.category = ImageDimensionCategory
         self.name = "Crop Border"
-        self.icon = "ImCropBorder"
+        self.icon = "MdCrop"
         self.sub = "dimensions"
     def run(
             self,

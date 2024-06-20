@@ -31,7 +31,7 @@ class CropContent(NodeBase):
         ]
         self.category = ImageDimensionCategory
         self.name = "Crop Content"
-        self.icon = "ImCropContent"
+        self.icon = "MdCrop"
         self.sub = "dimensions"
 
     def run(

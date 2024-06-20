@@ -35,7 +35,6 @@ class Sharpen(NodeBase):
             self,
             input_image: np.ndarray,
     ) -> np.ndarray: 
-        
         kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         sharpened_image = cv2.filter2D(input_image, -1, kernel)
 

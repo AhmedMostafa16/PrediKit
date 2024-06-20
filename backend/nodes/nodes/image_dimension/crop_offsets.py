@@ -34,7 +34,7 @@ class CropOffsets(NodeBase):
         ]
         self.category = ImageDimensionCategory
         self.name = "Crop Offsets"
-        self.icon = "ImCropOffsets"
+        self.icon = "MdCrop"
         self.sub = "dimensions"
 
     def run(
