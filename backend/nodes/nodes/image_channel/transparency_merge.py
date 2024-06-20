@@ -20,8 +20,12 @@ class TransparencyMerge(NodeBase):
         super().__init__()
         self.description = """Merge RGB and Alpha (transparency) image channels into 4-channel RGBA channels."""
         self.inputs = [
-            ImageInput(channels=3),
-            ImageInput(channels=1).make_optional(),
+            ImageInput(
+                image_type=expression.Image(channels=3)
+            ),
+            ImageInput(
+                image_type=expression.Image(channels=1)
+            ).make_optional(),
         ]
         self.outputs = [
             ImageOutput(

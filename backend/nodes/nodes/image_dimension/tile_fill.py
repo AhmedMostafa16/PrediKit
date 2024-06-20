@@ -13,6 +13,7 @@ from ...properties.inputs import (
     NumberInput,
     )
 from ...properties.outputs import ImageOutput
+from ...properties import expression
 ###############################################
 
 @NodeFactory.register("predikit:image:tile_fill")
@@ -26,7 +27,13 @@ class TileFill(NodeBase):
             NumberInput(label="Height"),  
         ]
         self.outputs = [
-            ImageOutput(channels_as="Input0")
+            ImageOutput(
+                image_type=expression.Image(
+                    channels_as="Input0",
+                    width="Input1",
+                    height="Input2",
+                    )
+                )
         ]
         self.category = ImageDimensionCategory
         self.name = "Tile Fill"
@@ -39,7 +46,6 @@ class TileFill(NodeBase):
             width: int,
             height: int,
     ) -> np.ndarray: 
-        ####copypasted without understaning this code####
         pil_image = Image.fromarray(image)
         new_image = Image.new('RGB', (width, height))
         for i in range(0, width, pil_image.width):

@@ -53,11 +53,7 @@ class NormalAddition(NodeBase):
             self,
             input_normal_map: np.ndarray,
     ) -> np.ndarray: 
-        ###copy past ###
-        # Extract the R and G channels from the input normal map
+        
         normal_map = input_normal_map[:, :, :2]
-
-        # Normalize the normal map
         normalized_normal_map = cv2.normalize(normal_map, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
-
         return normalized_normal_map

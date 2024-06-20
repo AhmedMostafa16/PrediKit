@@ -22,10 +22,10 @@ class BlurBox(NodeBase):
         self.description = "Apply box/average blur to an image."
         self.inputs = [
             ImageInput(label="Input Image"),
-            NumberInput(label="Size"),
+            NumberInput(label="Kernel Size"),
         ]
         self.outputs = [
-            ImageOutput(size_as="Input0")
+            ImageOutput(image_type=expression.Image(size_as="Input0",channels_as="Input0"))
         ]
         self.category = ImageFilterCategory
         self.name = "Blur Box"
@@ -35,7 +35,7 @@ class BlurBox(NodeBase):
     def run(
             self,
             input_image: np.ndarray,
-            size: int,
+            kernel_size: int,
     ) -> np.ndarray: 
-        blurred_image = cv2.blur(input_image, (size, size))
+        blurred_image = cv2.blur(input_image, (kernel_size, kernel_size))
         return blurred_image

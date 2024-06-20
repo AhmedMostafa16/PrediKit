@@ -36,12 +36,7 @@ class Sharpen(NodeBase):
             input_image: np.ndarray,
     ) -> np.ndarray: 
         
-        ###copy past ###
-
-        # Create the kernel for the unsharp mask
         kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-
-        # Apply the unsharp mask to the input image
         sharpened_image = cv2.filter2D(input_image, -1, kernel)
 
         return sharpened_image

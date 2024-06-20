@@ -13,7 +13,7 @@ from ...properties.inputs import (
     NumberInput,
     )
 from ...properties.outputs import ImageOutput
-
+from ...properties import expression
 ###############################################
 
 @NodeFactory.register("predikit:image:resize_factor")
@@ -26,7 +26,7 @@ class ResizeFactor(NodeBase):
             NumberInput(label="Scale Factor"),  
         ]
         self.outputs = [
-            ImageOutput(channels_as="Input0")
+            ImageOutput(image_type=expression.Image(channels_as="Input0"))
         ]
         self.category = ImageDimensionCategory
         self.name = "Resize Factor"

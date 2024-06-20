@@ -25,11 +25,15 @@ class TransparencySplit(NodeBase):
         self.inputs = [
             ImageInput(
                 image_type=expression.Image(channels=4) #expected image is RGBA
-                ),
+            ),
         ]
         self.outputs = [
-            ImageOutput(label="RGB image",channels=3),
-            ImageOutput(label="Alpha Channel",channels=1),
+            ImageOutput(
+                image_type=expression.Image(channels=3)
+            ),
+            ImageOutput(
+                image_type=expression.Image(channels=1)
+            ),
         ]
         self.category = ImageChannelCategory
         self.name = "Transparency Split"

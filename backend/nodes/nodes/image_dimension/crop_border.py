@@ -24,8 +24,7 @@ class CropBorder(NodeBase):
         ]
         self.outputs = [
             ImageOutput(
-                channels_as="Input0"
-                #image_type=expression.Image() #width_as = "input0.width - input1" , height_as = "input0.height - input1"
+                image_type=expression.Image(channels_as="Input0")#width_as = "input0.width - input1" , height_as = "input0.height - input1" 
             )
         ]
         self.category = ImageDimensionCategory

@@ -131,7 +131,7 @@ def normalize(img: np.ndarray) -> np.ndarray:
     try:
         dtype_max = np.iinfo(img.dtype).max
     except Exception:
-        logger.debug("img dtype is not int")
+        logger.debug("img dtype is not int")    
     return np.clip(img.astype(np.float32) / dtype_max, 0, 1)
 
 

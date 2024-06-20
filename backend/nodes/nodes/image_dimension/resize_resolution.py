@@ -13,7 +13,7 @@ from ...properties.inputs import (
     NumberInput,
     )
 from ...properties.outputs import ImageOutput
-
+from ...properties import expression
 ###############################################
 
 @NodeFactory.register("predikit:image:resize_resolution")
@@ -27,7 +27,7 @@ class ResizeResolution(NodeBase):
             NumberInput(label="Height"),  
         ]
         self.outputs = [
-            ImageOutput(channels_as="Input0")#width_as = "input1" , height_as = "input2"
+            ImageOutput(image_type=expression.Image(channels_as="Input0"))#width_as = "input1" , height_as = "input2"
         ]
         self.category = ImageDimensionCategory
         self.name = "Resize Resolution"

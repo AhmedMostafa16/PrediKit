@@ -24,7 +24,7 @@ class AverageColorFix(NodeBase):
             ImageInput(label="Reference Image"),
         ]
         self.outputs = [
-            ImageOutput(size_as="Input0")
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
         ]
         self.category = ImageFilterCategory
         self.name = "Average Color Fix"
