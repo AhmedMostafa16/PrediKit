@@ -13,6 +13,7 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:gamma")
 class Gamma(NodeBase):
     def __init__(self):

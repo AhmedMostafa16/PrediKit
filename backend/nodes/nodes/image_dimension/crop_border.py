@@ -12,13 +12,12 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:crop_border")
 class CropBorder(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = (
-            "Crop an image based on a constant border margin around the entire image."
-        )
+        self.description = "Crop an image based on a constant border margin around the entire image."
         self.inputs = [
             ImageInput(),
             NumberInput(
@@ -27,7 +26,9 @@ class CropBorder(NodeBase):
         ]
         self.outputs = [
             ImageOutput(
-                image_type=expression.Image(channels_as="Input0")#width_as = "input0.width - input1" , height_as = "input0.height - input1" 
+                image_type=expression.Image(
+                    channels_as="Input0"
+                )  # width_as = "input0.width - input1" , height_as = "input0.height - input1"
             )
         ]
         self.category = ImageDimensionCategory
@@ -35,10 +36,8 @@ class CropBorder(NodeBase):
         self.icon = "MdCrop"
         self.sub = "dimensions"
 
-    def run(
-            self, 
-            image: np.ndarray, 
-            border_width: int
-            ) -> np.ndarray:
-        cropped_image = image[border_width:-border_width, border_width:-border_width]
+    def run(self, image: np.ndarray, border_width: int) -> np.ndarray:
+        cropped_image = image[
+            border_width:-border_width, border_width:-border_width
+        ]
         return (cropped_image,)

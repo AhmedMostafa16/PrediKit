@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from typing import Tuple
+
 import numpy as np
 
 from . import category as ImageDimensionCategory
@@ -9,6 +10,7 @@ from ...node_factory import NodeFactory
 from ...properties.inputs import ImageInput
 from ...properties.outputs import NumberOutput
 from ...utils.utils import get_h_w_c
+
 
 @NodeFactory.register("predikit:image:get_dimensions")
 class GetDimensions(NodeBase):

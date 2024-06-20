@@ -21,7 +21,9 @@ class RGBASeparate(NodeBase):
             Typically used for splitting off an alpha (transparency) layer."""
         self.inputs = [
             ImageInput(
-                image_type=expression.Image(channels=4)  # expected image is RGBA
+                image_type=expression.Image(
+                    channels=4
+                )  # expected image is RGBA
             ),
         ]
         self.outputs = [
@@ -39,5 +41,7 @@ class RGBASeparate(NodeBase):
         self,
         rgba_image: np.ndarray,
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        red_channel, green_channel, blue_channel, alpha_channel = cv2.split(rgba_image)
+        red_channel, green_channel, blue_channel, alpha_channel = cv2.split(
+            rgba_image
+        )
         return red_channel, green_channel, blue_channel, alpha_channel

@@ -13,6 +13,7 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:threshold")
 class Threshold(NodeBase):
     def __init__(self):
@@ -40,5 +41,7 @@ class Threshold(NodeBase):
         img: np.ndarray,
         threshold: int,
     ) -> np.ndarray:
-        _, thresholded_image = cv2.threshold(img, threshold, 255, cv2.THRESH_BINARY)
+        _, thresholded_image = cv2.threshold(
+            img, threshold, 255, cv2.THRESH_BINARY
+        )
         return thresholded_image

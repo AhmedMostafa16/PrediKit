@@ -3,21 +3,24 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
-    )
+)
 from ...properties.outputs import ImageOutput
-from ...properties import expression
+
 
 @NodeFactory.register("predikit:image:sharpen")
 class Sharpen(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Apply sharpening to an image using an unsharp mask."
+        self.description = (
+            "Apply sharpening to an image using an unsharp mask."
+        )
         self.inputs = [
             ImageInput(label="Input Image"),
         ]
@@ -30,9 +33,9 @@ class Sharpen(NodeBase):
         self.sub = "Filters"
 
     def run(
-            self,
-            input_image: np.ndarray,
-    ) -> np.ndarray: 
+        self,
+        input_image: np.ndarray,
+    ) -> np.ndarray:
         kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
         sharpened_image = cv2.filter2D(input_image, -1, kernel)
 

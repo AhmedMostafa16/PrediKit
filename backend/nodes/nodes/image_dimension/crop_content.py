@@ -13,15 +13,14 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:crop_content")
 class CropContent(NodeBase):
     def __init__(self):
         super().__init__()
         self.description = """Crop an image to the boundaries of the visible image content, 
             removing borders at or below the given opacity threshold."""
-        self.inputs = [
-            ImageInput(), NumberInput(label="Opacity Threshold")
-        ]
+        self.inputs = [ImageInput(), NumberInput(label="Opacity Threshold")]
         self.outputs = [
             ImageOutput(image_type=expression.Image(channels_as="Input0"))
         ]
@@ -30,19 +29,16 @@ class CropContent(NodeBase):
         self.icon = "MdCrop"
         self.sub = "dimensions"
 
-    def run(
-            self,
-            image: np.ndarray, 
-            opacity_threshold: int
-            ) -> np.ndarray:
-        
+    def run(self, image: np.ndarray, opacity_threshold: int) -> np.ndarray:
         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-        _, threshed = cv2.threshold(gray, opacity_threshold, 255, cv2.THRESH_BINARY)
+        _, threshed = cv2.threshold(
+            gray, opacity_threshold, 255, cv2.THRESH_BINARY
+        )
 
         contours, _ = cv2.findContours(
             threshed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
         )
-        
+
         x, y, w, h = cv2.boundingRect(max(contours, key=cv2.contourArea))
         cropped_image = image[y : y + h, x : x + w]
 

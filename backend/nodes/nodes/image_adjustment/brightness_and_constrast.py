@@ -13,11 +13,14 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:brightness_and_constrast")
 class BrightnessAndConstrast(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Adjust the brightness and contrast of the input image."
+        self.description = (
+            "Adjust the brightness and contrast of the input image."
+        )
         self.inputs = [
             ImageInput(),
             SliderInput(
@@ -51,5 +54,7 @@ class BrightnessAndConstrast(NodeBase):
         brightness: float,
         contrast: float,
     ) -> np.ndarray:
-        adjusted_image = cv2.convertScaleAbs(img, alpha=brightness, beta=contrast)
+        adjusted_image = cv2.convertScaleAbs(
+            img, alpha=brightness, beta=contrast
+        )
         return adjusted_image

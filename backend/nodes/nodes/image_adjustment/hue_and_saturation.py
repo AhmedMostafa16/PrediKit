@@ -13,6 +13,7 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:hue_and_saturation")
 class HueAndSaturation(NodeBase):
     def __init__(self):

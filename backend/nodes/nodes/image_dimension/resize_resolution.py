@@ -6,12 +6,13 @@ import numpy as np
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
 )
 from ...properties.outputs import ImageOutput
-from ...properties import expression
+
 
 @NodeFactory.register("predikit:image:resize_resolution")
 class ResizeResolution(NodeBase):
@@ -24,7 +25,9 @@ class ResizeResolution(NodeBase):
             NumberInput(label="Height"),
         ]
         self.outputs = [
-            ImageOutput(image_type=expression.Image(channels_as="Input0"))#width_as = "input1" , height_as = "input2"
+            ImageOutput(
+                image_type=expression.Image(channels_as="Input0")
+            )  # width_as = "input1" , height_as = "input2"
         ]
         self.category = ImageDimensionCategory
         self.name = "Resize Resolution"

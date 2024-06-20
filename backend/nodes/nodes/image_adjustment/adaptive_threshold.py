@@ -16,6 +16,7 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:adaptive_threshold")
 class AdaptiveThreshold(NodeBase):
     def __init__(self):
@@ -36,9 +37,7 @@ class AdaptiveThreshold(NodeBase):
             NumberInput("Block Radius", default=1, minimum=1),
             NumberInput("Mean Subtraction"),
         ]
-        self.outputs = [
-            ImageOutput(image_type="Input0")
-            ]
+        self.outputs = [ImageOutput(image_type="Input0")]
         self.name = "Adaptive Threshold"
         self.icon = "ImAdaptiveThreshold"
         self.sub = "Adjustments"

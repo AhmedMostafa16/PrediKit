@@ -5,7 +5,6 @@ import numpy as np
 
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
-
 from ...node_factory import NodeFactory
 from ...properties import expression
 from ...properties.inputs import (
@@ -13,6 +12,7 @@ from ...properties.inputs import (
     NumberInput,
 )
 from ...properties.outputs import ImageOutput
+
 
 @NodeFactory.register("predikit:image:crop_offsets")
 class CropOffsets(NodeBase):
@@ -27,7 +27,9 @@ class CropOffsets(NodeBase):
             NumberInput(label="Crop Height"),
             # input1+input3 < input0.width , input2+input4 < input0.height
         ]
-        self.outputs = [ImageOutput(image_type=expression.Image(channels_as="Input0"))]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(channels_as="Input0"))
+        ]
         self.category = ImageDimensionCategory
         self.name = "Crop Offsets"
         self.icon = "MdCrop"

@@ -3,15 +3,15 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
+from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
 )
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 
 
 @NodeFactory.register("predikit:image:normal_addition")
@@ -32,10 +32,16 @@ class NormalAddition(NodeBase):
         self.sub = "Filters"
 
     def run(
-            self,
-            input_normal_map: np.ndarray,
-    ) -> np.ndarray: 
-        
+        self,
+        input_normal_map: np.ndarray,
+    ) -> np.ndarray:
         normal_map = input_normal_map[:, :, :2]
-        normalized_normal_map = cv2.normalize(normal_map, None, alpha=0, beta=1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_32F)
+        normalized_normal_map = cv2.normalize(
+            normal_map,
+            None,
+            alpha=0,
+            beta=1,
+            norm_type=cv2.NORM_MINMAX,
+            dtype=cv2.CV_32F,
+        )
         return normalized_normal_map

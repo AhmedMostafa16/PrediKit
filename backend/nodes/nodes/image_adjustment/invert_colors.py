@@ -10,13 +10,16 @@ from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:invert_colors")
 class InvertColors(NodeBase):
     def __init__(self):
         super().__init__()
         self.description = "Invert all colors in the input image."
         self.inputs = [ImageInput()]
-        self.outputs = [ImageOutput(image_type=expression.Image(size_as="Input0"))]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
         self.category = ImageAdjustmentCategory
         self.name = "Invert Colors"
         self.icon = "ImInvertColors"

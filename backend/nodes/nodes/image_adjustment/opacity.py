@@ -13,6 +13,7 @@ from ...properties.inputs import (
 )
 from ...properties.outputs import ImageOutput
 
+
 @NodeFactory.register("predikit:image:opacity")
 class Opacity(NodeBase):
     def __init__(self):
@@ -29,7 +30,9 @@ class Opacity(NodeBase):
                 controls_step=1,
             ),
         ]
-        self.outputs = [ImageOutput(image_type=expression.Image(size_as="Input0"))]
+        self.outputs = [
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
+        ]
         self.category = ImageAdjustmentCategory
         self.name = "Opacity"
         self.icon = "ImOpacity"

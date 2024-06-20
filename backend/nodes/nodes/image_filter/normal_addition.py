@@ -12,9 +12,9 @@ from ...properties.inputs import (
     NumberInput,
 )
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 from ...utils.image_utils import normalize_normals
 from ...utils.utils import get_h_w_c
+
 
 @NodeFactory.register("predikit:image:normal_addition")
 class NormalAddition(NodeBase):
@@ -27,9 +27,7 @@ class NormalAddition(NodeBase):
             ),
         ]
         self.outputs = [
-            ImageOutput(
-                image_type=expression.Image(channels_as="Input0")
-            )
+            ImageOutput(image_type=expression.Image(channels_as="Input0"))
         ]
         self.category = ImageFilterCategory
         self.name = "Normal Addition"
@@ -37,17 +35,17 @@ class NormalAddition(NodeBase):
         self.sub = "Filters"
 
     def run(
-            self,
-            image: np.ndarray,
-    ) -> np.ndarray: 
+        self,
+        image: np.ndarray,
+    ) -> np.ndarray:
         _, _, c = get_h_w_c(image)
         if c == 3:
-            R , G , _ = cv2.split(image)
-            R_out , G_out ,B_out =normalize_normals(R,G)
-            normalized_image = cv2.merge([R_out,G_out,B_out])
+            R, G, _ = cv2.split(image)
+            R_out, G_out, B_out = normalize_normals(R, G)
+            normalized_image = cv2.merge([R_out, G_out, B_out])
         elif c == 4:
-            R , G , _ , A = cv2.split(image)
-            R_out , G_out ,B_out =normalize_normals(R,G)
-            normalized_image = cv2.merge([R_out,G_out,B_out,A])
+            R, G, _, A = cv2.split(image)
+            R_out, G_out, B_out = normalize_normals(R, G)
+            normalized_image = cv2.merge([R_out, G_out, B_out, A])
 
         return normalized_image

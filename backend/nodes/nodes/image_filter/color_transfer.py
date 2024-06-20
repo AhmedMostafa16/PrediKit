@@ -3,16 +3,17 @@ from __future__ import annotations
 import cv2
 import numpy as np
 
-from ...node_factory import NodeFactory
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
-from ...properties.inputs import (
-    ImageInput,
-    ColorspaceInput,
-    )
-from ...properties.outputs import ImageOutput
+from ...node_factory import NodeFactory
 from ...properties import expression
+from ...properties.inputs import (
+    ColorspaceInput,
+    ImageInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.color_transfer import color_transfer
+
 
 @NodeFactory.register("predikit:image:color_transfer")
 class ColorTransfer(NodeBase):
@@ -27,9 +28,7 @@ class ColorTransfer(NodeBase):
             ColorspaceInput(label="Colorspace"),
         ]
         self.outputs = [
-            ImageOutput(
-                image_type=expression.Image(size_as="Input0")
-            )
+            ImageOutput(image_type=expression.Image(size_as="Input0"))
         ]
         self.category = ImageFilterCategory
         self.name = "Color Transfer"
@@ -37,9 +36,9 @@ class ColorTransfer(NodeBase):
         self.sub = "Filters"
 
     def run(
-            self,
-            input_image: np.ndarray,
-            reference_image: np.ndarray,
-            colorspace: str,
-    ) -> np.ndarray: 
+        self,
+        input_image: np.ndarray,
+        reference_image: np.ndarray,
+        colorspace: str,
+    ) -> np.ndarray:
         return color_transfer(input_image, reference_image, colorspace)

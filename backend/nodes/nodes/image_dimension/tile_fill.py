@@ -5,13 +5,13 @@ import numpy as np
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
     ImageInput,
     NumberInput,
     TileModeInput,
-    )
+)
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 from ...utils.tile_util import tile_image
 
 
@@ -24,7 +24,7 @@ class TileFill(NodeBase):
             ImageInput(),
             NumberInput("Width", minimum=1, default=1, unit="px"),
             NumberInput("Height", minimum=1, default=1, unit="px"),
-            TileModeInput(),  
+            TileModeInput(),
         ]
         self.outputs = [
             ImageOutput(
@@ -32,8 +32,8 @@ class TileFill(NodeBase):
                     channels_as="Input0",
                     width="Input1",
                     height="Input2",
-                    )
                 )
+            )
         ]
         self.outputs = [ImageOutput(channels_as="Input0")]
         self.category = ImageDimensionCategory
@@ -42,10 +42,6 @@ class TileFill(NodeBase):
         self.sub = "dimensions"
 
     def run(
-            self,
-            img: np.ndarray, 
-            width: int, 
-            height: int, 
-            tile_mode: int
-        ) -> np.ndarray:
-            return tile_image(img, width, height, tile_mode)
+        self, img: np.ndarray, width: int, height: int, tile_mode: int
+    ) -> np.ndarray:
+        return tile_image(img, width, height, tile_mode)
