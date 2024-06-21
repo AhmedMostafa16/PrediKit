@@ -43,7 +43,9 @@ class BrightnessAndContrastNode(NodeBase):
         self.icon = "ImBrightnessContrast"
         self.sub = "Adjustments"
 
-    def run(self, img: np.ndarray, brightness: float, contrast: float) -> np.ndarray:
+    def run(
+        self, img: np.ndarray, brightness: float, contrast: float
+    ) -> np.ndarray:
         brightness /= 100
         contrast /= 100
 
