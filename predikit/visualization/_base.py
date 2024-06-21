@@ -65,45 +65,45 @@ class VisualizationStrategies(StrEnum):
 
     @classmethod
     def from_str(cls, strategy: str) -> "VisualizationStrategies":
-            """
-            Returns the enumeration member corresponding to the given string.
+        """
+        Returns the enumeration member corresponding to the given string.
 
-            Parameters
-            ----------
-            strategy : str
-                The string representation of the strategy.
+        Parameters
+        ----------
+        strategy : str
+            The string representation of the strategy.
 
-            Returns
-            -------
-            VisualizationStrategies
-                The enumeration member corresponding to the given string.
+        Returns
+        -------
+        VisualizationStrategies
+            The enumeration member corresponding to the given string.
 
-            Raises
-            ------
-            ValueError
-                If an invalid visualization strategy is provided.
-            """
-            strategy = strategy.lower()
-            match strategy:
-                case "bar" | "barplot":
-                    return cls.Bar
-                case "scatter" | "scatterplot":
-                    return cls.Scatter
-                case "hist" | "histogram":
-                    return cls.Hist
-                case "box" | "bosplot":
-                    return cls.Box
-                case "line" | "lineplot":
-                    return cls.Line
-                case "pie" | "pieplot" | "piechart":
-                    return cls.Pie
-                case "area" | "areaplot":
-                    return cls.Area
-                case "heatmap":
-                    return cls.HeatMap
-                case "kde":
-                    return cls.KDE
-                case "barh":
-                    return cls.BarH
-                case _:
-                    raise ValueError(f"Invalid visualization strategy: {strategy}")
+        Raises
+        ------
+        ValueError
+            If an invalid visualization strategy is provided.
+        """
+        strategy = strategy.lower()
+        match strategy:
+            case "bar" | "barplot":
+                return cls.Bar
+            case "scatter" | "scatterplot":
+                return cls.Scatter
+            case "hist" | "histogram":
+                return cls.Hist
+            case "box" | "bosplot":
+                return cls.Box
+            case "line" | "lineplot":
+                return cls.Line
+            case "pie" | "pieplot" | "piechart":
+                return cls.Pie
+            case "area" | "areaplot":
+                return cls.Area
+            case "heatmap":
+                return cls.HeatMap
+            case "kde":
+                return cls.KDE
+            case "barh":
+                return cls.BarH
+            case _:
+                raise ValueError(f"Invalid visualization strategy: {strategy}")
