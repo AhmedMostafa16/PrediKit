@@ -55,11 +55,10 @@ class CombineRgbaNode(NodeBase):
         start_shape = img_r.shape[:2]
 
         for im in img_g, img_b, img_a:
-            if im is not None:
-                if im.shape[:2] != start_shape:
-                    raise AssertionError(
-                        "All channel images must have the same resolution"
-                    )
+            if im is not None and im.shape[:2] != start_shape:
+                raise AssertionError(
+                    "All channel images must have the same resolution"
+                )
 
         def get_channel(img: np.ndarray) -> np.ndarray:
             if img.ndim == 2:

@@ -3,7 +3,6 @@ from abc import (
     abstractmethod,
 )
 from typing import (
-    Any,
     List,
     Literal,
 )
@@ -62,9 +61,9 @@ class NodeBase(metaclass=ABCMeta):
         self.__outputs = value
 
     @abstractmethod
-    def run(self) -> Any:
+    def run(self):
         """Abstract method to run a node's logic"""
-        return
+        raise NotImplementedError
 
 
 # pylint: disable=abstract-method

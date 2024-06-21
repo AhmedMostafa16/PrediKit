@@ -131,7 +131,7 @@ class IteratorContext:
         for node in self.chain.nodes.values():
             if node.schema_id == schema_id:
                 return node
-        if not (False):
+        if not False:
             raise AssertionError(
                 f"Unable to find {schema_id} helper node for iterator {self.iterator_id}"
             )
@@ -229,15 +229,11 @@ class IteratorContext:
         if len(errors) > 0:
             raise Exception(
                 # pylint: disable=consider-using-f-string
-                "Errors occurred during iteration: \n• {}".format(
-                    "\n• ".join(errors)
-                )
+                "Errors occurred during iteration: \n• {}".format("\n• ".join(errors))
             )
 
 
-def timed_supplier(
-    supplier: Callable[[], Any]
-) -> Callable[[], Tuple[Any, float]]:
+def timed_supplier(supplier: Callable[[], Any]) -> Callable[[], Tuple[Any, float]]:
     """
     Decorator function that measures the execution time of a supplier function.
 
@@ -311,9 +307,7 @@ class Executor:
         self.__broadcast_tasks: List[asyncio.Task[None]] = []
 
         self.progress = (
-            ProgressController()
-            if not parent_executor
-            else parent_executor.progress
+            ProgressController() if not parent_executor else parent_executor.progress
         )
 
         self.loop: asyncio.AbstractEventLoop = loop
@@ -417,15 +411,11 @@ class Executor:
             )
             output, execution_time = await timed_supplier_async(run_func)
             del run_func
-            await self.__broadcast_data(
-                node_instance, node.id, execution_time, output
-            )
+            await self.__broadcast_data(node_instance, node.id, execution_time, output)
         else:
             try:
                 # Run the node and pass in inputs as args
-                run_func = functools.partial(
-                    node_instance.run, *enforced_inputs
-                )
+                run_func = functools.partial(node_instance.run, *enforced_inputs)
                 output, execution_time = await self.loop.run_in_executor(
                     self.pool, timed_supplier(run_func)
                 )
@@ -444,8 +434,8 @@ class Executor:
                     elif isinstance(input_value, (str, int, float)):
                         input_dict[input_id] = input_value
                     elif isinstance(input_value, pandas.DataFrame):
-                        columns, data, dfindex, dtype, shape = (
-                            get_dataframe_fields(input_value)
+                        columns, data, dfindex, dtype, shape = get_dataframe_fields(
+                            input_value
                         )
                         input_dict[input_id] = {
                             "columns": columns,
@@ -463,9 +453,7 @@ class Executor:
                         }
                 raise NodeExecutionError(node, str(e), input_dict) from e
 
-            await self.__broadcast_data(
-                node_instance, node.id, execution_time, output
-            )
+            await self.__broadcast_data(node_instance, node.id, execution_time, output)
 
         del node_instance
 
@@ -496,22 +484,18 @@ class Executor:
 
         def compute_broadcast_data():
             broadcast_data: Dict[OutputId, Any] = {}
-            output_list: List[Any] = (
-                [output] if len(node_outputs) == 1 else output
-            )
+            output_list: List[Any] = [output] if len(node_outputs) == 1 else output
             for index, node_output in enumerate(node_outputs):
                 try:
-                    broadcast_data[node_output.id] = (
-                        node_output.get_broadcast_data(output_list[index])
+                    broadcast_data[node_output.id] = node_output.get_broadcast_data(
+                        output_list[index]
                     )
                 except Exception as e:
                     logger.error(f"Error broadcasting output: {e}")
             return broadcast_data
 
         async def send_broadcast():
-            data = await self.loop.run_in_executor(
-                self.pool, compute_broadcast_data
-            )
+            data = await self.loop.run_in_executor(self.pool, compute_broadcast_data)
             await self.queue.put(
                 {
                     "event": "node-finish",
@@ -527,9 +511,7 @@ class Executor:
         # Only broadcast the output if the node has outputs and the output is not cached
         if len(node_outputs) > 0 and not self.cache.has(node_id):
             # broadcasts are done is parallel, so don't wait
-            self.__broadcast_tasks.append(
-                self.loop.create_task(send_broadcast())
-            )
+            self.__broadcast_tasks.append(self.loop.create_task(send_broadcast()))
         else:
             await self.queue.put(
                 {
@@ -562,9 +544,7 @@ class Executor:
         output_nodes: List[NodeId] = []
         for node in self.chain.nodes.values():
             # I assume that iterator node always have side effects
-            side_effects = (
-                isinstance(node, IteratorNode) or node.has_side_effects()
-            )
+            side_effects = isinstance(node, IteratorNode) or node.has_side_effects()
             if node.parent is None and side_effects:
                 output_nodes.append(node.id)
         return output_nodes
@@ -623,8 +603,4 @@ class Executor:
         return self.progress.aborted
 
     def get_cache(self) -> OutputCache:
-        return (
-            self.cache
-            if not self.parent_executor
-            else self.parent_executor.cache
-        )
+        return self.cache if not self.parent_executor else self.parent_executor.cache

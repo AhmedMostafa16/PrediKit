@@ -26,7 +26,7 @@ class BaseInput:
         label: str,
         kind: InputKind = "generic",
         has_handle=True,
-    ):
+    ) -> None:
         self.input_type: expression.ExpressionJson = input_type
         self.input_conversion: Union[expression.ExpressionJson, None] = None
         self.kind: InputKind = kind
@@ -53,9 +53,7 @@ class BaseInput:
         return self.enforce(value)
 
     def toDict(self):
-        actual_type = (
-            [self.input_type, "null"] if self.optional else self.input_type
-        )
+        actual_type = [self.input_type, "null"] if self.optional else self.input_type
         return {
             "id": self.id,
             "type": actual_type,

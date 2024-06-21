@@ -26,7 +26,7 @@ class BaseOutput:
         label: str,
         kind: OutputKind = "generic",
         has_handle: bool = True,
-    ):
+    ) -> None:
         """
         Initializes a BaseOutput object.
 

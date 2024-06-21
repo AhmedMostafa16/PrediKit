@@ -39,11 +39,9 @@ class GaussianBlurNode(NodeBase):
 
         if amount_x == 0 and amount_y == 0:
             return img
-        else:
-            return np.clip(
-                cv2.GaussianBlur(
-                    img, (0, 0), sigmaX=amount_x, sigmaY=amount_y
-                ),
-                0,
-                1,
-            )
+
+        return np.clip(
+            cv2.GaussianBlur(img, (0, 0), sigmaX=amount_x, sigmaY=amount_y),
+            0,
+            1,
+        )

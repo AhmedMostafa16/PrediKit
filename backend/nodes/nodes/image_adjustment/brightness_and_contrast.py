@@ -43,9 +43,7 @@ class BrightnessAndContrastNode(NodeBase):
         self.icon = "ImBrightnessContrast"
         self.sub = "Adjustments"
 
-    def run(
-        self, img: np.ndarray, brightness: float, contrast: float
-    ) -> np.ndarray:
+    def run(self, img: np.ndarray, brightness: float, contrast: float) -> np.ndarray:
         brightness /= 100
         contrast /= 100
 
@@ -73,5 +71,5 @@ class BrightnessAndContrastNode(NodeBase):
 
         if c <= 3:
             return process_rgb(img)
-        else:
-            return np.dstack([process_rgb(img[:, :, :3]), img[:, :, 3:]])
+
+        return np.dstack([process_rgb(img[:, :, :3]), img[:, :, 3:]])

@@ -67,11 +67,10 @@ class ChannelMergeRGBANode(NodeBase):
         start_shape = im1.shape[:2]
 
         for im in im2, im3, im4:
-            if im is not None:
-                if im.shape[:2] != start_shape:
-                    raise AssertionError(
-                        "All images to be merged must be the same resolution"
-                    )
+            if im is not None and im.shape[:2] != start_shape:
+                raise AssertionError(
+                    "All images to be merged must be the same resolution"
+                )
 
         imgs: list[np.ndarray] = []
         for img in im1, im2, im3, im4:
@@ -84,7 +83,7 @@ class ChannelMergeRGBANode(NodeBase):
 
         img = np.concatenate(imgs, axis=2)
 
-        # ensure output is safe number of channels
+        # Ensure output is safe number of channels
         _, _, c = get_h_w_c(img)
         if c == 2:
             b, g = cv2.split(img)
