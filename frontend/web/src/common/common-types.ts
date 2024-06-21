@@ -182,3 +182,28 @@ export interface WorkflowDto {
 export interface Workflow extends WorkflowDto {
     id: string;
 }
+
+export interface RegisterUserDto {
+    fullname: string;
+    email: string;
+    password: string;
+}
+
+export interface LoginUserDto {
+    email: string;
+    password: string;
+}
+
+export interface UserDto {
+    fullname: string;
+    email: string;
+}
+
+export interface User extends UserDto {
+    id: string;
+}
+
+export interface UserInfo {
+    token: string;
+    user: User;
+}

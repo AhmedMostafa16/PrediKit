@@ -5,8 +5,11 @@ import {
     InputId,
     InputValue,
     JsonNode,
+    LoginUserDto,
     NodeSchema,
+    RegisterUserDto,
     SchemaId,
+    UserInfo,
     Workflow,
     WorkflowDto,
 } from "./common-types";
@@ -99,14 +102,26 @@ export class Backend {
     private async fetchJson<T>(
         path: string,
         method: "POST" | "GET" | "PUT" | "DELETE",
-        json?: unknown
+        json?: unknown,
+        isProtected = true
     ): Promise<T> {
         const options: RequestInit = { method, cache: "no-cache" };
+
+        // function getUserInfo() {
+        //     return useContext(UserContext).getUserInfo();
+        // }
+
+        // const userInfo = getUserInfo();
+
         if (json !== undefined) {
             options.body = JSON.stringify(json);
             options.headers = {
                 "Content-Type": "application/json",
             };
+
+            // if (isProtected && userInfo !== null) {
+            //     options.headers["Authorization"] = `Bearer ${getUserInfo()?.token}`;
+            // }
         }
 
         const resp = await fetch(`http://localhost:${this.port}${path}`, options);
@@ -117,7 +132,7 @@ export class Backend {
      * Gets a list of all nodes as well as the node information
      */
     nodes(): Promise<BackendNodesResponse> {
-        return this.fetchJson(`/workflows/nodes`, "GET");
+        return this.fetchJson("/workflows/nodes", "GET");
     }
 
     /**
@@ -163,15 +178,17 @@ export class Backend {
      * Clears the cache of the passed in node id
      */
     clearNodeCacheIndividual(id: string, workflowId: string): Promise<BackendResult<null>> {
-        return this.fetchJson(`/workflows/${workflowId}/clearcache/individual`, "POST", { id });
+        return this.fetchJson(`/workflows/${workflowId}/clearcache/individual`, "POST", {
+            id,
+        });
     }
 
-    createWorkflow(workflow: WorkflowDto): Promise<BackendExecutorActionResponse> {
-        return this.fetchJson("/workflows", "POST", workflow);
+    createWorkflow(workflow: WorkflowDto, userId: string): Promise<BackendExecutorActionResponse> {
+        return this.fetchJson("/workflows", "POST", { ...workflow, userId });
     }
 
-    getAllWorkflows(): Promise<Workflow[]> {
-        return this.fetchJson("/workflows", "GET");
+    getAllWorkflows(userId: string): Promise<Workflow[]> {
+        return this.fetchJson(`/workflows?userId=${userId}`, "GET");
     }
 
     getWorkflow(id: string): Promise<Workflow> {
@@ -182,8 +199,16 @@ export class Backend {
         return this.fetchJson(`/workflows/${id}`, "PUT", workflow);
     }
 
-    deleteWorkflow(id: string): Promise<BackendExecutorActionResponse> {
-        return this.fetchJson(`/workflows/${id}`, "DELETE");
+    deleteWorkflow(id: string, userId: string): Promise<BackendExecutorActionResponse> {
+        return this.fetchJson(`/workflows/${id}`, "DELETE", { userId });
+    }
+
+    register(user: RegisterUserDto): Promise<BackendResult<UserInfo>> {
+        return this.fetchJson("/users/register", "POST", user, false);
+    }
+
+    login(user: LoginUserDto): Promise<BackendResult<UserInfo>> {
+        return this.fetchJson("/users/login", "POST", user, false);
     }
 }
 

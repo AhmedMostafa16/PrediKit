@@ -359,7 +359,7 @@ class AstConverter {
                 getOptional(context, "functionCall") ??
                 getOptional(context, "matchExpression") ??
                 getOptional(context, "named");
-            if (!rule) throw new ConversionError(context, `No known rule or token`);
+            if (!rule) throw new ConversionError(context, "No known rule or token");
             return this.toExpression(rule);
         }
         if (context instanceof IVLTSParser.NamedContext) {
@@ -442,7 +442,7 @@ class AstConverter {
                 getOptional(context, "functionDefinition") ??
                 getOptional(context, "variableDefinition") ??
                 getOptional(context, "enumDefinition");
-            if (!rule) throw new ConversionError(context, `No known rule or token`);
+            if (!rule) throw new ConversionError(context, "No known rule or token");
             return this.toDefinitions(rule);
         }
         if (context instanceof IVLTSParser.StructDefinitionContext) {
@@ -463,7 +463,7 @@ class AstConverter {
             const parameters = this.parametersToList(getRequired(context, "parameters"));
             const rule =
                 getOptional(context, "expression") ?? getOptional(context, "scopeExpression");
-            if (!rule) throw new ConversionError(context, `No known rule or token`);
+            if (!rule) throw new ConversionError(context, "No known rule or token");
             return [
                 new FunctionDefinition(
                     name,

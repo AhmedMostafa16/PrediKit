@@ -285,7 +285,7 @@ const evaluateFieldAccess = (expression: FieldAccessExpression, scope: Scope): T
                 expression,
                 fullExpressionType: type,
                 offendingType: t,
-                message: `Primitive types do not have fields.`,
+                message: "Primitive types do not have fields.",
             });
         }
 
@@ -430,7 +430,7 @@ const evaluateMatch = (expression: MatchExpression, scope: Scope): Type => {
     const withBinding = (arm: MatchArm, armType: Type): Scope => {
         if (arm.binding === undefined) return scope;
 
-        const armScope = new ScopeBuilder(`match arm`, scope);
+        const armScope = new ScopeBuilder("match arm", scope);
         armScope.add(new VariableDefinition(arm.binding, armType));
         return armScope.createScope();
     };

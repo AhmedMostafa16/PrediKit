@@ -36,13 +36,9 @@ class OneHotEncoder:
         for column in self.columns:
             unique_values = df[column].unique()
             if self.drop == "first":
-                unique_values = np.delete(
-                    unique_values, 0
-                )  # Drop the first category
+                unique_values = np.delete(unique_values, 0)  # Drop the first category
             elif self.drop == "if_binary" and len(unique_values) == 2:
-                unique_values = unique_values[
-                    1:
-                ]  # Drop the first category if binary
+                unique_values = unique_values[1:]  # Drop the first category if binary
             self.encodings[column] = {
                 value: np.eye(len(unique_values))[i]
                 for i, value in enumerate(unique_values)
@@ -119,17 +115,14 @@ class EncoderFetch:
             EncodingStrategies.OrdinalEncoder,
             EncodingStrategies.LabelEncoder,
         ]:
-            df_encoded = DataFrame(
-                self._encoder.transform(df_encoded[self.columns])
-            )
+            df_encoded = DataFrame(self._encoder.transform(df_encoded[self.columns]))
             df.drop(self.columns, axis=1, inplace=True)
             df[df_encoded.columns] = df_encoded
         else:
             cat_col = [
                 col
                 for col in self.columns
-                if col
-                in df_encoded.select_dtypes(include=["category", "object"])
+                if col in df_encoded.select_dtypes(include=["category", "object"])
             ]
             df_encoded = self._encoder.transform(df_encoded[self.columns])
             df[df_encoded.columns] = df_encoded
@@ -193,8 +186,7 @@ def init_encoder(strategy: EncodingStrategies, **params):
         raise TypeError(f"Unsupported encoding strategy: {strategy}")
     if encoder is EncoderFetch:
         return encoder(strategy, **params)
-    else:
-        return encoder(**params)
+    return encoder(**params)
 
 
 class HashingEncoder:

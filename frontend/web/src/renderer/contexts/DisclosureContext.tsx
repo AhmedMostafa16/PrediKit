@@ -5,7 +5,7 @@ interface DisclosureContextType {
     disclosure: UseDisclosureReturn;
 }
 
-const DisclosureContext = createContext<DisclosureContextType | undefined>(undefined);
+export const DisclosureContext = createContext<DisclosureContextType | undefined>(undefined);
 
 export const useDisclosureContext = () => {
     const context = useContext(DisclosureContext);

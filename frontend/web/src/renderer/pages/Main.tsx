@@ -4,23 +4,23 @@ import { memo, useEffect, useState } from "react";
 import { EdgeTypes, NodeTypes } from "react-flow-renderer";
 import { useContext } from "use-context-selector";
 import useFetch, { CachePolicies } from "use-http";
-import { BackendNodesResponse } from "../common/Backend";
-import { Category, NodeType, SchemaId } from "../common/common-types";
-import { ipcRenderer } from "../common/safeIpc";
-import { SchemaMap } from "../common/SchemaMap";
-import { FunctionDefinition } from "../common/types/function";
-import { getPredikitScope } from "../common/types/predikit-scope";
-import { getLocalStorage, getStorageKeys } from "../common/util";
-import { CustomEdge } from "./components/CustomEdge";
-import { EditorHeader } from "./components/EditorHeader";
-import { IteratorHelperNode } from "./components/node/IteratorHelperNode";
-import { IteratorNode } from "./components/node/IteratorNode";
-import { Node } from "./components/node/Node";
-import { NodeSelector } from "./components/NodeSelectorPanel/NodeSelectorPanel";
-import { ReactFlowBox } from "./components/ReactFlowBox";
-import { AlertBoxContext, AlertType } from "./contexts/AlertBoxContext";
-import { useIpcRendererListener } from "./hooks/useIpcRendererListener";
-import { useLastWindowSize } from "./hooks/useLastWindowSize";
+import { BackendNodesResponse } from "../../common/Backend";
+import { Category, NodeType, SchemaId } from "../../common/common-types";
+import { ipcRenderer } from "../../common/safeIpc";
+import { SchemaMap } from "../../common/SchemaMap";
+import { FunctionDefinition } from "../../common/types/function";
+import { getPredikitScope } from "../../common/types/predikit-scope";
+import { getLocalStorage, getStorageKeys } from "../../common/util";
+import { CustomEdge } from "../components/CustomEdge";
+import { EditorHeader } from "../components/EditorHeader";
+import { IteratorHelperNode } from "../components/node/IteratorHelperNode";
+import { IteratorNode } from "../components/node/IteratorNode";
+import { Node } from "../components/node/Node";
+import { NodeSelector } from "../components/NodeSelectorPanel/NodeSelectorPanel";
+import { ReactFlowBox } from "../components/ReactFlowBox";
+import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
+import { useIpcRendererListener } from "../hooks/useIpcRendererListener";
+import { useLastWindowSize } from "../hooks/useLastWindowSize";
 
 export interface NodesInfo {
     schemata: SchemaMap;
@@ -97,7 +97,7 @@ export const Main = memo(({ port, reactFlowWrapper }: MainProps) => {
                     type: AlertType.CRIT_ERROR,
                     title: "Unable to process backend nodes",
                     message:
-                        `A critical error occurred while processing the node data returned by the backend.` +
+                        "A critical error occurred while processing the node data returned by the backend." +
                         `\n\n${String(e)}`,
                     copyToClipboard: true,
                 });

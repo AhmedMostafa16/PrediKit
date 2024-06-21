@@ -140,7 +140,7 @@ class StackNode(NodeBase):
             fixed_imgs.append(fixed_img.astype("float32"))
 
         if orientation == "horizontal":
-            for i in range(len(fixed_imgs)):
+            for i, img in enumerate(fixed_imgs):
                 if fixed_imgs[i].shape[0] != fixed_imgs[0].shape[0]:
                     raise AssertionError(
                         "Inputted heights are not the same and could not be auto-fixed"
@@ -151,7 +151,7 @@ class StackNode(NodeBase):
                     )
             img = cv2.hconcat(fixed_imgs)  # type: ignore
         elif orientation == "vertical":
-            for i in range(len(fixed_imgs)):
+            for i, img in enumerate(fixed_imgs):
                 if fixed_imgs[i].shape[1] != fixed_imgs[0].shape[1]:
                     raise AssertionError(
                         "Inputted widths are not the same and could not be auto-fixed"

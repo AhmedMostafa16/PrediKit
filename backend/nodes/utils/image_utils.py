@@ -215,10 +215,9 @@ def as_target_channels(img: np.ndarray, target_channels: int) -> np.ndarray:
     if c >= target_channels:
         raise AssertionError
 
-    if target_channels == 3:
-        if c == 1:
-            img = as_2d_grayscale(img)
-            return np.dstack((img, img, img))
+    if target_channels == 3 and c == 1:
+        img = as_2d_grayscale(img)
+        return np.dstack((img, img, img))
 
     if target_channels == 4:
         return convert_to_BGRA(img, c)

@@ -75,7 +75,7 @@ const evaluateInputs = (
     if (!ordered) {
         throw new Error(
             `The types of the inputs of ${schema.name} (id: ${schema.schemaId}) has a cyclic dependency.` +
-                ` Carefully review the uses for 'Input*' variables in the input types of that node.`
+                " Carefully review the uses for 'Input*' variables in the input types of that node."
         );
     }
     ordered.reverse();
@@ -150,7 +150,7 @@ const evaluateOutputs = (
     if (!ordered) {
         throw new Error(
             `The types of the output of ${schema.name} (id: ${schema.schemaId}) has a cyclic dependency.` +
-                ` Carefully review the uses for 'Output*' variables in that node.`
+                " Carefully review the uses for 'Output*' variables in that node."
         );
     }
     ordered.reverse();

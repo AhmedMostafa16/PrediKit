@@ -24,4 +24,4 @@ class NoteNode(NodeBase):
         self.sub = "Text"
 
     def run(self, _text: Union[str, None]) -> None:
-        return
+        raise NotImplementedError()
