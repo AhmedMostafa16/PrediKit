@@ -47,8 +47,10 @@ class CropNode(NodeBase):
     ) -> np.ndarray:
         h, w, _ = get_h_w_c(img)
 
-        assert top < h, "Cropped area would result in an image with no height"
-        assert left < w, "Cropped area would result in an image with no width"
+        if top >= h:
+            raise AssertionError("Cropped area would result in an image with no height")
+        if left >= w:
+            raise AssertionError("Cropped area would result in an image with no width")
 
         result = img[top : top + height, left : left + width]
 

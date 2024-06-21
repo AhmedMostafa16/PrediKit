@@ -68,9 +68,10 @@ class ChannelMergeRGBANode(NodeBase):
 
         for im in im2, im3, im4:
             if im is not None:
-                assert (
-                    im.shape[:2] == start_shape
-                ), "All images to be merged must be the same resolution"
+                if (
+                    im.shape[:2] != start_shape
+                ):
+                    raise AssertionError("All images to be merged must be the same resolution")
 
         imgs: list[np.ndarray] = []
         for img in im1, im2, im3, im4:
