@@ -56,9 +56,7 @@ class DatasetReadNode(NodeBase):
                         temp_df = tuple(
                             pandas.read_csv(path, header=None, nrows=5).dtypes
                         )
-                        df_header = tuple(
-                            pandas.read_csv(path, nrows=5).dtypes
-                        )
+                        df_header = tuple(pandas.read_csv(path, nrows=5).dtypes)
                         has_header: bool = temp_df != df_header
                         df = pandas.read_csv(
                             filepath_or_buffer=path,
@@ -67,13 +65,9 @@ class DatasetReadNode(NodeBase):
                         )
                     case ".xlsx" | ".xls":
                         temp_df = tuple(
-                            pandas.read_excel(
-                                path, header=None, nrows=5
-                            ).dtypes
+                            pandas.read_excel(path, header=None, nrows=5).dtypes
                         )
-                        df_header = tuple(
-                            pandas.read_excel(path, nrows=5).dtypes
-                        )
+                        df_header = tuple(pandas.read_excel(path, nrows=5).dtypes)
                         has_header: bool = temp_df != df_header
                         del temp_df, df_header
                         df = pandas.read_excel(

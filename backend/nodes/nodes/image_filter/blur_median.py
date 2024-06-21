@@ -42,6 +42,8 @@ class MedianBlurNode(NodeBase):
             blurred = cv2.medianBlur(img, 2 * amount + 1)
         else:  # cv2 requires uint8 for kernel size (2r+1) > 5
             img = (img * 255).astype("uint8")
-            blurred = cv2.medianBlur(img, 2 * amount + 1).astype("float32") / 255
+            blurred = (
+                cv2.medianBlur(img, 2 * amount + 1).astype("float32") / 255
+            )
 
         return np.clip(blurred, 0, 1)
