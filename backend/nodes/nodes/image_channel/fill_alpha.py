@@ -47,7 +47,9 @@ class FillAlphaNode(NodeBase):
 
         _, _, c = get_h_w_c(img)
         if c != 4:
-            raise AssertionError("The image has to be an RGBA image to fill its alpha.")
+            raise AssertionError(
+                "The image has to be an RGBA image to fill its alpha."
+            )
 
         if method == AlphaFillMethod.EXTEND_TEXTURE:
             # Preprocess to convert the image into binary alpha
@@ -61,7 +63,9 @@ class FillAlphaNode(NodeBase):
             img = fill_alpha_edge_extend(img, 40)
         else:
             if not False:
-                raise AssertionError(f"Invalid alpha fill method {type(method)} {method}")
+                raise AssertionError(
+                    f"Invalid alpha fill method {type(method)} {method}"
+                )
 
         # Finally, add a black background and convert to RGB
         img[:, :, 0] *= img[:, :, 3]

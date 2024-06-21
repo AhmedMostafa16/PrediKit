@@ -45,10 +45,10 @@ class TransparencyMergeNode(NodeBase):
 
         for im in rgb, a:
             logger.info(im.shape[:2])
-            if (
-                im.shape[:2] != start_shape
-            ):
-                raise AssertionError("All images to be merged must be the same resolution")
+            if im.shape[:2] != start_shape:
+                raise AssertionError(
+                    "All images to be merged must be the same resolution"
+                )
 
         if rgb.ndim == 2:
             rgb = cv2.merge((rgb, rgb, rgb))

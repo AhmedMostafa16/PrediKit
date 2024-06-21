@@ -69,20 +69,22 @@ class AverageColorFixNode(NodeBase):
         input_h, input_w, input_c = get_h_w_c(input_img)
         ref_h, ref_w, ref_c = get_h_w_c(ref_img)
 
-        if not (
-            ref_w < input_w and ref_h < input_h
-        ):
+        if not (ref_w < input_w and ref_h < input_h):
             raise AssertionError("Image must be larger than Reference Image")
         if input_c not in (
             3,
             4,
         ):
-            raise AssertionError("The input image must be an RGB or RGBA image")
+            raise AssertionError(
+                "The input image must be an RGB or RGBA image"
+            )
         if ref_c not in (
             3,
             4,
         ):
-            raise AssertionError("The reference image must be an RGB or RGBA image")
+            raise AssertionError(
+                "The reference image must be an RGB or RGBA image"
+            )
 
         # adjust channels
         alpha = None

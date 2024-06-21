@@ -37,7 +37,9 @@ class NormalizeNode(NodeBase):
 
         logger.info("Normalizing image")
         if img.ndim != 3:
-            raise AssertionError("The input image must be an RGB or RGBA image")
+            raise AssertionError(
+                "The input image must be an RGB or RGBA image"
+            )
 
         # Convert BGR to XY
         x = img[:, :, 2] * 2 - 1

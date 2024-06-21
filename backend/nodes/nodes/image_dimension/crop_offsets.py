@@ -48,9 +48,13 @@ class CropNode(NodeBase):
         h, w, _ = get_h_w_c(img)
 
         if top >= h:
-            raise AssertionError("Cropped area would result in an image with no height")
+            raise AssertionError(
+                "Cropped area would result in an image with no height"
+            )
         if left >= w:
-            raise AssertionError("Cropped area would result in an image with no width")
+            raise AssertionError(
+                "Cropped area would result in an image with no width"
+            )
 
         result = img[top : top + height, left : left + width]
 

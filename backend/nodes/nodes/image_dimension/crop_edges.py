@@ -49,14 +49,14 @@ class EdgeCropNode(NodeBase):
     ) -> np.ndarray:
         h, w, _ = get_h_w_c(img)
 
-        if (
-            top + bottom >= h
-        ):
-            raise AssertionError("Cropped area would result in an image with no height")
-        if (
-            left + right >= w
-        ):
-            raise AssertionError("Cropped area would result in an image with no width")
+        if top + bottom >= h:
+            raise AssertionError(
+                "Cropped area would result in an image with no height"
+            )
+        if left + right >= w:
+            raise AssertionError(
+                "Cropped area would result in an image with no width"
+            )
 
         result = img[top : h - bottom, left : w - right]
 
