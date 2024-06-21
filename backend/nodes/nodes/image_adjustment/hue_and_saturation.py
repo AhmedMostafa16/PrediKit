@@ -45,7 +45,9 @@ class HueAndSaturationNode(NodeBase):
         self.icon = "MdOutlineColorLens"
         self.sub = "Adjustments"
 
-    def run(self, img: np.ndarray, hue: float, saturation: float) -> np.ndarray:
+    def run(
+        self, img: np.ndarray, hue: float, saturation: float
+    ) -> np.ndarray:
         """Adjust the hue and saturation of an image"""
 
         def add_and_wrap_hue(img: np.ndarray, add_val: float) -> np.ndarray:
