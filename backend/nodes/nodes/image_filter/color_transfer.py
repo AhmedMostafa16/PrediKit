@@ -6,14 +6,14 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
-    ImageInput,
     ColorspaceInput,
+    ImageInput,
     OverflowMethodInput,
     ReciprocalScalingFactorInput,
 )
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 from ...utils.color_transfer import color_transfer
 from ...utils.utils import get_h_w_c
 

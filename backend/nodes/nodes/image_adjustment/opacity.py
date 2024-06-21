@@ -5,11 +5,14 @@ import numpy as np
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, SliderInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
-from ...utils.utils import get_h_w_c
+from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.pil_utils import convert_to_BGRA
+from ...utils.utils import get_h_w_c
 
 
 @NodeFactory.register("predikit:image:opacity")
@@ -29,7 +32,9 @@ class OpacityNode(NodeBase):
             ),
         ]
         self.outputs = [
-            ImageOutput(image_type=expression.Image(size_as="Input0", channels=4))
+            ImageOutput(
+                image_type=expression.Image(size_as="Input0", channels=4)
+            )
         ]
         self.category = ImageAdjustmentCategory
         self.name = "Opacity"

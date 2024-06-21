@@ -8,9 +8,12 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    ImageInput,
+    NumberInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.utils import get_h_w_c
 
 
@@ -26,7 +29,9 @@ class AverageColorFixNode(NodeBase):
          and can reduce artifacts in the output."""
         self.inputs = [
             ImageInput("Image", image_type=expression.Image(channels=[3, 4])),
-            ImageInput("Reference Image", image_type=expression.Image(channels=[3, 4])),
+            ImageInput(
+                "Reference Image", image_type=expression.Image(channels=[3, 4])
+            ),
             NumberInput(
                 "Reference Image Scale Factor",
                 precision=4,
@@ -67,8 +72,14 @@ class AverageColorFixNode(NodeBase):
         assert (
             ref_w < input_w and ref_h < input_h
         ), "Image must be larger than Reference Image"
-        assert input_c in (3, 4), "The input image must be an RGB or RGBA image"
-        assert ref_c in (3, 4), "The reference image must be an RGB or RGBA image"
+        assert input_c in (
+            3,
+            4,
+        ), "The input image must be an RGB or RGBA image"
+        assert ref_c in (
+            3,
+            4,
+        ), "The reference image must be an RGB or RGBA image"
 
         # adjust channels
         alpha = None

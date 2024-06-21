@@ -6,7 +6,10 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput
+from ...properties.inputs import (
+    ImageInput,
+    NumberInput,
+)
 from ...properties.outputs import ImageOutput
 
 
@@ -14,7 +17,9 @@ from ...properties.outputs import ImageOutput
 class SharpenNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Apply sharpening to an image using an unsharp mask."
+        self.description = (
+            "Apply sharpening to an image using an unsharp mask."
+        )
         self.inputs = [
             ImageInput(),
             NumberInput("Amount"),

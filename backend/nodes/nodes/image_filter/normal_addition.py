@@ -2,15 +2,17 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-
 from sanic.log import logger
 
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, SliderInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.image_utils import normalize_normals
 
 

@@ -2,15 +2,14 @@ from __future__ import annotations
 
 import cv2
 import numpy as np
-
 from sanic.log import logger
 
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 from ...utils.image_utils import normalize_normals
 
 
@@ -24,7 +23,9 @@ class NormalizeNode(NodeBase):
             ImageInput("Normal Map", expression.Image(channels=[3, 4])),
         ]
         self.outputs = [
-            ImageOutput("Normal Map", expression.Image(size_as="Input0", channels=3)),
+            ImageOutput(
+                "Normal Map", expression.Image(size_as="Input0", channels=3)
+            ),
         ]
         self.category = ImageFilterCategory
         self.name = "Normalize Normal Map"

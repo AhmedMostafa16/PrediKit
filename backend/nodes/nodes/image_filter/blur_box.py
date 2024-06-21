@@ -8,7 +8,10 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput
+from ...properties.inputs import (
+    ImageInput,
+    NumberInput,
+)
 from ...properties.outputs import ImageOutput
 
 
@@ -56,5 +59,7 @@ class BlurNode(NodeBase):
 
         # Linear filter with reflected padding
         return np.clip(
-            cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REFLECT_101), 0, 1
+            cv2.filter2D(img, -1, kernel, borderType=cv2.BORDER_REFLECT_101),
+            0,
+            1,
         )

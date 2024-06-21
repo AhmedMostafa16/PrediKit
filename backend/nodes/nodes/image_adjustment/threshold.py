@@ -7,7 +7,11 @@ from sanic.log import logger
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, SliderInput, ThresholdInput
+from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
+    ThresholdInput,
+)
 from ...properties.outputs import ImageOutput
 
 

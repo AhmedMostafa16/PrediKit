@@ -1,15 +1,15 @@
 from __future__ import annotations
 
+import cv2
 import numpy as np
 from sanic.log import logger
-import cv2
 
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 
 
 @NodeFactory.register("predikit:image:merge_transparency")
@@ -53,7 +53,10 @@ class TransparencyMergeNode(NodeBase):
             rgb = cv2.merge((rgb, rgb, rgb))
         elif rgb.ndim > 2 and rgb.shape[2] == 2:
             rgb = cv2.merge(
-                (rgb, np.zeros((rgb.shape[0], rgb.shape[1], 1), dtype=rgb.dtype))
+                (
+                    rgb,
+                    np.zeros((rgb.shape[0], rgb.shape[1], 1), dtype=rgb.dtype),
+                )
             )
         elif rgb.shape[2] > 3:
             rgb = rgb[:, :, :3]

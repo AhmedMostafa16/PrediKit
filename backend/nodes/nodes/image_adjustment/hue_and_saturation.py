@@ -6,9 +6,12 @@ import numpy as np
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, SliderInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.utils import get_h_w_c
 
 
@@ -50,7 +53,9 @@ class HueAndSaturationNode(NodeBase):
         img[img < 0] += 360  # Wrap negative overflow
         return img
 
-    def run(self, img: np.ndarray, hue: float, saturation: float) -> np.ndarray:
+    def run(
+        self, img: np.ndarray, hue: float, saturation: float
+    ) -> np.ndarray:
         """Adjust the hue and saturation of an image"""
 
         _, _, c = get_h_w_c(img)

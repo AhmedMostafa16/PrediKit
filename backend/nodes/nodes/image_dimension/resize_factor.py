@@ -6,9 +6,13 @@ from sanic.log import logger
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput, InterpolationInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    ImageInput,
+    InterpolationInput,
+    NumberInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.pil_utils import resize
 from ...utils.utils import get_h_w_c
 
@@ -46,7 +50,9 @@ class ImResizeByFactorNode(NodeBase):
         self.icon = "MdOutlinePhotoSizeSelectLarge"
         self.sub = "Resize"
 
-    def run(self, img: np.ndarray, scale: float, interpolation: int) -> np.ndarray:
+    def run(
+        self, img: np.ndarray, scale: float, interpolation: int
+    ) -> np.ndarray:
         """Takes an image and resizes it"""
 
         logger.info(f"Resizing image by {scale} via {interpolation}")

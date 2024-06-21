@@ -5,9 +5,12 @@ import numpy as np
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    ImageInput,
+    NumberInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.utils import get_h_w_c
 
 
@@ -15,7 +18,9 @@ from ...utils.utils import get_h_w_c
 class EdgeCropNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Crop an image using separate amounts from each edge."
+        self.description = (
+            "Crop an image using separate amounts from each edge."
+        )
         self.inputs = [
             ImageInput(),
             NumberInput("Top", unit="px", minimum=None),
@@ -44,8 +49,12 @@ class EdgeCropNode(NodeBase):
     ) -> np.ndarray:
         h, w, _ = get_h_w_c(img)
 
-        assert top + bottom < h, "Cropped area would result in an image with no height"
-        assert left + right < w, "Cropped area would result in an image with no width"
+        assert (
+            top + bottom < h
+        ), "Cropped area would result in an image with no height"
+        assert (
+            left + right < w
+        ), "Cropped area would result in an image with no width"
 
         result = img[top : h - bottom, left : w - right]
 

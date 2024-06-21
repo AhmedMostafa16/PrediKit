@@ -1,4 +1,5 @@
 from __future__ import annotations
+
 from typing import Tuple
 
 import numpy as np
@@ -7,9 +8,9 @@ from sanic.log import logger
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 
 
 @NodeFactory.register("predikit:image:split_transparency")
@@ -19,9 +20,13 @@ class TransparencySplitNode(NodeBase):
         self.description = (
             "Split image channels into RGB and Alpha (transparency) channels."
         )
-        self.inputs = [ImageInput(image_type=expression.Image(channels=[1, 3, 4]))]
+        self.inputs = [
+            ImageInput(image_type=expression.Image(channels=[1, 3, 4]))
+        ]
         self.outputs = [
-            ImageOutput("RGB Channels", expression.Image(size_as="Input0", channels=3)),
+            ImageOutput(
+                "RGB Channels", expression.Image(size_as="Input0", channels=3)
+            ),
             ImageOutput(
                 "Alpha Channel", expression.Image(size_as="Input0", channels=1)
             ),

@@ -6,15 +6,15 @@ import numpy as np
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
+from ...properties import expression
 from ...properties.inputs import (
-    ImageInput,
-    SliderInput,
     AdaptiveMethodInput,
     AdaptiveThresholdInput,
+    ImageInput,
     NumberInput,
+    SliderInput,
 )
 from ...properties.outputs import ImageOutput
-from ...properties import expression
 
 
 @NodeFactory.register("predikit:image:threshold_adaptive")

@@ -5,13 +5,17 @@ import numpy as np
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, AlphaFillMethodInput, AlphaFillMethod
-from ...properties.outputs import ImageOutput
 from ...properties import expression
+from ...properties.inputs import (
+    AlphaFillMethod,
+    AlphaFillMethodInput,
+    ImageInput,
+)
+from ...properties.outputs import ImageOutput
 from ...utils.fill_alpha import (
     convert_to_binary_alpha,
-    fill_alpha_fragment_blur,
     fill_alpha_edge_extend,
+    fill_alpha_fragment_blur,
 )
 from ...utils.utils import get_h_w_c
 

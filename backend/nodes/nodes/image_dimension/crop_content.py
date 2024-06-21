@@ -5,7 +5,10 @@ import numpy as np
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, SliderInput
+from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
+)
 from ...properties.outputs import ImageOutput
 from ...utils.utils import get_h_w_c
 
@@ -59,7 +62,8 @@ class ContentCropNode(NodeBase):
             h, w, _ = get_h_w_c(img)
             c = np.any(alpha > thresh_val, 0)
             imgout = np.copy(img)[
-                r.argmax() : h - r[::-1].argmax(), c.argmax() : w - c[::-1].argmax()
+                r.argmax() : h - r[::-1].argmax(),
+                c.argmax() : w - c[::-1].argmax(),
             ]
         else:
             raise RuntimeError("Crop results in empty image.")

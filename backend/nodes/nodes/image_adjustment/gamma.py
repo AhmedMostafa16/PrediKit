@@ -5,7 +5,11 @@ import numpy as np
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, NumberInput, GammaOptionInput
+from ...properties.inputs import (
+    GammaOptionInput,
+    ImageInput,
+    NumberInput,
+)
 from ...properties.outputs import ImageOutput
 from ...utils.utils import get_h_w_c
 
@@ -33,7 +37,9 @@ class GammaNode(NodeBase):
         self.icon = "ImBrightnessContrast"
         self.sub = "Adjustments"
 
-    def run(self, img: np.ndarray, gamma: float, gamma_option: str) -> np.ndarray:
+    def run(
+        self, img: np.ndarray, gamma: float, gamma_option: str
+    ) -> np.ndarray:
         if gamma == 1:
             # noop
             return img

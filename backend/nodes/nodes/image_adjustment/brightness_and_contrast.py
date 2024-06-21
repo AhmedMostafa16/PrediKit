@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import numpy as np
 
-from ...utils.utils import get_h_w_c
-
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties.inputs import ImageInput, SliderInput
+from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
+)
 from ...properties.outputs import ImageOutput
+from ...utils.utils import get_h_w_c
 
 
 @NodeFactory.register("predikit:image:brightness_and_contrast")
@@ -41,7 +43,9 @@ class BrightnessAndContrastNode(NodeBase):
         self.icon = "ImBrightnessContrast"
         self.sub = "Adjustments"
 
-    def run(self, img: np.ndarray, brightness: float, contrast: float) -> np.ndarray:
+    def run(
+        self, img: np.ndarray, brightness: float, contrast: float
+    ) -> np.ndarray:
         brightness /= 100
         contrast /= 100
 
