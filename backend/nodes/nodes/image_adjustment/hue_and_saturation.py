@@ -45,18 +45,16 @@ class HueAndSaturationNode(NodeBase):
         self.icon = "MdOutlineColorLens"
         self.sub = "Adjustments"
 
-    def add_and_wrap_hue(self, img: np.ndarray, add_val: float) -> np.ndarray:
-        """Adds hue change value to image and wraps on range overflow"""
-
-        img += add_val
-        img[img >= 360] -= 360  # Wrap positive overflow
-        img[img < 0] += 360  # Wrap negative overflow
-        return img
-
-    def run(
-        self, img: np.ndarray, hue: float, saturation: float
-    ) -> np.ndarray:
+    def run(self, img: np.ndarray, hue: float, saturation: float) -> np.ndarray:
         """Adjust the hue and saturation of an image"""
+
+        def add_and_wrap_hue(img: np.ndarray, add_val: float) -> np.ndarray:
+            """Adds hue change value to image and wraps on range overflow"""
+
+            img += add_val
+            img[img >= 360] -= 360  # Wrap positive overflow
+            img[img < 0] += 360  # Wrap negative overflow
+            return img
 
         _, _, c = get_h_w_c(img)
 
@@ -73,7 +71,7 @@ class HueAndSaturationNode(NodeBase):
         h, lightness, s = cv2.split(hls)
 
         # Adjust hue and saturation
-        hnew = self.add_and_wrap_hue(h, hue)
+        hnew = add_and_wrap_hue(h, hue)
         smod = 1 + (saturation / 100)
         snew = np.clip((s * smod), 0, 1)
 
