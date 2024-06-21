@@ -42,14 +42,14 @@ class BorderCropNode(NodeBase):
     def run(self, img: np.ndarray, amount: int) -> np.ndarray:
         h, w, _ = get_h_w_c(img)
 
-        if (
-            2 * amount >= h
-        ):
-            raise AssertionError("Cropped area would result in an image with no height")
-        if (
-            2 * amount >= w
-        ):
-            raise AssertionError("Cropped area would result in an image with no width")
+        if 2 * amount >= h:
+            raise AssertionError(
+                "Cropped area would result in an image with no height"
+            )
+        if 2 * amount >= w:
+            raise AssertionError(
+                "Cropped area would result in an image with no width"
+            )
 
         result = img[amount : h - amount, amount : w - amount]
 
