@@ -1,49 +1,52 @@
 from __future__ import annotations
 
-import cv2
 import numpy as np
 
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
-from ...properties.inputs import (
-    ImageInput,
-    NumberInput,
-)
+from ...properties.inputs import ImageInput, NumberInput
 from ...properties.outputs import ImageOutput
+from ...properties import expression
+from ...utils.utils import get_h_w_c
 
 
 @NodeFactory.register("predikit:image:crop_offsets")
-class CropOffsets(NodeBase):
+class CropNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Crop an image based on offset from the top-left corner and the wanted resolution."
+        self.description = "Crop an image based on offset from the top-left corner, and the wanted resolution."
         self.inputs = [
             ImageInput(),
-            NumberInput(label="Offset X"),
-            NumberInput(label="Offset Y"),
-            NumberInput(label="Crop Width"),
-            NumberInput(label="Crop Height"),
-            # input1+input3 < input0.width , input2+input4 < input0.height
+            NumberInput("Top Offset", unit="px"),
+            NumberInput("Left Offset", unit="px"),
+            NumberInput("Height", unit="px", minimum=1, default=1),
+            NumberInput("Width", unit="px", minimum=1, default=1),
         ]
         self.outputs = [
-            ImageOutput(image_type=expression.Image(channels_as="Input0"))
+            ImageOutput(
+                image_type=expression.Image(
+                    width="min(Input4, Input0.width - Input2) & int(1..)",
+                    height="min(Input3, Input0.height - Input1) & int(1..)",
+                    channels_as="Input0",
+                )
+            ).with_never_reason(
+                "The cropped area would result in an image with no width or no height."
+            )
         ]
         self.category = ImageDimensionCategory
-        self.name = "Crop Offsets"
+        self.name = "Crop (Offsets)"
         self.icon = "MdCrop"
-        self.sub = "dimensions"
+        self.sub = "Crop"
 
     def run(
-        self,
-        image: np.ndarray,
-        offset_x: int,
-        offset_y: int,
-        crop_width: int,
-        crop_height: int,
+        self, img: np.ndarray, top: int, left: int, height: int, width: int
     ) -> np.ndarray:
-        cropped_image = image[
-            offset_y : offset_y + crop_height, offset_x : offset_x + crop_width
-        ]
-        return cropped_image
+        h, w, _ = get_h_w_c(img)
+
+        assert top < h, "Cropped area would result in an image with no height"
+        assert left < w, "Cropped area would result in an image with no width"
+
+        result = img[top : top + height, left : left + width]
+
+        return result

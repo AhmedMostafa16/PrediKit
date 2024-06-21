@@ -12,8 +12,8 @@ from ...properties.outputs import NumberOutput
 from ...utils.utils import get_h_w_c
 
 
-@NodeFactory.register("predikit:image:get_dimensions")
-class GetDimensions(NodeBase):
+@NodeFactory.register("predikit:image:get_dims")
+class GetDimensionsNode(NodeBase):
     def __init__(self):
         super().__init__()
         self.description = (
@@ -23,18 +23,18 @@ class GetDimensions(NodeBase):
             ImageInput(),
         ]
         self.outputs = [
-            NumberOutput(label="Height"),
-            NumberOutput(label="Width"),
-            NumberOutput(label="Channels"),
+            NumberOutput("Width", output_type="Input0.width"),
+            NumberOutput("Height", output_type="Input0.height"),
+            NumberOutput("Channels", output_type="Input0.channels"),
         ]
         self.category = ImageDimensionCategory
         self.name = "Get Dimensions"
-        self.icon = "RxDimensions"
-        self.sub = "dimensions"
+        self.icon = "BsRulers"
+        self.sub = "Utility"
 
     def run(
         self,
-        image: np.ndarray,
+        img: np.ndarray,
     ) -> Tuple[int, int, int]:
-        height, width, channels = get_h_w_c(image)
-        return height, width, channels
+        h, w, c = get_h_w_c(img)
+        return w, h, c

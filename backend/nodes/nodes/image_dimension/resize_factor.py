@@ -1,49 +1,60 @@
 from __future__ import annotations
 
-from PIL import Image
 import numpy as np
+from sanic.log import logger
 
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
-from ...properties.inputs import (
-    ImageInput,
-    NumberInput,
-)
+from ...properties.inputs import ImageInput, NumberInput, InterpolationInput
 from ...properties.outputs import ImageOutput
+from ...properties import expression
+from ...utils.pil_utils import resize
+from ...utils.utils import get_h_w_c
 
 
 @NodeFactory.register("predikit:image:resize_factor")
-class ResizeFactor(NodeBase):
+class ImResizeByFactorNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = "Resize an image by a percent scale factor."
+        self.description = (
+            "Resize an image by a percent scale factor. "
+            "Auto uses box for downsampling and lanczos for upsampling."
+        )
         self.inputs = [
             ImageInput(),
-            NumberInput(label="Scale Factor"),
+            NumberInput(
+                "Scale Factor",
+                precision=4,
+                controls_step=25.0,
+                default=100.0,
+                unit="%",
+            ),
+            InterpolationInput(),
         ]
-        self.outputs = [
-            ImageOutput(image_type=expression.Image(channels_as="Input0"))
-        ]
-        self.outputs = [ImageOutput(channels_as="Input0")]
         self.category = ImageDimensionCategory
-        self.name = "Resize Factor"
-        self.icon = "PiResizeBold"
-        self.sub = "dimensions"
+        self.name = "Resize (Factor)"
+        self.outputs = [
+            ImageOutput(
+                image_type=expression.Image(
+                    width="max(1, int & round(Input0.width * Input1 / 100))",
+                    height="max(1, int & round(Input0.height * Input1 / 100))",
+                    channels_as="Input0",
+                )
+            )
+        ]
+        self.icon = "MdOutlinePhotoSizeSelectLarge"
+        self.sub = "Resize"
 
-    def run(
-        self,
-        image: np.ndarray,
-        scale_factor: float,
-    ) -> np.ndarray:
-        pil_image = Image.fromarray(image)
-        new_size = (
-            int(pil_image.width * scale_factor),
-            int(pil_image.height * scale_factor),
+    def run(self, img: np.ndarray, scale: float, interpolation: int) -> np.ndarray:
+        """Takes an image and resizes it"""
+
+        logger.info(f"Resizing image by {scale} via {interpolation}")
+
+        h, w, _ = get_h_w_c(img)
+        out_dims = (
+            max(round(w * (scale / 100)), 1),
+            max(round(h * (scale / 100)), 1),
         )
-        if scale_factor < 1.0:
-            resized_image = pil_image.resize(new_size, Image.BOX)
-        else:
-            resized_image = pil_image.resize(new_size, Image.LANCZOS)
-        return resized_image
+
+        return resize(img, out_dims, interpolation)

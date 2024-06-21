@@ -1,26 +1,21 @@
 from __future__ import annotations
 
-import cv2
 import numpy as np
 
 from . import category as ImageDimensionCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
-from ...properties.inputs import (
-    ImageInput,
-    NumberInput,
-)
+from ...properties.inputs import ImageInput, NumberInput
 from ...properties.outputs import ImageOutput
+from ...properties import expression
+from ...utils.utils import get_h_w_c
 
 
 @NodeFactory.register("predikit:image:crop_edges")
-class CropEdges(NodeBase):
+class EdgeCropNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = (
-            "Crop an image using separate amounts from each edge."
-        )
+        self.description = "Crop an image using separate amounts from each edge."
         self.inputs = [
             ImageInput(),
             NumberInput("Top", unit="px", minimum=None),
@@ -40,20 +35,18 @@ class CropEdges(NodeBase):
             )
         ]
         self.category = ImageDimensionCategory
-        self.name = "Crop Edges"
+        self.name = "Crop (Edges)"
         self.icon = "MdCrop"
-        self.sub = "dimensions"
+        self.sub = "Crop"
 
     def run(
-        self,
-        image: np.ndarray,
-        top_margin: int,
-        bottom_margin: int,
-        left_margin: int,
-        right_margin: int,
+        self, img: np.ndarray, top: int, left: int, right: int, bottom: int
     ) -> np.ndarray:
-        cropped_image = image[
-            top_margin:-bottom_margin, left_margin:-right_margin
-        ]
+        h, w, _ = get_h_w_c(img)
 
-        return (cropped_image,)
+        assert top + bottom < h, "Cropped area would result in an image with no height"
+        assert left + right < w, "Cropped area would result in an image with no width"
+
+        result = img[top : h - bottom, left : w - right]
+
+        return result

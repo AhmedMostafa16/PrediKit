@@ -6,37 +6,33 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
-from ...properties.inputs import (
-    ImageInput,
-    NumberInput,
-)
+from ...properties.inputs import ImageInput, NumberInput
 from ...properties.outputs import ImageOutput
 
 
 @NodeFactory.register("predikit:image:sharpen")
-class Sharpen(NodeBase):
+class SharpenNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = (
-            "Apply sharpening to an image using an unsharp mask."
-        )
+        self.description = "Apply sharpening to an image using an unsharp mask."
         self.inputs = [
-            ImageInput(label="Input Image"),
+            ImageInput(),
+            NumberInput("Amount"),
         ]
-        self.outputs = [
-            ImageOutput(image_type=expression.Image(size_as="Input0"))
-        ]
+        self.outputs = [ImageOutput(image_type="Input0")]
         self.category = ImageFilterCategory
         self.name = "Sharpen"
-        self.icon = "ImSharpen"
-        self.sub = "Filters"
+        self.icon = "MdBlurOff"
+        self.sub = "Blur/Sharpen"
 
     def run(
         self,
-        input_image: np.ndarray,
+        img: np.ndarray,
+        amount: float,
     ) -> np.ndarray:
-        kernel = np.array([[-1, -1, -1], [-1, 9, -1], [-1, -1, -1]])
-        sharpened_image = cv2.filter2D(input_image, -1, kernel)
+        """Adjusts the sharpening of an image"""
 
-        return sharpened_image
+        blurred = cv2.GaussianBlur(img, (0, 0), amount)
+        img = cv2.addWeighted(img, 2.0, blurred, -1.0, 0)
+
+        return np.clip(img, 0, 1)

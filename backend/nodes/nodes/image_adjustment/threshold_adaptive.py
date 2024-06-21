@@ -6,23 +6,22 @@ import numpy as np
 from . import category as ImageAdjustmentCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
 from ...properties.inputs import (
+    ImageInput,
+    SliderInput,
     AdaptiveMethodInput,
     AdaptiveThresholdInput,
-    ImageInput,
     NumberInput,
-    SliderInput,
 )
 from ...properties.outputs import ImageOutput
+from ...properties import expression
 
 
-@NodeFactory.register("predikit:image:adaptive_threshold")
-class AdaptiveThreshold(NodeBase):
+@NodeFactory.register("predikit:image:threshold_adaptive")
+class AdaptiveThresholdNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = """Applies an adaptive threshold to an image. 
-            This means the threshold value is determined for each pixel based on a small region around it."""
+        self.description = "Similar to regular threshold, but determines the threshold for a pixel based on a small region around it."
         self.inputs = [
             ImageInput(image_type=expression.Image(channels=1)),
             SliderInput(
@@ -38,26 +37,38 @@ class AdaptiveThreshold(NodeBase):
             NumberInput("Mean Subtraction"),
         ]
         self.outputs = [ImageOutput(image_type="Input0")]
-        self.name = "Adaptive Threshold"
-        self.icon = "ImAdaptiveThreshold"
+        self.category = ImageAdjustmentCategory
+        self.name = "Threshold (Adaptive)"
+        self.icon = "MdAutoGraph"
         self.sub = "Adjustments"
 
     def run(
         self,
         img: np.ndarray,
-        max_value: int,
-        adaptive_method: str,
-        adaptive_threshold: str,
+        maxval: float,
+        adaptive_method: int,
+        thresh_type: int,
         block_radius: int,
-        mean_subtraction: int,
+        c: int,
     ) -> np.ndarray:
-        block_size = 2 * block_radius + 1
-        thresholded_image = cv2.adaptiveThreshold(
+        """Takes an image and applies an adaptive threshold to it"""
+
+        assert (
+            img.ndim == 2
+        ), "Image must be grayscale (single channel) to apply an adaptive threshold"
+
+        # Adaptive threshold requires uint8 input
+        img = (img * 255).astype("uint8")
+
+        real_maxval = maxval / 100 * 255
+
+        result = cv2.adaptiveThreshold(
             img,
-            max_value,
+            real_maxval,
             adaptive_method,
-            adaptive_threshold,
-            block_size,
-            mean_subtraction,
+            thresh_type,
+            block_radius * 2 + 1,
+            c,
         )
-        return thresholded_image
+
+        return result.astype("float32") / 255

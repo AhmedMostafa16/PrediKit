@@ -6,41 +6,37 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
-from ...properties.inputs import (
-    ImageInput,
-    NumberInput,
-)
+from ...properties.inputs import ImageInput, NumberInput
 from ...properties.outputs import ImageOutput
 
 
-@NodeFactory.register("predikit:image:blur_gauss")
-class BlurGauss(NodeBase):
+@NodeFactory.register("predikit:image:gaussian_blur")
+class GaussianBlurNode(NodeBase):
     def __init__(self):
         super().__init__()
         self.description = "Apply Gaussian blur to an image."
         self.inputs = [
-            ImageInput(label="Input Image"),
-            NumberInput(label="Kernel Size"),
+            ImageInput(),
+            NumberInput("Amount X", precision=1, controls_step=1),
+            NumberInput("Amount Y", precision=1, controls_step=1),
         ]
-        self.outputs = [
-            ImageOutput(
-                image_type=expression.Image(
-                    size_as="Input0", channels_as="Input0"
-                )
-            )
-        ]
+        self.outputs = [ImageOutput(image_type="Input0")]
         self.category = ImageFilterCategory
-        self.name = "Blur Gauss"
-        self.icon = "ImBlurGauss"
-        self.sub = "Filters"
+        self.name = "Gaussian Blur"
+        self.icon = "MdBlurOn"
+        self.sub = "Blur/Sharpen"
 
     def run(
         self,
-        input_image: np.ndarray,
-        kernel_size: int,
+        img: np.ndarray,
+        amount_x: float,
+        amount_y: float,
     ) -> np.ndarray:
-        blurred_image = cv2.GaussianBlur(
-            input_image, (kernel_size, kernel_size), 0
-        )
-        return blurred_image
+        """Adjusts the blur of an image"""
+
+        if amount_x == 0 and amount_y == 0:
+            return img
+        else:
+            return np.clip(
+                cv2.GaussianBlur(img, (0, 0), sigmaX=amount_x, sigmaY=amount_y), 0, 1
+            )

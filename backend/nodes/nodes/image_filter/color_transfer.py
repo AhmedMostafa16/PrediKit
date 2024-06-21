@@ -6,39 +6,77 @@ import numpy as np
 from . import category as ImageFilterCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
 from ...properties.inputs import (
-    ColorspaceInput,
     ImageInput,
+    ColorspaceInput,
+    OverflowMethodInput,
+    ReciprocalScalingFactorInput,
 )
 from ...properties.outputs import ImageOutput
+from ...properties import expression
 from ...utils.color_transfer import color_transfer
+from ...utils.utils import get_h_w_c
 
 
 @NodeFactory.register("predikit:image:color_transfer")
-class ColorTransfer(NodeBase):
+class ColorTransferNode(NodeBase):
+    """
+    Transfers colors from one image to another
+
+    This code was adapted from Adrian Rosebrock's color_transfer script,
+    found at: https://github.com/jrosebr1/color_transfer (© 2014, MIT license).
+    """
+
     def __init__(self):
         super().__init__()
-        self.description = """Transfers colors from the reference image. 
-        Different combinations of settings may perform better for different images. 
-        Try multiple setting combinations to find the best results."""
+        self.description = """Transfers colors from reference image.
+            Different combinations of settings may perform better for
+            different images. Try multiple setting combinations to find
+            best results."""
         self.inputs = [
-            ImageInput(label="Input Image"),
-            ImageInput(label="Reference Image"),
-            ColorspaceInput(label="Colorspace"),
+            ImageInput("Image", expression.Image(channels=[3, 4])),
+            ImageInput("Reference Image", expression.Image(channels=[3, 4])),
+            ColorspaceInput(),
+            OverflowMethodInput(),
+            ReciprocalScalingFactorInput(),
         ]
-        self.outputs = [
-            ImageOutput(image_type=expression.Image(size_as="Input0"))
-        ]
+        self.outputs = [ImageOutput("Image", image_type="Input0")]
         self.category = ImageFilterCategory
         self.name = "Color Transfer"
-        self.icon = "ImColorTransfer"
-        self.sub = "Filters"
+        self.icon = "MdInput"
+        self.sub = "Correction"
 
     def run(
         self,
-        input_image: np.ndarray,
-        reference_image: np.ndarray,
-        colorspace: str,
+        img: np.ndarray,
+        ref_img: np.ndarray,
+        colorspace: str = "L*a*b*",
+        overflow_method: int = 1,
+        reciprocal_scale: int = 1,
     ) -> np.ndarray:
-        return color_transfer(input_image, reference_image, colorspace)
+        """
+        Transfers the color distribution from source image to target image.
+        """
+
+        _, _, img_c = get_h_w_c(img)
+        _, _, ref_c = get_h_w_c(ref_img)
+
+        assert ref_c >= 3, "Reference image should be RGB or RGBA"
+
+        # Make sure target has at least 3 channels
+        if img_c == 1:
+            img = cv2.cvtColor(img, cv2.COLOR_GRAY2BGR)
+
+        # Preserve alpha
+        alpha = None
+        if img_c == 4:
+            alpha = img[:, :, 3]
+
+        transfer = color_transfer(
+            img, ref_img, colorspace, overflow_method, reciprocal_scale
+        )
+
+        if alpha is not None:
+            transfer = np.dstack((transfer, alpha))
+
+        return transfer

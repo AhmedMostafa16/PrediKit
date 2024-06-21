@@ -1,47 +1,58 @@
 from __future__ import annotations
-
 from typing import Tuple
 
-import cv2
 import numpy as np
 
 from . import category as ImageChannelCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
-from ...properties import expression
 from ...properties.inputs import ImageInput
 from ...properties.outputs import ImageOutput
+from ...properties import expression
+from ...utils.utils import get_h_w_c
 
 
-@NodeFactory.register("predikit:image:rgba_separate")
-class RGBASeparate(NodeBase):
+@NodeFactory.register("predikit:image:split_channels")
+class SeparateRgbaNode(NodeBase):
     def __init__(self):
         super().__init__()
-        self.description = """Split image channels into separate channels. 
-            Typically used for splitting off an alpha (transparency) layer."""
-        self.inputs = [
-            ImageInput(
-                image_type=expression.Image(
-                    channels=4
-                )  # expected image is RGBA
-            ),
-        ]
+        self.description = (
+            "Split image channels into separate channels. "
+            "Typically used for splitting off an alpha (transparency) layer."
+        )
+        self.inputs = [ImageInput()]
         self.outputs = [
-            ImageOutput(label="Red Channel", channels=1),
-            ImageOutput(label="Green Channel", channels=1),
-            ImageOutput(label="Blue Channel", channels=1),
-            ImageOutput(label="Alpha Channel", channels=1),
+            ImageOutput(
+                "R Channel", expression.Image(size_as="Input0", channels=1)
+            ).with_id(2),
+            ImageOutput(
+                "G Channel", expression.Image(size_as="Input0", channels=1)
+            ).with_id(1),
+            ImageOutput(
+                "B Channel", expression.Image(size_as="Input0", channels=1)
+            ).with_id(0),
+            ImageOutput("A Channel", expression.Image(size_as="Input0", channels=1)),
         ]
         self.category = ImageChannelCategory
-        self.name = "RGBA Separate"
-        self.icon = "ImRGBASeparate"
-        self.sub = "Channels"
+        self.name = "Separate RGBA"
+        self.icon = "MdCallSplit"
+        self.sub = "All"
 
     def run(
-        self,
-        rgba_image: np.ndarray,
+        self, img: np.ndarray
     ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
-        red_channel, green_channel, blue_channel, alpha_channel = cv2.split(
-            rgba_image
-        )
-        return red_channel, green_channel, blue_channel, alpha_channel
+        h, w, c = get_h_w_c(img)
+        safe_out = np.ones((h, w))
+
+        if img.ndim == 2:
+            return img, safe_out, safe_out, safe_out
+
+        c = min(c, 4)
+
+        out = []
+        for i in range(c):
+            out.append(img[:, :, i])
+        for i in range(4 - c):
+            out.append(safe_out)
+
+        return out[2], out[1], out[0], out[3]
