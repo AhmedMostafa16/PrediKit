@@ -61,7 +61,8 @@ class ColorTransferNode(NodeBase):
         _, _, img_c = get_h_w_c(img)
         _, _, ref_c = get_h_w_c(ref_img)
 
-        assert ref_c >= 3, "Reference image should be RGB or RGBA"
+        if ref_c < 3:
+            raise AssertionError("Reference image should be RGB or RGBA")
 
         # Make sure target has at least 3 channels
         if img_c == 1:

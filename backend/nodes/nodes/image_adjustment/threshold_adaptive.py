@@ -53,9 +53,10 @@ class AdaptiveThresholdNode(NodeBase):
     ) -> np.ndarray:
         """Takes an image and applies an adaptive threshold to it"""
 
-        assert (
-            img.ndim == 2
-        ), "Image must be grayscale (single channel) to apply an adaptive threshold"
+        if (
+            img.ndim != 2
+        ):
+            raise AssertionError("Image must be grayscale (single channel) to apply an adaptive threshold")
 
         # Adaptive threshold requires uint8 input
         img = (img * 255).astype("uint8")

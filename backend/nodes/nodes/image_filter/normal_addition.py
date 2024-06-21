@@ -65,9 +65,10 @@ class NormalAdditionNode(NodeBase):
         """
 
         logger.info("Adding normal maps")
-        assert (
+        if not (
             n.ndim == 3 and m.ndim == 3
-        ), "The input images must be RGB or RGBA images"
+        ):
+            raise AssertionError("The input images must be RGB or RGBA images")
 
         n_norm_strength = n_strength / 100
         m_norm_strength = m_strength / 100

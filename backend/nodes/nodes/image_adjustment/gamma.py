@@ -49,7 +49,8 @@ class GammaNode(NodeBase):
         elif gamma_option == "invert":
             gamma = 1 / gamma
         else:
-            assert False, f"Invalid gamma option: {gamma_option}"
+            if not False:
+                raise AssertionError(f"Invalid gamma option: {gamma_option}")
 
         # single-channel grayscale
         if img.ndim == 2:
