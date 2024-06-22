@@ -6,7 +6,6 @@ from enum import (
     StrEnum,
     auto,
 )
-
 from typing import (
     Self,
     override,
