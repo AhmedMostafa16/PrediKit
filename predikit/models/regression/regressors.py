@@ -111,3 +111,15 @@ class Regressor(BaseRegressor):
             return self.model.predict(X)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
+
+    def get_model(self) -> "Regressor":
+        """
+        Returns the regressor model object.
+
+        Returns:
+            Regressor: The regressor model object.
+        """
+        try:
+            return self.model
+        except Exception:
+            raise NotFittedError("You have to fit the model first.")

@@ -159,3 +159,15 @@ class Classifier(BaseClassifier):
             return log(self.predict_proba(X))
         except Exception:
             raise NotFittedError("You have to fit the model first.")
+
+    def get_model(self) -> "Classifier":
+        """
+        Returns the classifier model object.
+
+        Returns:
+            Classifier: The classifier model object.
+        """
+        try:
+            return self.model
+        except Exception:
+            raise NotFittedError("You have to fit the model first.")
