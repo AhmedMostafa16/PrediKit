@@ -105,3 +105,6 @@ websockets==12.0
 Werkzeug==3.0.3
 xgboost==2.0.3
 zipp==3.18.1
+pyjwt==2.8.0
+passlib==1.7.4
+argon2_cffi==23.1.0
