@@ -26,7 +26,7 @@ class BaseInput:
         label: str,
         kind: InputKind = "generic",
         has_handle=True,
-    ):
+    ) -> None:
         self.input_type: expression.ExpressionJson = input_type
         self.input_conversion: Union[expression.ExpressionJson, None] = None
         self.kind: InputKind = kind

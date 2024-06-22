@@ -85,5 +85,5 @@ class MathNode(NodeBase):
             ):
                 return in1 - in2 * math.floor(in1 / in2)
             return in1 % in2
-        else:
-            raise RuntimeError(f"Unknown operator {op}")
+
+        raise RuntimeError(f"Unknown operator {op}")

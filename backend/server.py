@@ -101,9 +101,7 @@ for root, dirs, files in os.walk(
                 init_module[-1] = "__init__"
                 init_module = ".".join(init_module)
                 try:
-                    category = getattr(
-                        importlib.import_module(init_module), "category"
-                    )
+                    category = importlib.import_module(init_module).category
                     missing_categories.add(category.name)
                 except ImportError as ie:
                     logger.warning(ie)
@@ -117,7 +115,7 @@ for root, dirs, files in os.walk(
                 # TODO: replace the category system with a dynamic factory
                 module = importlib.import_module(module)
                 if hasattr(module, "category"):
-                    category = getattr(module, "category")
+                    category = module.category
                     categories.add(category)
                 else:
                     logger.warning(
@@ -180,6 +178,15 @@ users_collection = db.users
 
 
 def check_token(request) -> bool:
+    """
+    Check if the provided token is valid.
+
+    Args:
+        request: The request object containing the token.
+
+    Returns:
+        A boolean indicating whether the token is valid or not.
+    """
     if not request.token:
         return False
 
@@ -194,6 +201,17 @@ def check_token(request) -> bool:
 
 
 def protected(wrapped):
+    """
+    Decorator function to protect an endpoint by checking the authentication token.
+
+    Args:
+        wrapped: The function to be decorated.
+
+    Returns:
+        The decorated function.
+
+    """
+
     def decorator(f):
         @functools.wraps(f)
         async def decorated_function(request, *args, **kwargs):
@@ -213,6 +231,22 @@ def protected(wrapped):
 
 
 class SSEFilter(logging.Filter):
+    """
+    A logging filter that filters out log records based on the status code and request path.
+
+    This filter is specifically designed for filtering log records related to Server-Sent Events (SSE).
+    It filters out log records with a status code other than 200 or requests that do not end with "/sse".
+
+    Attributes:
+        None
+
+    Methods:
+        filter(record): Filters the log record based on the status code and request path.
+
+    Usage:
+        Add an instance of this filter to the logger to filter out unwanted log records.
+    """
+
     def filter(self, record):
         return record.status != 200 or not record.request.endswith("/sse")  # type: ignore
 
@@ -300,6 +334,13 @@ async def nodes(_):
 
 
 class RunRequest(TypedDict):
+    """
+    Represents a request to run a prediction.
+
+    Attributes:
+        data (List[JsonNode]): The input data for the prediction.
+    """
+
     data: List[JsonNode]
 
 
@@ -449,6 +490,15 @@ async def run_individual(request: Request):
     "/workflows/<workflow_id:str>/clearcache/individual", methods=["POST"]
 )
 async def clear_cache_individual(request: Request):
+    """
+    Clears the cache for an individual item.
+
+    Args:
+        request (Request): The request object.
+
+    Returns:
+        JSON response: A JSON response indicating the success status and any error message.
+    """
     ctx = AppContext.get(request.app)
     try:
         full_data = dict(request.json)  # type: ignore
@@ -462,6 +512,17 @@ async def clear_cache_individual(request: Request):
 
 @app.get("/sse")
 async def sse(request: Request):
+    """
+    Server-Sent Events (SSE) endpoint.
+
+    This function handles the SSE endpoint and sends events to the client.
+
+    Args:
+        request (Request): The incoming request object.
+
+    Returns:
+        None
+    """
     ctx = AppContext.get(request.app)
     headers = {"Cache-Control": "no-cache"}
     response = await request.respond(
@@ -580,6 +641,18 @@ async def get_all_workflows(request: Request):
 
 @app.route("/workflows", methods=["POST"])
 async def create_workflow(request: Request):
+    """
+    Create a new workflow.
+
+    Args:
+        request (Request): The request object containing the workflow data.
+
+    Returns:
+        JSON response: A JSON response indicating the success or failure of the operation.
+
+    Raises:
+        Exception: If an error occurs while creating the workflow.
+    """
     try:
         workflow = request.json
         user_id = workflow.get("userId")
@@ -590,15 +663,18 @@ async def create_workflow(request: Request):
         del workflow["userId"]
         result = await workflows_collection.insert_one(workflow)
         if result.inserted_id:
+            # Add the workflow ID to the user's workflows list
             user_result = await users_collection.update_one(
-                {"_id": user_id},
+                {"_id": ObjectId(user_id)},
                 {"$push": {"workflows": str(result.inserted_id)}},
             )
+            print("User result: ", user_result.modified_count)
             if user_result.modified_count == 0:
                 return json(
                     errorResponse("Workflow not added to user!", ""),
                     status=500,
                 )
+
         return json(successResponse(str(result.inserted_id)), status=201)
     except Exception as e:
         return json(errorResponse("Error creating workflow!", e), status=500)
@@ -606,6 +682,19 @@ async def create_workflow(request: Request):
 
 @app.route("/workflows/<workflow_id:str>", methods=["GET"])
 async def get_workflow(request: Request, workflow_id: str):
+    """
+    Retrieve a workflow by its ID.
+
+    Args:
+        request (Request): The HTTP request object.
+        workflow_id (str): The ID of the workflow to retrieve.
+
+    Returns:
+        JSONResponse: The JSON response containing the workflow if found, or an error response if not found or an error occurred.
+
+    Raises:
+        Exception: If an error occurs while fetching the workflow.
+    """
     try:
         workflow = await workflows_collection.find_one(
             {"_id": ObjectId(workflow_id)}
@@ -621,6 +710,19 @@ async def get_workflow(request: Request, workflow_id: str):
 
 @app.route("/workflows/<workflow_id:str>", methods=["PUT"])
 async def update_workflow(request: Request, workflow_id: str):
+    """
+    Update a workflow in the database.
+
+    Args:
+        request (Request): The request object containing the workflow data.
+        workflow_id (str): The ID of the workflow to update.
+
+    Returns:
+        JSON response: A JSON response indicating the status of the update operation.
+
+    Raises:
+        Exception: If an error occurs while updating the workflow.
+    """
     try:
         workflow = request.json
         result = await workflows_collection.replace_one(
@@ -637,6 +739,19 @@ async def update_workflow(request: Request, workflow_id: str):
 
 @app.route("/workflows/<workflow_id:str>", methods=["DELETE"])
 async def delete_workflow(request: Request, workflow_id: str):
+    """
+    Delete a workflow.
+
+    Args:
+        request (Request): The HTTP request object.
+        workflow_id (str): The ID of the workflow to be deleted.
+
+    Returns:
+        JSON response: A JSON response indicating the status of the deletion operation.
+
+    Raises:
+        Exception: If an error occurs while deleting the workflow.
+    """
     try:
         # Delete the workflow from the workflows collection
         result = await workflows_collection.delete_one(

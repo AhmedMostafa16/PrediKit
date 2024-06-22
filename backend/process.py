@@ -131,7 +131,7 @@ class IteratorContext:
         for node in self.chain.nodes.values():
             if node.schema_id == schema_id:
                 return node
-        if not (False):
+        if not False:
             raise AssertionError(
                 f"Unable to find {schema_id} helper node for iterator {self.iterator_id}"
             )
