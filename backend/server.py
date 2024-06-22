@@ -663,15 +663,18 @@ async def create_workflow(request: Request):
         del workflow["userId"]
         result = await workflows_collection.insert_one(workflow)
         if result.inserted_id:
+            # Add the workflow ID to the user's workflows list
             user_result = await users_collection.update_one(
-                {"_id": user_id},
+                {"_id": ObjectId(user_id)},
                 {"$push": {"workflows": str(result.inserted_id)}},
             )
+            print("User result: ", user_result.modified_count)
             if user_result.modified_count == 0:
                 return json(
                     errorResponse("Workflow not added to user!", ""),
                     status=500,
                 )
+
         return json(successResponse(str(result.inserted_id)), status=201)
     except Exception as e:
         return json(errorResponse("Error creating workflow!", e), status=500)
