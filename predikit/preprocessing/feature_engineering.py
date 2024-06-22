@@ -1,6 +1,6 @@
 from typing import (
     Self,
-    override,
+    # override,
 )
 
 from pandas import DataFrame
@@ -36,7 +36,7 @@ class FeatureSelection(BasePreprocessor):
         self.stored_dtypes = None
 
     # ToDo: Add include/exclude dtypes parameter
-    @override
+    # @override
     def fit(
         self,
         data: DataFrame,
@@ -75,7 +75,7 @@ class FeatureSelection(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self,
         data: DataFrame,
@@ -118,14 +118,14 @@ class EncodingProcessor(BasePreprocessor):
         self._encoder_params = encoder_params
         self._encoder = init_encoder(strategy, **encoder_params)
 
-    @override
+    # @override
     def fit(
         self,
         data: DataFrame,
     ) -> None:
         self._encoder.fit(data)
 
-    @override
+    # @override
     def transform(
         self,
         data: DataFrame,

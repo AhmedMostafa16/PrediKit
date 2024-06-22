@@ -39,6 +39,10 @@ from predikit.util import (
 )
 from predikit.visualization import Visualization
 
+from predikit.evaluation import(
+    Metrics, 
+    CrossValidtion
+)
 __all__ = [
     "validations",
     "FileExtension",
@@ -67,6 +71,8 @@ __all__ = [
     "import_file",
     "initialize_cluster_server",
     "split_train_test",
+    "CrossValidation",
+    "Metrics",
 ]
 
 

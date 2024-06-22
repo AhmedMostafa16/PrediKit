@@ -11,7 +11,7 @@ from typing import (
     LiteralString,
     Self,
     cast,
-    override,
+    # override,
 )
 
 import numpy as np
@@ -408,7 +408,7 @@ class DataFrameParser(DataFrame):
 
         return parsed_types
 
-    @override
+    # @override
     def __new__(cls, *args, **kwargs) -> Self:
         """
         Creates a new instance of the DataFrameParser class.

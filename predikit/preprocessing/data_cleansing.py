@@ -3,7 +3,7 @@ import numbers
 from string import punctuation
 from typing import (
     Self,
-    override,
+    # override,
 )
 
 import numpy as np
@@ -182,7 +182,7 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -432,7 +432,7 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    @override
+    # @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -949,7 +949,7 @@ class DataCleanser(BasePreprocessor):
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    @override
+    # @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -1007,7 +1007,7 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return data
 
-    @override
+    # @override
     def transform(
         self,
         data: DataFrame,
