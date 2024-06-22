@@ -1,19 +1,23 @@
-from sklearn.model_selection import KFold, learning_curve
-from sklearn.metrics import (
-    f1_score,
-    precision_score,
-    recall_score,
-    accuracy_score,
-    confusion_matrix,
-    roc_curve,
-    auc,
-    plot_confusion_matrix,
-    mean_absolute_error,
-    mean_squared_error,
-    root_mean_squared_error,
-)
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import (
+    accuracy_score,
+    auc,
+    confusion_matrix,
+    f1_score,
+    mean_absolute_error,
+    mean_squared_error,
+    plot_confusion_matrix,
+    precision_score,
+    recall_score,
+    roc_curve,
+    root_mean_squared_error,
+)
+from sklearn.model_selection import (
+    KFold,
+    learning_curve,
+)
+
 from predikit.models import Model_type
 
 

@@ -6,14 +6,12 @@ from enum import (
     StrEnum,
     auto,
 )
+
 from typing import (
     Self,
     override,
 )
 
-import numpy as np
-from pandas import DataFrame
-from scipy.sparse import csr_matrix
 from sklearn.base import (
     BaseEstimator,
     TransformerMixin,
