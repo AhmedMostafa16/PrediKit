@@ -1,8 +1,12 @@
-from sklearn.model_selection import KFold, learning_curve
-from sklearn.metrics import LearningCurveDisplay
-from predikit.models import Model_type
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+from sklearn.metrics import LearningCurveDisplay
+from sklearn.model_selection import (
+    KFold,
+    learning_curve,
+)
+
+from predikit.models import Model_type
 
 
 class CrossValidation:
