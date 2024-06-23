@@ -19,6 +19,7 @@ from sklearn.base import (
     TransformerMixin,
 )
 
+
 class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
     """
     Base class for all preprocessing tasks in the data pipeline.

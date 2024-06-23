@@ -1,4 +1,5 @@
 from catboost import CatBoostClassifier
+import joblib
 from lightgbm import LGBMClassifier
 from numpy import (
     log,
@@ -21,7 +22,7 @@ from ._base import (
     BaseClassifier,
     ClassifierStrategies,
 )
-import joblib
+
 
 class Classifier(BaseClassifier):
     """
