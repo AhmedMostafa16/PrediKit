@@ -1,4 +1,5 @@
 from catboost import CatBoostRegressor
+import joblib
 from lightgbm import LGBMRegressor
 from numpy import ndarray
 from sklearn.ensemble import (
@@ -123,3 +124,17 @@ class Regressor(BaseRegressor):
             return self.model
         except Exception:
             raise NotFittedError("You have to fit the model first.")
+
+    def save_model(self, path: str) -> None:
+        """
+        Saves the model to a file.
+
+        Args:
+            path (str): The path to save the model to.
+        """
+        try:
+            joblib.dump(self.model, path)
+        except Exception:
+            raise NotFittedError(
+                "You have to fit the model first before saving it to a file."
+            )

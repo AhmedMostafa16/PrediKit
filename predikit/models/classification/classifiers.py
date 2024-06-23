@@ -1,4 +1,5 @@
 from catboost import CatBoostClassifier
+import joblib
 from lightgbm import LGBMClassifier
 from numpy import (
     log,
@@ -169,5 +170,17 @@ class Classifier(BaseClassifier):
         """
         try:
             return self.model
+        except Exception:
+            raise NotFittedError("You have to fit the model first.")
+
+    def save_model(self, path: str) -> None:
+        """
+        Saves the model to a file.
+
+        Args:
+            path (str): The path to save the model to.
+        """
+        try:
+            joblib.dump(self.model, path)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
