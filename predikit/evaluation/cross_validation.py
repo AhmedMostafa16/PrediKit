@@ -1,10 +1,11 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.model_selection import LearningCurveDisplay
 from sklearn.model_selection import (
     KFold,
+    LearningCurveDisplay,
     learning_curve,
 )
+
 
 class CrossValidation:
     """

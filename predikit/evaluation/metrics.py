@@ -1,7 +1,9 @@
-import numpy as np
 from typing import Tuple
+
+import numpy as np
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
+    RocCurveDisplay,
     accuracy_score,
     auc,
     confusion_matrix,
@@ -12,7 +14,6 @@ from sklearn.metrics import (
     recall_score,
     roc_auc_score,
     roc_curve,
-    RocCurveDisplay,
 )
 
 
@@ -65,7 +66,9 @@ class Metrics:
         -------
         None
         """
-        return ConfusionMatrixDisplay(confusion_matrix(self.y_true, self.y_pred), display_labels=labels).plot()
+        return ConfusionMatrixDisplay(
+            confusion_matrix(self.y_true, self.y_pred), display_labels=labels
+        ).plot()
 
     def get_roc_curve_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
         """
@@ -76,7 +79,7 @@ class Metrics:
             and the area under the ROC curve (roc_auc).
         """
         fpr, tpr, _ = roc_curve(self.y_true, self.y_pred_proba[:, 1])
-        roc_auc = auc(fpr, tpr) 
+        roc_auc = auc(fpr, tpr)
         return fpr, tpr, roc_auc
 
     def plot_roc_auc(self):
@@ -112,18 +115,20 @@ class Metrics:
         rmse = np.sqrt(mse)
         return mae, mse, rmse
 
-    def get_classification_metrics(self) -> Tuple[float, float, float, float, float]:
-            """
-            Calculate classification evaluation metrics.
+    def get_classification_metrics(
+        self,
+    ) -> Tuple[float, float, float, float, float]:
+        """
+        Calculate classification evaluation metrics.
 
-            Returns:
-                Tuple[float, float, float, float, float]: A tuple containing the accuracy, precision, recall,
-                F1 score and roc_auc score metrics.
+        Returns:
+            Tuple[float, float, float, float, float]: A tuple containing the accuracy, precision, recall,
+            F1 score and roc_auc score metrics.
 
-            """
-            accuracy = accuracy_score(self.y_true, self.y_pred)
-            precision = precision_score(self.y_true, self.y_pred)
-            recall = recall_score(self.y_true, self.y_pred)
-            f1 = f1_score(self.y_true, self.y_pred)
-            roc_auc = roc_auc_score(self.y_true, self.y_pred)
-            return accuracy, precision, recall, f1, roc_auc
+        """
+        accuracy = accuracy_score(self.y_true, self.y_pred)
+        precision = precision_score(self.y_true, self.y_pred)
+        recall = recall_score(self.y_true, self.y_pred)
+        f1 = f1_score(self.y_true, self.y_pred)
+        roc_auc = roc_auc_score(self.y_true, self.y_pred)
+        return accuracy, precision, recall, f1, roc_auc
