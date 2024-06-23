@@ -1,3 +1,5 @@
+import numpy as np
+from typing import Tuple
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
     accuracy_score,
@@ -8,8 +10,9 @@ from sklearn.metrics import (
     mean_squared_error,
     precision_score,
     recall_score,
+    roc_auc_score,
     roc_curve,
-    root_mean_squared_error,
+    RocCurveDisplay,
 )
 
 
@@ -27,49 +30,56 @@ class Metrics:
         Estimated targets as returned by a classifier.
     """
 
-    _metrics = {
-        "accuracy": accuracy_score,
-        "precision": precision_score,
-        "recall": recall_score,
-        "f1": f1_score,
-    }
-
-    def __init__(self, metric, y_true, y_pred):
+    def __init__(self, y_true, y_pred, y_pred_proba):
         """
-        Constructs all the necessary attributes for the Metrics object.
+        Initialize the Metrics object.
 
-        Parameters
-        ----------
-        metric : str
-            The metric to be calculated. Options: "accuracy", "precision", "recall", "f1".
-        y_true : array-like of shape (n_samples,)
-            Ground truth (correct) target values.
-        y_pred : array-like of shape (n_samples,)
-            Estimated targets as returned by a classifier.
+        Parameters:
+        - y_true: The true labels.
+        - y_pred: The predicted labels.
+        - y_pred_proba: The predicted probabilities for each class.
         """
-        self.metric = self._metrics[metric](self.y_true, self.y_pred)
         self.y_true = y_true
         self.y_pred = y_pred
+        self.y_pred_proba = y_pred_proba
 
-    def plot_confusion_matrix_func(self, y_true, y_predict):
+    def get_confusion_matrix(self):
+        """
+        Get the confusion matrix.
+
+        Returns:
+        - array-like of shape (n_classes, n_classes): The confusion matrix.
+        """
+        return confusion_matrix(self.y_true, self.y_pred)
+
+    def plot_confusion_matrix(self, labels=None):
         """
         Plots the confusion matrix.
 
         Parameters
         ----------
-        y_true : array-like of shape (n_samples,)
-            True labels.
-        y_predict : array-like of shape (n_samples,)
-            Predicted labels.
+        labels : array-like of shape (n_classes,), optional
+            List of labels to be displayed on the plot. If not provided, the class labels will be used.
 
         Returns
         -------
-        array-like of shape (n_classes, n_classes)
-            Confusion matrix.
+        None
         """
-        return confusion_matrix(y_true, y_predict)
+        return ConfusionMatrixDisplay(confusion_matrix(self.y_true, self.y_pred), display_labels=labels).plot()
 
-    def plot_roc_auc(self, X_test, y_test):
+    def get_roc_curve_data(self) -> Tuple[np.ndarray, np.ndarray, float]:
+        """
+        Calculate the Receiver Operating Characteristic (ROC) curve data.
+
+        Returns:
+            A tuple containing the false positive rate (fpr), true positive rate (tpr)
+            and the area under the ROC curve (roc_auc).
+        """
+        fpr, tpr, _ = roc_curve(self.y_true, self.y_pred_proba[:, 1])
+        roc_auc = auc(fpr, tpr) 
+        return fpr, tpr, roc_auc
+
+    def plot_roc_auc(self):
         """
         Plots the ROC curve and AUC.
 
@@ -80,23 +90,40 @@ class Metrics:
         y_test : array-like of shape (n_samples,)
             True labels for X_test.
         """
-        y_score = self.model.predict_proba(X_test)[:, 1]
-        fpr, tpr, _ = roc_curve(y_test, y_score)
+        fpr, tpr, _ = roc_curve(self.y_true, self.y_pred_proba[:, 1])
         roc_auc = auc(fpr, tpr)
+        return RocCurveDisplay(fpr=fpr, tpr=tpr, roc_auc=roc_auc).plot()
 
-        return roc_auc
+    def get_regression_metrics(self) -> Tuple[float, float, float]:
+        """
+        Calculate regression evaluation metrics.
 
-        # plt.figure()
-        # plt.plot(fpr, tpr, label="ROC curve (area = %0.2f)" % roc_auc)
+        Args:
+            y_true (array-like): The true values of the target variable.
+            y_pred (array-like): The predicted values of the target variable.
 
-    def get_mse(self):
-        """Returns the mean squared error between y_true and y_pred"""
-        return mean_squared_error(self.y_true, self.y_pred)
+        Returns:
+            Tuple[float, float, float]: A tuple containing the mean absolute error (MAE),
+            mean squared error (MSE), and root mean squared error (RMSE) metrics.
 
-    def get_mae(self):
-        """Returns the mean absolute error between y_true and y_pred"""
-        return mean_absolute_error(self.y_true, self.y_pred)
+        """
+        mae = mean_absolute_error(self.y_true, self.y_pred)
+        mse = mean_squared_error(self.y_true, self.y_pred)
+        rmse = np.sqrt(mse)
+        return mae, mse, rmse
 
-    def get_rmse(self):
-        """Returns the root mean squared error between y_true and y_pred"""
-        return root_mean_squared_error(self.y_true, self.y_pred)
+    def get_classification_metrics(self) -> Tuple[float, float, float, float, float]:
+            """
+            Calculate classification evaluation metrics.
+
+            Returns:
+                Tuple[float, float, float, float, float]: A tuple containing the accuracy, precision, recall,
+                F1 score and roc_auc score metrics.
+
+            """
+            accuracy = accuracy_score(self.y_true, self.y_pred)
+            precision = precision_score(self.y_true, self.y_pred)
+            recall = recall_score(self.y_true, self.y_pred)
+            f1 = f1_score(self.y_true, self.y_pred)
+            roc_auc = roc_auc_score(self.y_true, self.y_pred)
+            return accuracy, precision, recall, f1, roc_auc

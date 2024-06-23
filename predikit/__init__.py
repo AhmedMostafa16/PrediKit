@@ -9,7 +9,7 @@ from predikit.automl import (
     split_train_test,
 )
 from predikit.evaluation import (
-    CrossValidtion,
+    CrossValidation,
     Metrics,
 )
 from predikit.io import (

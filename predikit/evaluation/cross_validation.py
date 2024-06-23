@@ -1,13 +1,10 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn.metrics import LearningCurveDisplay
+from sklearn.model_selection import LearningCurveDisplay
 from sklearn.model_selection import (
     KFold,
     learning_curve,
 )
-
-from predikit.models import Model_type
-
 
 class CrossValidation:
     """
@@ -46,7 +43,7 @@ class CrossValidation:
         Returns the model used for cross-validation.
     """
 
-    def __init__(self, model: Model_type, X, y, n_folds=5):
+    def __init__(self, model, X, y, n_folds=5):
         """
         Constructs all the necessary attributes for the cross_validation object.
 
@@ -129,7 +126,6 @@ class CrossValidation:
         )
 
         fig, ax = plt.subplots()
-        LearningCurveDisplay.from_estimator(
+        return LearningCurveDisplay.from_estimator(
             self.model, self.X, self.y, ax=ax, train_sizes=train_sizes, cv=cv
-        )
-        plt.show()
+        ).plot()

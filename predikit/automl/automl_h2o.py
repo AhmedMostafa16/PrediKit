@@ -134,6 +134,8 @@ class AutoML:
         self.target = None
         self.train_frame = None
         self.test_frame = None
+        if exclude_algos is None:
+            exclude_algos = ["StackedEnsemble"]
 
     def train(
         self,
