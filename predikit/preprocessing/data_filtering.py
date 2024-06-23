@@ -12,7 +12,7 @@ from ._base import (
 )
 
 
-class BasicFilteringProcessor(BasePreprocessor):
+class DataFilteringProcessor(BasePreprocessor):
     """
     A class used to filter data based on a specified operator and value.
 

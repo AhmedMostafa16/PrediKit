@@ -1,7 +1,10 @@
 import logging
 import numbers
 from string import punctuation
-from typing import Self
+from typing import (
+    Self,
+    override,
+)
 
 import numpy as np
 from pandas import (
@@ -70,13 +73,13 @@ class MissingValuesProcessor(BasePreprocessor):
     Examples
     --------
     >>> import pandas as pd
-    ... from predikit import MissingValuesProcessor
-    ... df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
-    ...
-    ... mvp = MissingValuesProcessor()
-    ... cleaned_X_train = mvp.fit_transform(df)
-    ... cleaned_X_test = mvp.transform(df)
-    ... df
+    >>> from predikit import MissingValuesProcessor
+    >>> df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
+
+    >>> mvp = MissingValuesProcessor()
+    >>> cleaned_X_train = mvp.fit_transform(df)
+    >>> cleaned_X_test = mvp.transform(df)
+    >>> df
     """
 
     def __init__(
@@ -174,7 +177,7 @@ class MissingValuesProcessor(BasePreprocessor):
 
         return self
 
-    # @ override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -195,9 +198,7 @@ class MissingValuesProcessor(BasePreprocessor):
             data = data[columns]
 
         if not hasattr(self, "na_cols"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
 
         if not self.na_cols:
             return data
@@ -423,7 +424,7 @@ class OutliersProcessor(BasePreprocessor):
 
         return self
 
-    # @ override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -441,9 +442,8 @@ class OutliersProcessor(BasePreprocessor):
             The transformed dataframe (shape = (n_samples, n_features)).
         """
         if not hasattr(self, "_weight") or self._weight == {}:
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
+
         for column in self._weight:
             if self.method == OutlierDetectionMethod.IQR:
                 lower_bound, upper_bound = self._weight[column]
@@ -717,9 +717,7 @@ class StringOperationsProcessor(BasePreprocessor):
             If no operations are specified.
         """
         if not hasattr(self, "_str_data"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
 
         if self._str_data is None:
             raise DataNotFittedError(
@@ -936,7 +934,7 @@ class DataCleanser(BasePreprocessor):
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
-    # @ override
+    @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -994,7 +992,7 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return data
 
-    # @ override
+    @override
     def transform(
         self,
         data: DataFrame,
