@@ -1,6 +1,7 @@
 from typing import (
     Self,
     override,
+    override,
 )
 
 from pandas import DataFrame
@@ -9,24 +10,15 @@ from ._base import (
     BasePreprocessor,
     Encoder,
     EncodingStrategies,
-    FeatureType,
 )
 from ._encoders import init_encoder
 
 
 class FeatureSelection(BasePreprocessor):
-    """_summary_
-
-    Parameters
-    ----------
-    BasePreprocessor : _type_
-        _description_
-    """
-
     def __init__(
         self,
-        include_dtypes: list[FeatureType] | str | list[str] | None = None,
-        exclude_dtypes: list[FeatureType] | str | list[str] | None = None,
+        include_dtypes: list[FeatureType] | None = None,
+        exclude_dtypes: list[FeatureType] | None = None,
         verbose: bool = False,
     ) -> None:
         self.include_dtypes = include_dtypes
@@ -42,39 +34,50 @@ class FeatureSelection(BasePreprocessor):
         data: DataFrame,
         columns: list[str] | None = None,
     ) -> Self:
-        # if columns and exclude:
-        #     exc = ValueError(
-        #         "Only one of 'columns' and 'exclude' can be specified"
-        #     )
-        # return Err(str(exc))
-        if self.include_dtypes is not None:
-            dtypes = None
-            if isinstance(self.include_dtypes, str):
-                dtypes = FeatureType.from_str(self.include_dtypes)
-            elif isinstance(self.include_dtypes, list):
-                if isinstance(self.include_dtypes[0], str):
-                    dtypes = FeatureType.from_list(self.include_dtypes)
-                else:
-                    dtypes = list(self.include_dtypes)
-
-            self.include_dtypes = dtypes
-
-        self.empty = False
-        if columns is None and self.exclude_dtypes is None:
-            self.empty = True
-        elif columns is None and self.exclude_dtypes is not None:
-            self.stored_dtypes = self.exclude_dtypes
-            self.empty = False
-        elif columns is not None and self.exclude_dtypes is None:
-            self.stored_cols = columns
-            self.empty = False
+        if columns:
+            data = data[columns]
         else:
-            self.stored_cols = columns
-            self.stored_dtypes = self.exclude_dtypes
-            self.empty = False
+            columns = util.get_dataframe_column_names(data)
+
+        selection = (
+            frozenset(self.include_dtypes),
+            frozenset(self.exclude_dtypes),
+        )
+
+        if not any(selection):
+            raise ValueError(
+                "at least one of include or exclude must be nonempty"
+            )
+
+        include_set = frozenset(self.include_dtypes)
+        exclude_set = frozenset(self.exclude_dtypes)
+
+        if not include_set.isdisjoint(exclude_set):
+            raise ValueError(
+                f"include and exclude overlaps on {include_set & exclude_set}"
+            )
+
+        selected_dtypes = list(include_set) or []
+
+        if self.exclude_dtypes:
+            if self.include_dtypes:
+                selected_dtypes = list(include_set - exclude_set)
+            else:
+                selected_dtypes = util.exclude_from_columns(
+                    util.get_distinct_columns_dtype(data), list(exclude_set)
+                )
+
+        self.selected_features = util.select_dtypes_columns(
+            data, selected_dtypes
+        )
+
+        if self.verbose:
+            logging.debug(selected_dtypes)
+            logging.debug(self.selected_features)
 
         return self
 
+    @override
     @override
     def transform(
         self,
@@ -126,9 +129,11 @@ class EncodingProcessor(BasePreprocessor):
         self._encoder.fit(data)
 
     @override
+    @override
     def transform(
         self,
         data: DataFrame,
+    ) -> DataFrame:
     ) -> DataFrame:
         return self._encoder.transform(data)
 

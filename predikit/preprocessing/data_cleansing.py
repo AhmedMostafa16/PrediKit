@@ -4,6 +4,7 @@ from string import punctuation
 from typing import (
     Self,
     override,
+    override,
 )
 
 import numpy as np
@@ -40,7 +41,7 @@ class MissingValuesProcessor(BasePreprocessor):
     Replace missing values using a descriptive statistic (e.g. mean, median,or
     most frequent) along each column, or using a constant value, or omitting.
 
-    Parameters
+    Attributes
     ----------
     strategy : MissingValueStrategy, default='MEAN'
         The processor strategy.
@@ -70,17 +71,12 @@ class MissingValuesProcessor(BasePreprocessor):
     verbose : bool, default=False
         If True, prints information about missing values in the dataset.
 
-    Attributes
-    ----------
-    method : MissingValuesStrategy
-        The strategy to use for handling missing values. Default is 'MEDIAN'.
-
     Examples
     --------
     >>> import pandas as pd
     >>> from predikit import MissingValuesProcessor
     >>> df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
-    >>>
+
     >>> mvp = MissingValuesProcessor()
     >>> cleaned_X_train = mvp.fit_transform(df)
     >>> cleaned_X_test = mvp.transform(df)
@@ -183,6 +179,7 @@ class MissingValuesProcessor(BasePreprocessor):
         return self
 
     @override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -203,9 +200,7 @@ class MissingValuesProcessor(BasePreprocessor):
             data = data[columns]
 
         if not hasattr(self, "na_cols"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
 
         if not self.na_cols:
             return data
@@ -299,7 +294,7 @@ class MissingValuesProcessor(BasePreprocessor):
         Examples
         --------
         >>> df = DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, np.nan]})
-        >>> _log_missing_percent(df, 0.5)
+        ... _log_missing_percent(df, 0.5)
         Warning: ! Attention B - 67% Missing!
         """
         for col in data.columns:
@@ -433,6 +428,7 @@ class OutliersProcessor(BasePreprocessor):
         return self
 
     @override
+    @override
     def transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -450,9 +446,8 @@ class OutliersProcessor(BasePreprocessor):
             The transformed dataframe (shape = (n_samples, n_features)).
         """
         if not hasattr(self, "_weight") or self._weight == {}:
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
+
         for column in self._weight:
             if self.method == OutlierDetectionMethod.IQR:
                 lower_bound, upper_bound = self._weight[column]
@@ -688,7 +683,8 @@ class StringOperationsProcessor(BasePreprocessor):
                 "No string columns found. "
                 "StringModifierProcessor will be skipped."
             )
-            str(exc)
+
+            raise exc
 
         self._operations = [
             (self.remove_punctuation, self._remove_punctuation),
@@ -725,9 +721,7 @@ class StringOperationsProcessor(BasePreprocessor):
             If no operations are specified.
         """
         if not hasattr(self, "_str_data"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
 
         if self._str_data is None:
             raise DataNotFittedError(
@@ -950,6 +944,7 @@ class DataCleanser(BasePreprocessor):
         raise TypeError("Use the 'fit_transform' method instead of 'fit'")
 
     @override
+    @override
     def fit_transform(
         self, data: DataFrame, columns: list[str] | None = None
     ) -> DataFrame:
@@ -988,7 +983,6 @@ class DataCleanser(BasePreprocessor):
                 )
 
             na_cols = exclude_from_columns(columns, missing_labels)
-            logging.debug(na_cols)
             data = coe.fit_transform(data, columns=na_cols)
 
         if self.string_operations:
@@ -1007,6 +1001,7 @@ class DataCleanser(BasePreprocessor):
         self._fitted = True
         return data
 
+    @override
     @override
     def transform(
         self,

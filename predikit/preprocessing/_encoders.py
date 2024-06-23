@@ -12,7 +12,7 @@ from category_encoders import (
 )
 import numpy as np
 from pandas import DataFrame
-from sklearn.preprocessing import (  # OneHotEncoder,
+from sklearn.preprocessing import (
     LabelEncoder,
     OrdinalEncoder,
 )
@@ -134,18 +134,6 @@ class EncoderFetch:
         return self.transform(df)
 
 
-# ENCODERS = {
-#     EncodingStrategies.HashingEncoder: HashingEncoder,
-#     EncodingStrategies.SumEncoder: SumEncoder,
-#     EncodingStrategies.BackwardDifferenceEncoder: BackwardDifferenceEncoder,
-#     EncodingStrategies.OneHotEncoder: OneHotEncoder,
-#     EncodingStrategies.HelmertEncoder: HelmertEncoder,
-#     EncodingStrategies.BaseNEncoder: BaseNEncoder,
-#     EncodingStrategies.CountEncoder: CountEncoder,
-#     EncodingStrategies.LabelEncoder: LabelEncoder,
-#     EncodingStrategies.PolynomialEncoder: PolynomialEncoder,
-#     EncodingStrategies.OrdinalEncoder: OrdinalEncoder,
-# }
 ENCODERS = {
     EncodingStrategies.HashingEncoder: EncoderFetch,
     EncodingStrategies.SumEncoder: EncoderFetch,

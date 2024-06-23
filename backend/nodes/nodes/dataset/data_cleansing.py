@@ -6,12 +6,11 @@ import sys
 
 import pandas
 
-# noqa: E402
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
 
 from predikit import (
-    BasicFilteringProcessor,
+    DataFilteringProcessor,
     OutliersProcessor,
     StringOperationsProcessor,
 )
@@ -283,7 +282,7 @@ class BasicFilterNode(NodeBase):
         self, dataset: pandas.DataFrame, column, operator: str, value: str
     ) -> pandas.DataFrame:
         try:
-            filter = BasicFilteringProcessor(
+            filter = DataFilteringProcessor(
                 operator=operator,
                 value=value,
             )

@@ -3,6 +3,9 @@
 from __future__ import annotations
 
 import os
+import sys
+
+from nodes.properties.inputs.dataset_input import DatasetInput
 from typing import Union
 
 from nodes.properties.inputs.dataset_input import DatasetInput
@@ -15,6 +18,16 @@ from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import (
     DatasetExtensionDropdown,
+    TextInput,
+)
+
+root = os.path.dirname(os.path.abspath("../../../../predikit/"))
+sys.path.append(root)
+
+from predikit import (
+    DataFrameExporter,
+    FileExtension,
+)
     TextInput,
 )
 

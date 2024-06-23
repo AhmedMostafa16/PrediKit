@@ -9,8 +9,20 @@ from typing import (
     TypeVar,
 )
 
+from typing import (
+    Any,
+    Dict,
+    Iterable,
+    Optional,
+    Set,
+)
+
 from sanic.log import logger
 
+from .chain import (
+    Chain,
+    NodeId,
+)
 from .chain import (
     Chain,
     NodeId,

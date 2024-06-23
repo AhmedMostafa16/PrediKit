@@ -1,3 +1,5 @@
+from typing import Any
+
 from catboost import CatBoostRegressor
 from lightgbm import LGBMRegressor
 from numpy import ndarray
@@ -12,10 +14,7 @@ from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBRegressor
 
-from ..._typing import (
-    Any,
-    MatrixLike,
-)
+from ..._typing import MatrixLike
 from ._base import (
     BaseRegressor,
     RegressorStrategies,

@@ -5,7 +5,6 @@ from typing import (
     TypeAlias,
     Union,
 )
-from typing import Any  # noqa: F401
 
 import numpy as np
 import numpy.typing
@@ -28,3 +27,21 @@ PdReader: TypeAlias = Callable[..., DataFrame]
 FilePath: TypeAlias = str | PathLike[str]
 DfExporter: TypeAlias = Callable[..., str | None]
 MemoryUnit: TypeAlias = Literal["B", "KB", "MB", "GB"]
+
+# sort_index
+SortKind: TypeAlias = Literal["quicksort", "mergesort", "heapsort", "stable"]
+NaPosition: TypeAlias = Literal["first", "last"]
+
+# merger
+MergeHow = Literal["left", "right", "inner", "outer", "cross"]
+
+FeatureType: TypeAlias = Literal[
+    "number",
+    "int",
+    "float",
+    "bool",
+    "category",
+    "object",
+    "datetime",
+    "timedelta",
+]

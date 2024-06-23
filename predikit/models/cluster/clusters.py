@@ -3,12 +3,10 @@ from sklearn.cluster import (
     DBSCAN,
     KMeans,
 )
+from typing import Any
+from ..._typing import MatrixLike
 from sklearn.exceptions import NotFittedError
 
-from ..._typing import (
-    Any,
-    MatrixLike,
-)
 from ._base import (
     BaseCluster,
     ClusterStrategies,
