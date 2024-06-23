@@ -17,18 +17,16 @@ __all__ = [
     "EncodingStrategies",
     "EncodingProcessor",
     "FilterOperator",
-    "BasicFilteringProcessor",
+    "DataFilteringProcessor",
     "StringOperationsProcessor",
     "CaseModifyingMethod",
     "DataCleanser",
-    "FeatureType",
 ]
 
 # ------ method enums -------
 from ._base import (
     CaseModifyingMethod,
     EncodingStrategies,
-    FeatureType,
     FilterOperator,
     MissingValueStrategy,
     OutlierDetectionMethod,
@@ -41,7 +39,7 @@ from .data_cleansing import (
     OutliersProcessor,
     StringOperationsProcessor,
 )
-from .data_filtering import BasicFilteringProcessor
+from .data_filtering import DataFilteringProcessor
 from .data_prepare import DataPreparer
 from .feature_engineering import (
     EncodingProcessor,

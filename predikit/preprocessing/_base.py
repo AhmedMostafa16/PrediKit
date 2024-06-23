@@ -33,11 +33,11 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
     Examples
     --------
     >>> class CustomPreprocessor(BasePreprocessor):
-    ...     def fit(self, data, columns=None):
+    >>>     def fit(self, data, columns=None):
     ...         # Implement fit functionality here
     ...         return self
-    ...
-    ...     def transform(self, data):
+
+    >>>     def transform(self, data):
     ...         # Implement transform functionality here
     ...         return X_transformed
     """
@@ -364,8 +364,10 @@ class FilterOperator(StrEnum):
             FilterOperator.GREATEREQUAL: ">=",
             FilterOperator.LESS: "<",
             FilterOperator.LESSEQUAL: "<=",
-            FilterOperator.NULL: "isna()",
-            FilterOperator.NOTNULL: "notna()",
+            FilterOperator.NULL: "isna",
+            FilterOperator.NOTNULL: "notna",
+            FilterOperator.CONTAINS: "in",
+            FilterOperator.DOES_NOT_CONTAIN: "not in",
         }[self]
 
     @property
@@ -438,7 +440,7 @@ class FilterOperator(StrEnum):
                 return cls.LESSEQUAL
             case "isna" | "null":
                 return cls.NULL
-            case "notna()" | "not_null" | "notnull":
+            case "notna" | "not_null" | "notnull":
                 return cls.NOTNULL
             case "contains" | "in":
                 return cls.CONTAINS
@@ -519,78 +521,3 @@ class CaseModifyingMethod(StrEnum):
                 return cls.CASEFOLD
             case _:
                 raise ValueError(f"Invalid case modifying method: {method}")
-
-
-class FeatureType(StrEnum):
-    INTEGER = "i"
-    FLOAT = "f"
-    BOOLEAN = "b"
-    DATETIME = "M"
-    TIMEDELTA = "m"
-    CATEGORY = "O"
-    OBJECT = "O"
-
-    @classmethod
-    def from_str(cls, dtype: str) -> "FeatureType":
-        """
-        Returns the enumeration member corresponding to the given string.
-
-        Parameters
-        ----------
-        dtype : str
-            The string representation of the dtype.
-
-        Returns
-        -------
-        FeatureType
-            The enumeration member corresponding to the given string.
-        """
-        dtype = dtype.lower()
-        match dtype:
-            case "int" | "int64" | "int32" | "int16" | "int8" | "integer":
-                return cls.INTEGER
-            case "float" | "float64" | "float32" | "float16":
-                return cls.FLOAT
-            case "bool" | "boolean":
-                return cls.BOOLEAN
-            case "datetime" | "datetime64" | "datetime32" | "datetime16":
-                return cls.DATETIME
-            case "timedelta" | "timedelta64" | "timedelta32" | "timedelta16":
-                return cls.TIMEDELTA
-            case "category":
-                return cls.CATEGORY
-            case "object" | "str" | "string":
-                return cls.OBJECT
-            case _:
-                raise ValueError(f"Invalid dtype: {dtype}")
-
-    @classmethod
-    def from_list(cls, dtypes: list[str]) -> list["FeatureType"]:
-        """
-        Returns a list of enumeration members corresponding to the given
-        list of strings.
-
-        Parameters
-        ----------
-        dtypes : list[str]
-            The list of string representations of the dtypes.
-
-        Returns
-        -------
-        list[FeatureType]
-            A list of enumeration members corresponding to the given list
-            of strings.
-        """
-        return list(map(lambda dtype: cls.from_str(dtype), dtypes))
-
-    def list(self):
-        """
-        Returns a list of all the members of the enumeration.
-
-        Returns
-        -------
-        list
-            A list of all the members of the enumeration.
-        """
-
-        return list(map(lambda c: c.value, self.__class__))

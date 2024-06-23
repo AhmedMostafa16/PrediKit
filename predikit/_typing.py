@@ -34,3 +34,14 @@ NaPosition: TypeAlias = Literal["first", "last"]
 
 # merger
 MergeHow = Literal["left", "right", "inner", "outer", "cross"]
+
+FeatureType: TypeAlias = Literal[
+    "number",
+    "int",
+    "float",
+    "bool",
+    "category",
+    "object",
+    "datetime",
+    "timedelta",
+]
