@@ -1,12 +1,11 @@
 from sklearn.metrics import (
+    ConfusionMatrixDisplay,
     accuracy_score,
     auc,
     confusion_matrix,
     f1_score,
     mean_absolute_error,
     mean_squared_error,
-    ConfusionMatrixDisplay,
-    confusion_matrix,
     precision_score,
     recall_score,
     roc_curve,
@@ -52,9 +51,6 @@ class Metrics:
         self.y_true = y_true
         self.y_pred = y_pred
 
-
-   
-
     def plot_confusion_matrix_func(self, y_true, y_predict):
         """
         Plots the confusion matrix.
@@ -73,7 +69,6 @@ class Metrics:
         """
         return confusion_matrix(y_true, y_predict)
 
-
     def plot_roc_auc(self, X_test, y_test):
         """
         Plots the ROC curve and AUC.
@@ -89,7 +84,7 @@ class Metrics:
         fpr, tpr, _ = roc_curve(y_test, y_score)
         roc_auc = auc(fpr, tpr)
 
-        return roc_auc 
+        return roc_auc
 
         # plt.figure()
         # plt.plot(fpr, tpr, label="ROC curve (area = %0.2f)" % roc_auc)
