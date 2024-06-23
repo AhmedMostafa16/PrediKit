@@ -21,7 +21,7 @@ from ._base import (
     BaseClassifier,
     ClassifierStrategies,
 )
-
+import joblib
 
 class Classifier(BaseClassifier):
     """
@@ -169,5 +169,17 @@ class Classifier(BaseClassifier):
         """
         try:
             return self.model
+        except Exception:
+            raise NotFittedError("You have to fit the model first.")
+
+    def save_model(self, path: str) -> None:
+        """
+        Saves the model to a file.
+
+        Args:
+            path (str): The path to save the model to.
+        """
+        try:
+            joblib.dump(self.model, path)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
