@@ -1,5 +1,3 @@
-import matplotlib.pyplot as plt
-import numpy as np
 from sklearn.metrics import (
     accuracy_score,
     auc,
@@ -7,18 +5,13 @@ from sklearn.metrics import (
     f1_score,
     mean_absolute_error,
     mean_squared_error,
-    plot_confusion_matrix,
+    ConfusionMatrixDisplay,
+    confusion_matrix,
     precision_score,
     recall_score,
     roc_curve,
     root_mean_squared_error,
 )
-from sklearn.model_selection import (
-    KFold,
-    learning_curve,
-)
-
-from predikit.models import Model_type
 
 
 class Metrics:
@@ -35,6 +28,13 @@ class Metrics:
         Estimated targets as returned by a classifier.
     """
 
+    _metrics = {
+        "accuracy": accuracy_score,
+        "precision": precision_score,
+        "recall": recall_score,
+        "f1": f1_score,
+    }
+
     def __init__(self, metric, y_true, y_pred):
         """
         Constructs all the necessary attributes for the Metrics object.
@@ -48,35 +48,31 @@ class Metrics:
         y_pred : array-like of shape (n_samples,)
             Estimated targets as returned by a classifier.
         """
-        self.metric = metric
+        self.metric = self._metrics[metric](self.y_true, self.y_pred)
         self.y_true = y_true
         self.y_pred = y_pred
 
-    _metrics = {
-        "accuracy": accuracy_score,
-        "precision": precision_score,
-        "recall": recall_score,
-        "f1": f1_score,
-    }
 
-    def metric(self):
-        """Returns the specified metric score between y_true and y_pred"""
-        return self._metrics[self.metric](self.y_true, self.y_pred)
+   
 
-    def plot_confusion_matrix_func(self, X_test, y_test):
+    def plot_confusion_matrix_func(self, y_true, y_predict):
         """
         Plots the confusion matrix.
 
         Parameters
         ----------
-        X_test : array-like of shape (n_samples, n_features)
-            Test data.
-        y_test : array-like of shape (n_samples,)
-            True labels for X_test.
+        y_true : array-like of shape (n_samples,)
+            True labels.
+        y_predict : array-like of shape (n_samples,)
+            Predicted labels.
+
+        Returns
+        -------
+        array-like of shape (n_classes, n_classes)
+            Confusion matrix.
         """
-        plot_confusion_matrix(self.model, X_test, y_test)
-        plt.title("Confusion Matrix")
-        plt.show()
+        return confusion_matrix(y_true, y_predict)
+
 
     def plot_roc_auc(self, X_test, y_test):
         """
@@ -93,8 +89,10 @@ class Metrics:
         fpr, tpr, _ = roc_curve(y_test, y_score)
         roc_auc = auc(fpr, tpr)
 
-        plt.figure()
-        plt.plot(fpr, tpr, label="ROC curve (area = %0.2f)" % roc_auc)
+        return roc_auc 
+
+        # plt.figure()
+        # plt.plot(fpr, tpr, label="ROC curve (area = %0.2f)" % roc_auc)
 
     def get_mse(self):
         """Returns the mean squared error between y_true and y_pred"""
