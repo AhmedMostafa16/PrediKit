@@ -1,7 +1,6 @@
-from abc import ABC, abstractmethod
-
+from abc import ABC
 from enum import StrEnum
-from .._typing import MatrixLike, Any
+from typing import Any
 
 
 class BaseVisualization(ABC):

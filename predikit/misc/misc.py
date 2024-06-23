@@ -24,15 +24,15 @@ class RowSelector(BasePreprocessor):
     Examples
     --------
     >>> import predikit as pk
-    ... from pandas import DataFrame
-    ... data = pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
-    ... input = '''
+    >>> from pandas import DataFrame
+    >>> data = pd.DataFrame({'A': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]})
+    >>> input = '''
     ... -2
     ... 5-7
     ... 8+
     ... '''
-    ... rs = pk.RowSelector(input)
-    ... rs.fit_transform(data)
+    >>> rs = pk.RowSelector(input)
+    >>> rs.fit_transform(data)
     """
 
     def __init__(

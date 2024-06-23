@@ -1,9 +1,12 @@
-from typing import Dict, List, Union
-import numpy as np
+from typing import (
+    Dict,
+    List,
+    Union,
+)
+
 import pandas
 
 from .. import expression
-
 from .base_input import BaseInput
 
 

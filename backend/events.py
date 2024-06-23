@@ -5,12 +5,15 @@ from typing import (
     List,
     Literal,
     Optional,
-    Tuple,
     TypedDict,
     Union,
 )
 
-from base_types import NodeId, InputId, OutputId
+from base_types import (
+    InputId,
+    NodeId,
+    OutputId,
+)
 
 
 class FinishData(TypedDict):

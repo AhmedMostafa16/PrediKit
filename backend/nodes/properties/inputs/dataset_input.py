@@ -1,5 +1,3 @@
-import pandas
-from ...properties import expression
 from ...properties.inputs.base_input import BaseInput
 
 

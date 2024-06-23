@@ -1,32 +1,27 @@
 from __future__ import annotations
-from ast import match_case
 
 import os
-import random
-import string
 import sys
-from typing import Union
-import pandas
-from result import Ok
-
-from sanic.log import logger
-from ...properties.outputs.file_outputs import DatasetFileOutput
 
 from nodes.properties.inputs.dataset_input import DatasetInput
+import pandas
+from sanic.log import logger
 
 from . import category as DatasetCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import (
-    TextInput,
     DatasetExtensionDropdown,
+    TextInput,
 )
-
 
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
 
-from predikit import FileExtension, DataFrameExporter
+from predikit import (
+    DataFrameExporter,
+    FileExtension,
+)
 
 
 @NodeFactory.register("predikit:dataset:save")

@@ -18,7 +18,6 @@ from typing import (
     TypeVar,
     Union,
 )
-import numpy as np
 import pandas
 
 from sanic.log import logger

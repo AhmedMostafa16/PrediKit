@@ -1,7 +1,5 @@
-import numpy as np
-from pandas import DataFrame
-import hashlib
 from collections import defaultdict
+import hashlib
 
 from category_encoders import (
     BackwardDifferenceEncoder,
@@ -12,13 +10,17 @@ from category_encoders import (
     PolynomialEncoder,
     SumEncoder,
 )
+import numpy as np
+from pandas import DataFrame
 from sklearn.preprocessing import (
     LabelEncoder,
-    # OneHotEncoder,
     OrdinalEncoder,
 )
 
-from ._base import EncodingStrategies, Encoder
+from ._base import (
+    Encoder,
+    EncodingStrategies,
+)
 
 
 class OneHotEncoder:
@@ -139,18 +141,6 @@ class EncoderFetch:
         return self.transform(df)
 
 
-# ENCODERS = {
-#     EncodingStrategies.HashingEncoder: HashingEncoder,
-#     EncodingStrategies.SumEncoder: SumEncoder,
-#     EncodingStrategies.BackwardDifferenceEncoder: BackwardDifferenceEncoder,
-#     EncodingStrategies.OneHotEncoder: OneHotEncoder,
-#     EncodingStrategies.HelmertEncoder: HelmertEncoder,
-#     EncodingStrategies.BaseNEncoder: BaseNEncoder,
-#     EncodingStrategies.CountEncoder: CountEncoder,
-#     EncodingStrategies.LabelEncoder: LabelEncoder,
-#     EncodingStrategies.PolynomialEncoder: PolynomialEncoder,
-#     EncodingStrategies.OrdinalEncoder: OrdinalEncoder,
-# }
 ENCODERS = {
     EncodingStrategies.HashingEncoder: EncoderFetch,
     EncodingStrategies.SumEncoder: EncoderFetch,

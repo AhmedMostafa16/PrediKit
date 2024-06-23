@@ -1,18 +1,26 @@
-from ._base import ClassifierStrategies, BaseClassifier
-from ..._typing import MatrixLike, Any
-from numpy import ndarray, log
-from sklearn.exceptions import NotFittedError
-from sklearn.preprocessing import LabelEncoder
-
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
-
-from lightgbm import LGBMClassifier
-from sklearn.svm import SVC
 from catboost import CatBoostClassifier
+from lightgbm import LGBMClassifier
+from numpy import (
+    log,
+    ndarray,
+)
+from sklearn.ensemble import (
+    AdaBoostClassifier,
+    RandomForestClassifier,
+)
+from sklearn.exceptions import NotFittedError
+from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
-from sklearn.linear_model import LogisticRegression
+
+from ..._typing import MatrixLike
+from ._base import (
+    BaseClassifier,
+    ClassifierStrategies,
+)
 
 
 class Classifier(BaseClassifier):

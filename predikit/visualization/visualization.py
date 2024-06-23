@@ -10,11 +10,6 @@ from plotly import offline
 from plotly.graph_objs import Figure
 from plotly.io import to_json
 
-from .._typing import (
-    Any,
-    MatrixLike,
-)
-
 from ._base import (
     BaseVisualization,
     VisualizationStrategies,

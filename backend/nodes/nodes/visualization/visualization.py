@@ -1,6 +1,3 @@
-import os
-from re import T
-import sys
 from typing import Literal
 
 import pandas
@@ -8,15 +5,15 @@ import plotly.io as pio
 
 pandas.options.plotting.backend = "plotly"
 
-from ...properties.outputs.plot_output import PlotOutput
+from . import category as VisualizationsCategory
+from ...node_base import NodeBase
+from ...node_factory import NodeFactory
+from ...properties.inputs.dataset_input import DatasetInput
 from ...properties.inputs.generic_inputs import (
     DropDownInput,
     TextInput,
 )
-from ...properties.inputs.dataset_input import DatasetInput
-from ...node_base import NodeBase
-from ...node_factory import NodeFactory
-from . import category as VisualizationsCategory
+from ...properties.outputs.plot_output import PlotOutput
 
 
 @NodeFactory.register("predikit:visualization:visualize")

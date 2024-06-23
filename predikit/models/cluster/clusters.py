@@ -1,6 +1,7 @@
 from ._base import BaseCluster, ClusterStrategies
 from numpy import ndarray
-from ..._typing import MatrixLike, Any
+from typing import Any
+from ..._typing import MatrixLike
 from sklearn.exceptions import NotFittedError
 
 from sklearn.cluster import DBSCAN, KMeans

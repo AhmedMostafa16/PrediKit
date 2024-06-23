@@ -1,6 +1,7 @@
 from ._base import BaseRegressor, RegressorStrategies
 
-from ..._typing import MatrixLike, Any
+from typing import Any
+from ..._typing import MatrixLike
 from numpy import ndarray
 from sklearn.exceptions import NotFittedError
 
