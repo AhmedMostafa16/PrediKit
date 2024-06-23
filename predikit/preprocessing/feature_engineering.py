@@ -9,7 +9,10 @@ from pandas import DataFrame
 from predikit import util
 from predikit.errors.transformer import DataNotFittedError
 
-from .._typing import FeatureType
+from .._typing import (
+    FeatureType,
+    MergeHow,
+)
 from ._base import (
     BasePreprocessor,
     Encoder,
@@ -56,7 +59,6 @@ class FeatureSelection(BasePreprocessor):
         include_set = frozenset(self.include_dtypes)
         exclude_set = frozenset(self.exclude_dtypes)
 
-        
         if not include_set.isdisjoint(exclude_set):
             raise ValueError(
                 f"include and exclude overlaps on {include_set & exclude_set}"
@@ -97,6 +99,48 @@ class FeatureSelection(BasePreprocessor):
             raise DataNotFittedError
 
         return data[self.selected_features]
+
+
+class MergeProcessor(BasePreprocessor):
+    """A class used to merge two DataFrames.
+    Attributes
+    ----------
+    data : DataFrame
+        The DataFrame to merge with.
+    on : str | list[str]
+        The column or columns to merge on.
+    how : MergeHow
+        The type of merge to perform.
+    suffixes : tuple[str, str]
+        The suffixes to add to the column names if they are the same in both
+        DataFrames.
+    """
+
+    def __init__(
+        self,
+        data: DataFrame,
+        on: str | list[str],
+        how: MergeHow = "inner",
+        suffixes: tuple[str, str] = ("_x", "_y"),
+    ) -> None:
+        self.data: DataFrame = data
+        self.on: str | list[str] = on
+        self.how: MergeHow = how
+        self.suffixes: tuple[str, str] = suffixes
+
+    def transform(
+        self, data: DataFrame, columns: list[str] | None = None
+    ) -> DataFrame:
+        if columns:
+            data = data[columns]
+
+        # catch KeyError if `on` attribute column is not found
+        return data.merge(
+            right=self.data,
+            on=self.on,
+            how=self.how,
+            suffixes=self.suffixes,
+        )
 
 
 class NumericalInteractionFeatures(BasePreprocessor):

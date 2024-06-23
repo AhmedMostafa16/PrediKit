@@ -12,12 +12,6 @@ from predikit.io import (
     DataFrameExporter,
     DataFrameParser,
 )
-from predikit.misc import (
-    Merger,
-    RowIdentifier,
-    RowSelector,
-    Sorter,
-)
 from predikit.models import (
     Classifier,
     Cluster,
@@ -32,10 +26,14 @@ from predikit.preprocessing import (
     EncodingStrategies,
     FeatureSelection,
     FilterOperator,
+    MergeProcessor,
     MissingValuesProcessor,
     MissingValueStrategy,
     OutlierDetectionMethod,
     OutliersProcessor,
+    RowIdentifier,
+    RowSelector,
+    RowSorter,
     StringOperationsProcessor,
 )
 from predikit.util import (
@@ -75,8 +73,8 @@ __all__ = [
     "Visualization",
     "RowSelector",
     "RowIdentifier",
-    "Sorter",
-    "Merger",
+    "RowSorter",
+    "MergeProcessor",
 ]
 
 

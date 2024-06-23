@@ -5,12 +5,11 @@ from pandas import DataFrame
 from predikit.errors import DataNotFittedError
 
 from .._typing import (
-    MergeHow,
     NaPosition,
     SortKind,
 )
 from ..preprocessing._base import BasePreprocessor
-from ._misc_base import RowSelectionInterpreter
+from ._base import RowSelectionInterpreter
 
 
 class RowSelector(BasePreprocessor):
@@ -101,24 +100,26 @@ class RowIdentifier(BasePreprocessor):
         *,
         value_prefix: str = "",
         start_value: int = 0,
-        from_exisiting_col: str | None = None,
+        from_existing_col: str | None = None,
     ) -> None:
-        self.name: str = new_col_name
-        self.prefix: str = value_prefix
-        self.start: int = start_value
-        self.existing_col: str | None = from_exisiting_col
+        self.new_col_name: str = new_col_name
+        self.value_prefix: str = value_prefix
+        self.start_value: int = start_value
+        self.from_existing_col: str | None = from_existing_col
 
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         if columns:
             data = data[columns]
 
-        if self.existing_col:
-            self.indices = data[self.existing_col]
+        if self.from_existing_col:
+            self.indices = data[self.from_existing_col]
+            if self.value_prefix:
+                self.indices = self.value_prefix + self.indices
         else:
-            self.indices = self.start + data.reset_index().index
+            self.indices = self.start_value + data.reset_index().index
 
-            if self.prefix:
-                self.indices = self.prefix + self.indices.astype(str)
+            if self.value_prefix:
+                self.indices = self.value_prefix + self.indices.astype(str)
 
         return self
 
@@ -133,12 +134,12 @@ class RowIdentifier(BasePreprocessor):
                 "Data must be fitted first using the 'fit' method"
             )
 
-        data[self.name] = self.indices
+        data[self.new_col_name] = self.indices
 
         return data
 
 
-class Sorter(BasePreprocessor):
+class RowSorter(BasePreprocessor):
     """A class used to sort a DataFrame based on the input string.
 
     Attributes
@@ -176,46 +177,4 @@ class Sorter(BasePreprocessor):
             ascending=self.ascending,
             kind=self.kind,
             na_position=self.na_position,
-        )
-
-
-class Merger(BasePreprocessor):
-    """A class used to merge two DataFrames.
-    Attributes
-    ----------
-    data : DataFrame
-        The DataFrame to merge with.
-    on : str | list[str]
-        The column or columns to merge on.
-    how : MergeHow
-        The type of merge to perform.
-    suffixes : tuple[str, str]
-        The suffixes to add to the column names if they are the same in both
-        DataFrames.
-    """
-
-    def __init__(
-        self,
-        data: DataFrame,
-        on: str | list[str],
-        how: MergeHow = "inner",
-        suffixes: tuple[str, str] = ("_x", "_y"),
-    ) -> None:
-        self.data: DataFrame = data
-        self.on: str | list[str] = on
-        self.how: MergeHow = how
-        self.suffixes: tuple[str, str] = suffixes
-
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
-        if columns:
-            data = data[columns]
-
-        # catch KeyError if `on` attribute column is not found
-        return data.merge(
-            right=self.data,
-            on=self.on,
-            how=self.how,
-            suffixes=self.suffixes,
         )

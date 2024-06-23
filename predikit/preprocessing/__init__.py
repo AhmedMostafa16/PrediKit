@@ -21,6 +21,10 @@ __all__ = [
     "StringOperationsProcessor",
     "CaseModifyingMethod",
     "DataCleanser",
+    "MergeProcessor",
+    "RowIdentifier",
+    "RowSelector",
+    "RowSorter",
 ]
 
 # ------ method enums -------
@@ -44,5 +48,11 @@ from .data_prepare import DataPreparer
 from .feature_engineering import (
     EncodingProcessor,
     FeatureSelection,
+    MergeProcessor,
     NumericalInteractionFeatures,
+)
+from .row_ops import (
+    RowIdentifier,
+    RowSelector,
+    RowSorter,
 )

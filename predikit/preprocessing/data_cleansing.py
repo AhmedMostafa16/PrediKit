@@ -973,7 +973,6 @@ class DataCleanser(BasePreprocessor):
                 )
 
             na_cols = exclude_from_columns(columns, missing_labels)
-            logging.debug(na_cols)
             data = coe.fit_transform(data, columns=na_cols)
 
         if self.string_operations:
