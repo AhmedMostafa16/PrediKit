@@ -1,12 +1,12 @@
+from typing import Any
+
 from numpy import ndarray
+from pandas import DataFrame
 from sklearn.cluster import (
     DBSCAN,
     KMeans,
 )
-from pandas import DataFrame
 from sklearn.exceptions import NotFittedError
-
-from typing import Any
 
 from ._base import (
     BaseCluster,

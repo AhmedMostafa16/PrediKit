@@ -5,14 +5,14 @@ from numpy import (
     log,
     ndarray,
 )
+from pandas import DataFrame
 from sklearn.ensemble import (
     AdaBoostClassifier,
     RandomForestClassifier,
 )
-from sklearn.model_selection import train_test_split
-from pandas import DataFrame
 from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.svm import SVC
@@ -69,8 +69,8 @@ class Classifier(BaseClassifier):
         else:
             self.model = self._CLASSIFIERS[self.strategy](**params)
         X, y = data.drop(target, axis=1), data[target]
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            X, y, test_size=0.2
+        self.X_train, self.X_test, self.y_train, self.y_test = (
+            train_test_split(X, y, test_size=0.2)
         )
 
     def fit(self) -> "Classifier":
@@ -92,7 +92,9 @@ class Classifier(BaseClassifier):
                 "string",
             ]
         ):
-            self.y_train.dtype = LabelEncoder().fit_transform(self.y_train.dtype)
+            self.y_train.dtype = LabelEncoder().fit_transform(
+                self.y_train.dtype
+            )
         return self.model.fit(self.X_train, self.y_train)
 
     def score(self) -> float:
@@ -167,7 +169,7 @@ class Classifier(BaseClassifier):
             return log(self.predict_proba(self.X_test))
         except Exception:
             raise NotFittedError("You have to fit the model first.")
-        
+
     def get_y_true(self) -> ndarray:
         """
         Returns the true labels for the test data.

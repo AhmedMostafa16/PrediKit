@@ -2,22 +2,20 @@ from catboost import CatBoostRegressor
 import joblib
 from lightgbm import LGBMRegressor
 from numpy import ndarray
+from pandas import DataFrame
 from sklearn.ensemble import (
     AdaBoostRegressor,
     RandomForestRegressor,
 )
-from sklearn.model_selection import train_test_split
-from pandas import DataFrame
 from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBRegressor
 
-from ..._typing import (
-    Any,
-)
+from ..._typing import Any
 from ._base import (
     BaseRegressor,
     RegressorStrategies,
@@ -67,8 +65,8 @@ class Regressor(BaseRegressor):
         else:
             self.model = self._REGRESSORS[self.strategy](**params)
         X, y = data.drop(target, axis=1), data[target]
-        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
-            X, y, test_size=0.2
+        self.X_train, self.X_test, self.y_train, self.y_test = (
+            train_test_split(X, y, test_size=0.2)
         )
 
     def fit(self) -> "Regressor":
