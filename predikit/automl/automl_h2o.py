@@ -1,9 +1,10 @@
 from typing import Tuple
-from pandas import DataFrame
+
 import h2o
 from h2o.automl import H2OAutoML
 import h2o.display
 import numpy as np
+from pandas import DataFrame
 from sklearn.metrics import (
     ConfusionMatrixDisplay,
     confusion_matrix,
@@ -24,7 +25,7 @@ from tensorflow.python.keras.metrics import (
 
 
 def initialize_cluster_server(
-    params: dict[str, str | int | float | bool] = None
+    params: dict[str, str | int | float | bool] = None,
 ) -> None:
     """
     Initializes the H2O cluster server.
