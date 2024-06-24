@@ -13,8 +13,6 @@ from ...properties.inputs import DatasetFileInput
 from ...properties.outputs import TextOutput
 from ...properties.outputs.dataset_output import DatasetOutput
 from ...utils.dataset_utils import get_available_dataset_formats
-from ...properties.outputs.dataset_output import DatasetOutput
-from ...utils.dataset_utils import get_available_dataset_formats
 
 
 @NodeFactory.register("predikit:dataset:load")

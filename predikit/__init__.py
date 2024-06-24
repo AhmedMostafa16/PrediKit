@@ -8,12 +8,6 @@ from predikit.automl import (
     initialize_cluster_server,
     split_train_test,
 )
-from predikit.automl import (
-    AutoML,
-    import_file,
-    initialize_cluster_server,
-    split_train_test,
-)
 from predikit.io import (
     DataFrameExporter,
     DataFrameParser,
@@ -23,7 +17,6 @@ from predikit.models import (
     Cluster,
     Regressor,
 )
-
 from predikit.preprocessing import (
     CaseModifyingMethod,
     DataCleanser,
@@ -48,7 +41,6 @@ from predikit.util import (
     init_logging_config,
     validations,
 )
-from predikit.visualization import Visualization
 from predikit.visualization import Visualization
 
 __all__ = [

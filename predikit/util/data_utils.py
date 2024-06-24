@@ -119,7 +119,9 @@ def get_numeric_data(
     return None if not numeric_columns else dataframe[numeric_columns]
 
 
-def exclude_from_columns(columns: list[str], exclude: list[str] | None) -> list[str]:
+def exclude_from_columns(
+    columns: list[str], exclude: list[str] | None
+) -> list[str]:
     """
     Exclude the columns from the list of columns.
 
@@ -250,6 +252,7 @@ def get_distinct_columns_dtype(dataframe: DataFrame) -> list[str]:
         A list of distinct data types of the columns in the DataFrame.
     """
     return list({dtype.name for dtype in dataframe.dtypes.values})
+
 
 def select_dtypes_columns(dataframe: DataFrame, dtypes) -> list[str]:
     selected_columns = dataframe.select_dtypes(include=dtypes).columns
