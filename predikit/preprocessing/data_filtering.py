@@ -2,6 +2,7 @@ import logging
 from typing import (
     Self,
     cast,
+    override,
 )
 
 from pandas import DataFrame
