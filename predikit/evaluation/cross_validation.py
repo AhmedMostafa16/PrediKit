@@ -190,7 +190,7 @@ class CrossValidation:
 
         Returns:
             dict[str, str | int | float]: A dictionary containing the best parameters.
-        
+
         Raises:
             NotFittedError: If the grid has not been fitted yet.
         """

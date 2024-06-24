@@ -14,7 +14,6 @@ from ._base import (
 )
 
 
-
 class Cluster(BaseCluster):
     """
     A class that encapsulates various clustering algorithms for efficient data analysis.
