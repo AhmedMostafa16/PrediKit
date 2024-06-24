@@ -56,11 +56,11 @@ class OneHotEncoder:
     """
 
     def __init__(
-        self, 
-        cols: list[str] = None, 
-        drop: str = None, 
-        handle_unknown: str = 'ignore'
-        ) -> None:
+        self,
+        cols: list[str] = None,
+        drop: str = None,
+        handle_unknown: str = "ignore",
+    ) -> None:
         self.columns: list[str] = cols
         self.drop: str = drop
         self.handle_unknown: str = handle_unknown
@@ -80,13 +80,24 @@ class OneHotEncoder:
         if self.columns is None:
             self.columns = df.columns
         for column in self.columns:
-            unique_values = df[column].dropna().unique()  # Drop NaN values from unique values
+            unique_values = (
+                df[column].dropna().unique()
+            )  # Drop NaN values from unique values
             if self.drop == "first":
-                unique_values = np.delete(unique_values, 0)  # Drop the first category
+                unique_values = np.delete(
+                    unique_values, 0
+                )  # Drop the first category
             elif self.drop == "if_binary" and len(unique_values) == 2:
-                unique_values = unique_values[1:]  # Drop the first category if binary
-            self.encodings[column] = {value: np.eye(len(unique_values))[i] for i, value in enumerate(unique_values)}
-            self.feature_names_out.extend([f"{column}_{value}" for value in unique_values])
+                unique_values = unique_values[
+                    1:
+                ]  # Drop the first category if binary
+            self.encodings[column] = {
+                value: np.eye(len(unique_values))[i]
+                for i, value in enumerate(unique_values)
+            }
+            self.feature_names_out.extend(
+                [f"{column}_{value}" for value in unique_values]
+            )
 
     def transform(self, df: DataFrame) -> DataFrame:
         """
@@ -97,18 +108,20 @@ class OneHotEncoder:
 
         Returns:
             DataFrame: The transformed DataFrame.
-        
+
         Raises:
             NotFittedError: If the encoder is not fitted before calling transform.
         """
         try:
             df_encoded = df.copy()
-            if self.handle_unknown == 'remove':
+            if self.handle_unknown == "remove":
                 df_encoded = df_encoded.dropna(subset=self.columns)
             for column in self.columns:
                 if column in df_encoded:
                     for value in self.encodings[column].keys():
-                        df_encoded[column + "_" + str(value)] = (df_encoded[column] == value).astype(int)
+                        df_encoded[column + "_" + str(value)] = (
+                            df_encoded[column] == value
+                        ).astype(int)
                     df_encoded.drop(column, axis=1, inplace=True)
             return df_encoded
         except NotFittedError as e:
@@ -135,14 +148,16 @@ class OneHotEncoder:
 
         Returns:
             list: A list of string, the names of the encoded features.
-        
+
         Raises:
             NotFittedError: If the encoder is not fitted before calling get_features_names_out.
         """
         try:
             return self.feature_names_out
         except NotFittedError as e:
-            raise e("Please fit the encoder before calling get_features_names_out.")
+            raise e(
+                "Please fit the encoder before calling get_features_names_out."
+            )
 
 
 class EncoderFetch:
@@ -231,14 +246,17 @@ class EncoderFetch:
                 EncodingStrategies.OrdinalEncoder,
                 EncodingStrategies.LabelEncoder,
             ]:
-                df_encoded = DataFrame(self._encoder.transform(df_encoded[self.columns]))
+                df_encoded = DataFrame(
+                    self._encoder.transform(df_encoded[self.columns])
+                )
                 df_return.drop(self.columns, axis=1, inplace=True)
                 df_return[df_encoded.columns] = df_encoded
             else:
                 cat_col = [
                     col
                     for col in self.columns
-                    if col in df_encoded.select_dtypes(include=["category", "object"])
+                    if col
+                    in df_encoded.select_dtypes(include=["category", "object"])
                 ]
                 df_encoded = self._encoder.transform(df_encoded[self.columns])
                 df_return[df_encoded.columns] = df_encoded
