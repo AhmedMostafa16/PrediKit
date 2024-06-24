@@ -78,11 +78,53 @@ class AutoML:
 
     Args:
         model_type (str): The type of model to train. Default is None.
-        max_runtime_secs (int): The maximum runtime in seconds for the AutoML process. Default is None.
+        max_runtime_secs (int): The maximum runtime in seconds for the AutoML process. Default is 3600 (1 Hour).
         max_models (int): The maximum number of models to train. Default is None.
         balance_classes (bool): Whether to balance the class distribution of the target variable. Default is False.
         class_sampling_factors (list[float]): The per-class (in lexicographical order) over/under-sampling ratios for the training data. Default is None.
         stopping_metric (str): The metric to use for early stopping. Default is "AUTO".
+            The available options are:
+            
+            - ``"AUTO"`` (This defaults to ``"logloss"`` for classification, ``"deviance"`` for regression)
+            - ``"deviance"``
+            - ``"logloss"``
+            - ``"mse"``
+            - ``"rmse"``
+            - ``"mae"``
+            - ``"rmsle"``
+            - ``"auc"``
+            - ``aucpr``
+            - ``"lift_top_group"``
+            - ``"misclassification"``
+            - ``"mean_per_class_error"``
+            - ``"r2"``
+
+        sort_metric: Metric to sort the leaderboard by at the end of an AutoML run. 
+            For binomial classification, select from the following options:
+            
+                - ``"auc"``
+                - ``"aucpr"``
+                - ``"logloss"``
+                - ``"mean_per_class_error"``
+                - ``"rmse"``
+                - ``"mse"``
+                
+            For multinomial classification, select from the following options:
+            
+                - ``"mean_per_class_error"``
+                - ``"logloss"``
+                - ``"rmse"``
+                - ``"mse"``
+                
+            For regression, select from the following options:
+
+                - ``"deviance"``
+                - ``"rmse"``
+                - ``"mse"``
+                - ``"mae"``
+                - ``"rmlse"``
+                
+            Defaults to ``"AUTO"`` (This translates to ``"auc"`` for binomial classification, ``"mean_per_class_error"`` for multinomial classification, ``"deviance"`` for regression).
         nfolds (int): The number of folds for cross-validation. Default is -1.
         include_algos (list[str]): The list of algorithms to include in the AutoML process.
             This can't be used in combination with ``exclude_algos`` param.
@@ -109,6 +151,9 @@ class AutoML:
                 exclude_algos = ["GLM", "DeepLearning", "DRF"]
 
         seed (int): The random seed for reproducibility. Default is None.
+        verbosity: Verbosity of the backend messages printed during training.
+            Available options are ``None`` (live log disabled), ``"debug"``, ``"info"``, ``"warn"`` or ``"error"``.
+            Defaults to ``"warn"``.
 
     Attributes:
         model_type (str): The type of model to train.
@@ -137,16 +182,18 @@ class AutoML:
 
     def __init__(
         self,
-        model_type: str = None,
-        max_runtime_secs: int = None,
+        model_type: str,
+        max_runtime_secs: int = 3600,
         max_models: int = None,
         balance_classes: bool = False,
         class_sampling_factors: list[float] = None,
         stopping_metric: str = "AUTO",
+        sort_metric: str = "AUTO",
         nfolds: int = -1,
         include_algos: list[str] = None,
         exclude_algos: list[str] = None,
         seed: int = None,
+        verbosity="warn",
     ) -> None:
         initialize_cluster_server()
         self.model_type = model_type
@@ -156,10 +203,12 @@ class AutoML:
             balance_classes=balance_classes,
             class_sampling_factors=class_sampling_factors,
             stopping_metric=stopping_metric,
+            sort_metric=sort_metric,
             nfolds=nfolds,
             include_algos=include_algos,
             exclude_algos=exclude_algos,
             seed=seed,
+            verbosity=verbosity,
         )
         self.best_model = None
         h2o.display.toggle_user_tips(False)
@@ -191,12 +240,12 @@ class AutoML:
             The best model selected by AutoML.
 
         """
-        # changes all columns with less than or equal to 2 unique values to factor (categorical).
         training_frame = h2o.H2OFrame(training_frame)
         if validation_frame:
             validation_frame = h2o.H2OFrame(validation_frame)
 
         factor_cols = []
+        # changes all columns with less than or equal to 2 unique values to factor (categorical).
         for col in training_frame.columns:
             if len(training_frame[col].unique()) <= 2:
                 training_frame[col] = training_frame[col].asfactor()
@@ -237,7 +286,7 @@ class AutoML:
         predictions_test = self.model.predict(self.test_frame)
         if self.model_type == "classifier":
             with h2o.utils.threading.local_context(
-                polars_enabled=True, datatable_enabled=False
+                polars_enabled=False, datatable_enabled=False
             ):
                 pred_train_frame = LabelEncoder().fit_transform(
                     predictions_train["predict"]
@@ -289,7 +338,7 @@ class AutoML:
             )
         else:
             with h2o.utils.threading.local_context(
-                polars_enabled=True, datatable_enabled=False
+                polars_enabled=False, datatable_enabled=False
             ):
                 pred_train_frame = (
                     predictions_train["predict"]
@@ -447,7 +496,7 @@ class AutoML:
         """
         self.best_model.save_mojo(path, force)
 
-    @classmethod
+    @staticmethod
     def save_model(cls, model, path: str, force: bool = False):
         """
         Saves a given model as a file.
