@@ -6,6 +6,8 @@ from sklearn.ensemble import (
     AdaBoostRegressor,
     RandomForestRegressor,
 )
+from sklearn.model_selection import train_test_split
+from pandas import DataFrame
 from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LinearRegression
 from sklearn.neighbors import KNeighborsRegressor
@@ -15,7 +17,6 @@ from xgboost import XGBRegressor
 
 from ..._typing import (
     Any,
-    MatrixLike,
 )
 from ._base import (
     BaseRegressor,
@@ -50,7 +51,10 @@ class Regressor(BaseRegressor):
 
     def __init__(
         self,
-        strategy: RegressorStrategies = None,
+        strategy: RegressorStrategies,
+        data: DataFrame,
+        target: str,
+        *,
         params: dict[str, str | int | float] = None,
     ) -> None:
         if strategy is None:
@@ -62,8 +66,12 @@ class Regressor(BaseRegressor):
             self.model = self._REGRESSORS[self.strategy]()
         else:
             self.model = self._REGRESSORS[self.strategy](**params)
+        X, y = data.drop(target, axis=1), data[target]
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=0.2
+        )
 
-    def fit(self, X: MatrixLike, y: MatrixLike) -> "Regressor":
+    def fit(self) -> "Regressor":
         """
         Fits the regression model to the input data `X` and target values `y`.
 
@@ -74,9 +82,9 @@ class Regressor(BaseRegressor):
         Returns:
             Regressor: The `Regressor` object.
         """
-        return self.model.fit(X, y)
+        return self.model.fit(self.X_train, self.y_train)
 
-    def score(self, X: MatrixLike, y: MatrixLike) -> float:
+    def score(self) -> float:
         """
         Evaluates the model's performance on the given data and labels.
 
@@ -91,11 +99,11 @@ class Regressor(BaseRegressor):
             NotFittedError: If the model hasn't been fitted yet.
         """
         try:
-            return self.model.score(X, y)
+            return self.model.score(self.X_test, self.y_test)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
 
-    def predict(self, X: MatrixLike) -> ndarray:
+    def predict(self) -> ndarray:
         """
         Predicts continuous target values for unseen data.
 
@@ -109,9 +117,18 @@ class Regressor(BaseRegressor):
             NotFittedError: If the model hasn't been fitted yet.
         """
         try:
-            return self.model.predict(X)
+            return self.model.predict(self.X_test)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
+
+    def get_y_true(self) -> ndarray:
+        """
+        Returns the true target values for the test data.
+
+        Returns:
+            ndarray: An array of true target values.
+        """
+        return self.y_test
 
     def get_model(self) -> "Regressor":
         """

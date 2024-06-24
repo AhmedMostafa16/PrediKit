@@ -9,6 +9,8 @@ from sklearn.ensemble import (
     AdaBoostClassifier,
     RandomForestClassifier,
 )
+from sklearn.model_selection import train_test_split
+from pandas import DataFrame
 from sklearn.exceptions import NotFittedError
 from sklearn.linear_model import LogisticRegression
 from sklearn.neighbors import KNeighborsClassifier
@@ -17,7 +19,6 @@ from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 from xgboost import XGBClassifier
 
-from ..._typing import MatrixLike
 from ._base import (
     BaseClassifier,
     ClassifierStrategies,
@@ -51,7 +52,9 @@ class Classifier(BaseClassifier):
 
     def __init__(
         self,
-        strategy: ClassifierStrategies | None = None,
+        strategy: ClassifierStrategies,
+        data: DataFrame,
+        target: str,
         params: dict[str, str | int | float] = None,
     ) -> None:
         if params is None:
@@ -65,8 +68,12 @@ class Classifier(BaseClassifier):
             self.model = self._CLASSIFIERS[self.strategy]()
         else:
             self.model = self._CLASSIFIERS[self.strategy](**params)
+        X, y = data.drop(target, axis=1), data[target]
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=0.2
+        )
 
-    def fit(self, X: MatrixLike, y: MatrixLike) -> "Classifier":
+    def fit(self) -> "Classifier":
         """
         Fits the classifier model to the input data `X` and target labels `y`.
 
@@ -79,16 +86,16 @@ class Classifier(BaseClassifier):
         """
         if (
             self.strategy is ClassifierStrategies.XGBClassifier
-            and y.dtype
+            and self.y_train.dtype
             in [
                 "object",
                 "string",
             ]
         ):
-            y = LabelEncoder().fit_transform(y)
-        return self.model.fit(X, y)
+            self.y_train.dtype = LabelEncoder().fit_transform(self.y_train.dtype)
+        return self.model.fit(self.X_train, self.y_train)
 
-    def score(self, X: MatrixLike, y: MatrixLike) -> float:
+    def score(self) -> float:
         """
         Evaluates the model's performance on the given data and labels.
 
@@ -105,18 +112,18 @@ class Classifier(BaseClassifier):
         try:
             if (
                 self.strategy is ClassifierStrategies.XGBClassifier
-                and y.dtype
+                and self.y_test.dtype
                 in [
                     "object",
                     "string",
                 ]
             ):
-                y = LabelEncoder().fit_transform(y)
-            return self.model.score(X, y)
+                self.y_test = LabelEncoder().fit_transform(self.y_test)
+            return self.model.score(self.X_test, self.y_test)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
 
-    def predict(self, X: MatrixLike) -> ndarray:
+    def predict(self) -> ndarray:
         """
         Predicts class labels for unseen data.
 
@@ -127,11 +134,11 @@ class Classifier(BaseClassifier):
             `NotFittedError` if the model hasn't been fitted.
         """
         try:
-            return self.model.predict(X)
+            return self.model.predict(self.X_test)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
 
-    def predict_proba(self, X: MatrixLike) -> ndarray:
+    def predict_proba(self) -> ndarray:
         """
         Predicts class probabilities for each data point.
 
@@ -142,11 +149,11 @@ class Classifier(BaseClassifier):
             `NotFittedError` if the model hasn't been fitted.
         """
         try:
-            return self.model.predict_proba(X)
+            return self.model.predict_proba(self.X_test)
         except Exception:
             raise NotFittedError("You have to fit the model first.")
 
-    def predict_log_proba(self, X: MatrixLike) -> ndarray:
+    def predict_log_proba(self) -> ndarray:
         """
         Predicts the logarithm of class probabilities for each data point.
 
@@ -157,9 +164,18 @@ class Classifier(BaseClassifier):
             `NotFittedError` if the model hasn't been fitted.
         """
         try:
-            return log(self.predict_proba(X))
+            return log(self.predict_proba(self.X_test))
         except Exception:
             raise NotFittedError("You have to fit the model first.")
+        
+    def get_y_true(self) -> ndarray:
+        """
+        Returns the true labels for the test data.
+
+        Returns:
+            ndarray: An array of true labels.
+        """
+        return self.y_test
 
     def get_model(self) -> "Classifier":
         """

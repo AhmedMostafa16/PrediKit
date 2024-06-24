@@ -1,10 +1,8 @@
-import matplotlib.pyplot as plt
-import numpy as np
-from sklearn.model_selection import (
-    KFold,
-    LearningCurveDisplay,
-    learning_curve,
-)
+from sklearn.exceptions import NotFittedError
+from sklearn.model_selection import GridSearchCV
+from pandas import DataFrame
+import joblib
+
 
 
 class CrossValidation:
@@ -21,7 +19,7 @@ class CrossValidation:
         Training data.
     y : array-like of shape (n_samples,)
         Target values.
-    n_folds : int, default=5
+    cv : int, default=5
         Number of folds for cross-validation.
     folds : iterable
         Generator of train/test indices for each fold.
@@ -43,8 +41,119 @@ class CrossValidation:
     get_model():
         Returns the model used for cross-validation.
     """
+    _GRIDS = dict[str, dict[str, list[str | int | float]]] ={
+        'LogisticRegression': {
+        'penalty': ['l1', 'l2'],
+        'C': [0.1, 1, 10],
+        'solver': ['liblinear', 'saga'],
+        'max_iter': [100, 300, 500, 1000]
+    },
+        'KNeighborsClassifier': {
+        'n_neighbors': [3, 5, 7, 9],
+        'weights': ['uniform', 'distance'],
+        'metric': ['euclidean', 'manhattan', 'minkowski']
+    },
+        'SVC': {
+        'C': [0.1, 1, 10, 100],
+        'kernel': ['linear', 'rbf', 'poly', 'sigmoid'],
+        'gamma': ['scale', 'auto'],
+    },
+        'DecisionTreeClassifier': {
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'criterion': ['gini', 'entropy']
+    },
+        'XGBClassifier': {
+        'n_estimators': [100, 200, 500],
+        'max_depth': [3, 6, 10],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'subsample': [0.6, 0.8, 1.0],
+        'colsample_bytree': [0.6, 0.8, 1.0]
+    },
+        'AdaBoostClassifier': {
+        'n_estimators': [50, 100, 200],
+        'learning_rate': [0.01, 0.1, 1.0],
+        'algorithm': ['SAMME', 'SAMME.R']
+    },
+        'RandomForestClassifier': {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+    },
+        'LGBMClassifier': {
+        'num_leaves': [31, 50, 100],
+        'max_depth': [-1, 10, 20],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'n_estimators': [100, 200, 500],
+        'min_child_samples': [20, 30, 40],
+        'subsample': [0.6, 0.8, 1.0]
+    },
+        'CatBoostClassifier': {
+        'iterations': [100, 500, 1000],
+        'depth': [6, 8, 10],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'l2_leaf_reg': [3, 5, 7]
+    },
+        'LinearRegression': {'fit_intercept': [True]},
+        'KNeighborsRegressor': {
+        'n_neighbors': [3, 5, 7, 9],
+        'weights': ['uniform', 'distance'],
+        'metric': ['euclidean', 'manhattan', 'minkowski']
+    },
+        'SVR': {
+        'C': [0.1, 1, 10, 100],
+        'kernel': ['linear', 'rbf', 'poly', 'sigmoid'],
+        'gamma': ['scale', 'auto'],
+    },
+        'DecisionTreeRegressor': {
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+        'criterion': ['squared_error', 'friedman_mse', 'absolute_error', 'poisson']
+    },
+        'XGBRegressor': {
+        'n_estimators': [100, 200, 500],
+        'max_depth': [3, 6, 10],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'subsample': [0.6, 0.8, 1.0],
+        'colsample_bytree': [0.6, 0.8, 1.0]
+    },
+        'AdaBoostRegressor': {
+        'n_estimators': [50, 100, 200],
+        'learning_rate': [0.01, 0.1, 1.0],
+        'loss': ['linear', 'square', 'exponential']
+    },
+        'RandomForestRegressor': {
+        'n_estimators': [100, 200, 300],
+        'max_depth': [None, 10, 20, 30],
+        'min_samples_split': [2, 5, 10],
+        'min_samples_leaf': [1, 2, 4],
+    },
+        'LGBMRegressor': {
+        'num_leaves': [31, 50, 100],
+        'max_depth': [-1, 10, 20],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'n_estimators': [100, 200, 500],
+        'min_child_samples': [20, 30, 40],
+        'subsample': [0.6, 0.8, 1.0]
+    },
+        'CatBoostRegressor': {
+        'iterations': [100, 500, 1000],
+        'depth': [6, 8, 10],
+        'learning_rate': [0.01, 0.05, 0.1],
+        'l2_leaf_reg': [3, 5, 7]
+    },
+    }
 
-    def __init__(self, model, X, y, n_folds=5):
+    def __init__(
+        self, 
+        model, 
+        data: DataFrame, 
+        target: str, 
+        cv: int = 5
+        ) -> None:
         """
         Constructs all the necessary attributes for the cross_validation object.
 
@@ -56,77 +165,40 @@ class CrossValidation:
                 Training data.
             y : array-like of shape (n_samples,)
                 Target values.
-            n_folds : int, default=5
+            cv : int, default=5
                 Number of folds for cross-validation.
         """
-        self.model = model
-        self.X = X
-        self.y = y
-        self.n_folds = n_folds
-        self.folds = self._get_folds()
-        self.scores = self._get_scores()
+        self.grid = GridSearchCV(
+            model, 
+            param_grid=self._GRIDS[model.__class__.__name__], 
+            cv=cv, 
+            n_jobs=-1
+            )
+        self.X, self.y= data.drop(target, axis=1), data[target]
 
-    def _get_folds(self):
-        """Returns a generator of train/test indices for each fold"""
-        return KFold(n_splits=self.n_folds).split(self.X)
+    def fit(self, *args):
+        self.grid.fit(self.X, self.y)
 
-    def _get_scores(self):
-        """
-        Returns a list of scores for each fold.
+    def get_best_params(self) -> dict[str, str | int | float]:
+        try:
+            return self.grid.best_params_
+        except NotFittedError as e:
+            raise e("The grid has not been fitted yet.")
 
-        The model is fitted and scored on each fold.
-        """
-        scores = []
-        for train_index, test_index in self.folds:
-            X_train, X_test = self.X[train_index], self.X[test_index]
-            y_train, y_test = self.y[train_index], self.y[test_index]
-            self.model.fit(X_train, y_train)
-            scores.append(self.model.score(X_test, y_test))
-        return scores
+    def get_best_score(self) -> float:
+        try:
+            return self.grid.best_score_
+        except NotFittedError as e:
+            raise e("The grid has not been fitted yet.")
 
-    def get_mean_score(self):
-        """Returns the mean of the scores"""
-        return np.mean(self.scores)
+    def get_best_estimator(self):
+        try:
+            return self.grid.best_estimator_
+        except NotFittedError as e:
+            raise e("The grid has not been fitted yet.")
 
-    def get_std_score(self):
-        """Returns the standard deviation of the scores"""
-        return np.std(self.scores)
-
-    def get_scores(self):
-        """Returns the list of scores for each fold"""
-        return self.scores
-
-    def get_model(self):
-        """Returns the model used for cross-validation"""
-        return self.model
-
-    def plot_learning_curve(self, train_sizes=[50, 80, 110], cv=None):
-        """
-
-        Plots the learning curve for the model using the provided training sizes and cross-validation strategy.
-
-        Parameters
-        ----------
-        train_sizes : array-like, default=[50, 80, 110]
-        The number of training examples that will be used to generate the learning curve.
-        cv : int, cross-validation generator or an iterable, optional
-        Determines the cross-validation splitting strategy. If None, the class's n_folds attribute is used.
-
-        """
-
-        if cv is None:
-            cv = self.n_folds
-
-        train_sizes, train_scores, test_scores = learning_curve(
-            self.model,
-            self.X,
-            self.y,
-            train_sizes=train_sizes,
-            cv=cv,
-            n_jobs=-1,
-        )
-
-        fig, ax = plt.subplots()
-        return LearningCurveDisplay.from_estimator(
-            self.model, self.X, self.y, ax=ax, train_sizes=train_sizes, cv=cv
-        ).plot()
+    def save_model(self, path: str):
+        try:
+            joblib.dump(self.grid.best_estimator_, path)
+        except NotFittedError as e:
+            raise e("The grid has not been fitted yet.")
