@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-
-from nodes.properties.inputs.dataset_input import DatasetInput
 from typing import Union
 
 from nodes.properties.inputs.dataset_input import DatasetInput
@@ -28,6 +26,7 @@ from predikit import (
     DataFrameExporter,
     FileExtension,
 )
+
     TextInput,
 )
 

@@ -1,7 +1,6 @@
 from typing import (
     Self,
     override,
-    override,
 )
 
 from pandas import DataFrame
