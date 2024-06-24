@@ -1,5 +1,5 @@
 from typing import Tuple
-
+from pandas import DataFrame
 import h2o
 from h2o.automl import H2OAutoML
 import h2o.display
@@ -25,17 +25,46 @@ from tensorflow.python.keras.metrics import (
 
 def initialize_cluster_server(
     params: dict[str, str | int | float | bool] = None
-):
+) -> None:
+    """
+    Initializes the H2O cluster server.
+
+    Args:
+        params (dict[str, str | int | float | bool], optional): A dictionary of parameters to configure the H2O cluster server. Defaults to None.
+
+    Returns:
+        None
+    """
     h2o.init() if params is None else h2o.init(**params)
 
 
 def import_file(path: str) -> h2o.H2OFrame:
+    """
+    Imports a file into an H2OFrame.
+
+    Args:
+        path (str): The path to the file to be imported.
+
+    Returns:
+        h2o.H2OFrame: The imported file as an H2OFrame object.
+    """
     return h2o.import_file(path)
 
 
 def split_train_test(
     data: h2o.H2OFrame, ratios: list[int] = None, seed: int = None
 ) -> Tuple[h2o.H2OFrame, h2o.H2OFrame]:
+    """
+    Split the given H2OFrame into training and testing datasets.
+
+    Args:
+        data (h2o.H2OFrame): The input H2OFrame to be split.
+        ratios (list[int], optional): The ratios at which to split the data. Defaults to [0.8].
+        seed (int, optional): The seed value for random number generation. Defaults to None.
+
+    Returns:
+        Tuple[h2o.H2OFrame, h2o.H2OFrame]: A tuple containing the training and testing datasets.
+    """
     if ratios is None:
         ratios = [0.8]
     train, test = data.split_frame(ratios=ratios, seed=seed)
@@ -118,6 +147,7 @@ class AutoML:
         exclude_algos: list[str] = None,
         seed: int = None,
     ) -> None:
+        initialize_cluster_server()
         self.model_type = model_type
         self.model = H2OAutoML(
             max_runtime_secs=max_runtime_secs,
@@ -141,10 +171,11 @@ class AutoML:
 
     def train(
         self,
+        y: str,
+        training_frame: DataFrame,
+        *,
         x: list[str] = None,
-        y: str = None,
-        training_frame: h2o.H2OFrame = None,
-        validation_frame: h2o.H2OFrame = None,
+        validation_frame: DataFrame = None,
     ):
         """
         Trains the AutoML model.
@@ -160,6 +191,10 @@ class AutoML:
 
         """
         # changes all columns with less than or equal to 2 unique values to factor (categorical).
+        training_frame = h2o.H2OFrame(training_frame)
+        if validation_frame:
+            validation_frame = h2o.H2OFrame(validation_frame)
+
         factor_cols = []
         for col in training_frame.columns:
             if len(training_frame[col].unique()) <= 2:
