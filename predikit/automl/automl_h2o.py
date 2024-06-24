@@ -84,7 +84,7 @@ class AutoML:
         class_sampling_factors (list[float]): The per-class (in lexicographical order) over/under-sampling ratios for the training data. Default is None.
         stopping_metric (str): The metric to use for early stopping. Default is "AUTO".
             The available options are:
-            
+
             - ``"AUTO"`` (This defaults to ``"logloss"`` for classification, ``"deviance"`` for regression)
             - ``"deviance"``
             - ``"logloss"``
@@ -99,23 +99,23 @@ class AutoML:
             - ``"mean_per_class_error"``
             - ``"r2"``
 
-        sort_metric: Metric to sort the leaderboard by at the end of an AutoML run. 
+        sort_metric: Metric to sort the leaderboard by at the end of an AutoML run.
             For binomial classification, select from the following options:
-            
+
                 - ``"auc"``
                 - ``"aucpr"``
                 - ``"logloss"``
                 - ``"mean_per_class_error"``
                 - ``"rmse"``
                 - ``"mse"``
-                
+
             For multinomial classification, select from the following options:
-            
+
                 - ``"mean_per_class_error"``
                 - ``"logloss"``
                 - ``"rmse"``
                 - ``"mse"``
-                
+
             For regression, select from the following options:
 
                 - ``"deviance"``
@@ -123,7 +123,7 @@ class AutoML:
                 - ``"mse"``
                 - ``"mae"``
                 - ``"rmlse"``
-                
+
             Defaults to ``"AUTO"`` (This translates to ``"auc"`` for binomial classification, ``"mean_per_class_error"`` for multinomial classification, ``"deviance"`` for regression).
         nfolds (int): The number of folds for cross-validation. Default is -1.
         include_algos (list[str]): The list of algorithms to include in the AutoML process.
