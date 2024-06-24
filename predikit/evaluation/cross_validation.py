@@ -6,39 +6,40 @@ from sklearn.model_selection import GridSearchCV
 
 class CrossValidation:
     """
-    A class to perform cross-validation on a given model.
+    Performs cross-validation for a given model using a specified number of folds.
 
-    ...
-
-    Attributes
+    Parameters
     ----------
     model : Model_type
         The model to be used for cross-validation.
-    X : array-like of shape (n_samples, n_features)
-        Training data.
-    y : array-like of shape (n_samples,)
-        Target values.
+    data : DataFrame
+        The input data for training the model.
+    target : str
+        The target variable column name.
     cv : int, default=5
         Number of folds for cross-validation.
-    folds : iterable
-        Generator of train/test indices for each fold.
-    scores : list
-        List of scores for each fold.
+
+    Attributes
+    ----------
+    grid : GridSearchCV
+        The grid search object used for cross-validation.
+    X : DataFrame
+        The input features for training the model.
+    y : Series
+        The target variable for training the model.
 
     Methods
     -------
-    _get_folds():
-        Returns a generator of train/test indices for each fold.
-    _get_scores():
-        Returns a list of scores for each fold.
-    get_mean_score():
-        Returns the mean of the scores.
-    get_std_score():
-        Returns the standard deviation of the scores.
-    get_scores():
-        Returns the list of scores for each fold.
-    get_model():
-        Returns the model used for cross-validation.
+    fit()
+        Fits the cross-validation model.
+    get_best_params() -> dict[str, str | int | float]
+        Returns the best parameters found during cross-validation.
+    get_best_score() -> float
+        Returns the best score achieved during cross-validation.
+    get_best_estimator()
+        Returns the best estimator found during cross-validation.
+    save_model(path: str)
+        Saves the best estimator to a file.
     """
 
     _GRIDS = dict[str, dict[str, list[str | int | float]]] = {
@@ -177,28 +178,67 @@ class CrossValidation:
         )
         self.X, self.y = data.drop(target, axis=1), data[target]
 
-    def fit(self, *args):
+    def fit(self):
+        """
+        Fits the grid.
+        """
         self.grid.fit(self.X, self.y)
 
     def get_best_params(self) -> dict[str, str | int | float]:
+        """
+        Returns the best parameters found by the grid search.
+
+        Returns:
+            dict[str, str | int | float]: A dictionary containing the best parameters.
+        
+        Raises:
+            NotFittedError: If the grid has not been fitted yet.
+        """
         try:
             return self.grid.best_params_
         except NotFittedError as e:
             raise e("The grid has not been fitted yet.")
 
     def get_best_score(self) -> float:
+        """
+        Returns the best score achieved by the grid search.
+
+        Raises:
+            NotFittedError: If the grid has not been fitted yet.
+
+        Returns:
+            float: The best score achieved by the grid search.
+        """
         try:
             return self.grid.best_score_
         except NotFittedError as e:
             raise e("The grid has not been fitted yet.")
 
     def get_best_estimator(self):
+        """
+        Returns the best estimator found by the grid search.
+
+        Raises:
+            NotFittedError: If the grid has not been fitted yet.
+
+        Returns:
+            The best estimator found by the grid search.
+        """
         try:
             return self.grid.best_estimator_
         except NotFittedError as e:
             raise e("The grid has not been fitted yet.")
 
     def save_model(self, path: str):
+        """
+        Save the best estimator from the grid search to a file.
+
+        Args:
+            path (str): The path to save the model.
+
+        Raises:
+            NotFittedError: If the grid search has not been fitted yet.
+        """
         try:
             joblib.dump(self.grid.best_estimator_, path)
         except NotFittedError as e:

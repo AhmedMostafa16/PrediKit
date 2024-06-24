@@ -14,13 +14,33 @@ from ._base import (
 )
 
 
+
 class Cluster(BaseCluster):
     """
     A class that encapsulates various clustering algorithms for efficient data analysis.
-    ### Parameters
-    strategy : {"KMeans", "DBSCAN"}, default= None
 
-    params: a dictionary of parameters {'parameter': value -> (str, int or float)}.
+    Parameters:
+        strategy (str): The clustering strategy to be used. Valid options are "KMeans" and "DBSCAN".
+        data (DataFrame): The input data for clustering.
+        cols (list[str]): The columns of the input data to be used for clustering.
+        params (dict[str, str|int|float], optional): A dictionary of parameters for the clustering algorithm. Defaults to None.
+
+    Attributes:
+        strategy (ClusterStrategies): The clustering strategy.
+        model (Any): The clustering model.
+        X (ndarray): The input data for clustering.
+
+    Methods:
+        fit(): Fits the cluster model to the input data.
+        predict(): Predicts the cluster labels for the input data.
+        fit_predict(): Fits the cluster model to the input data and returns the cluster labels.
+        get_labels(): Returns the cluster labels.
+        get_inertia(): Calculates the within-cluster inertia.
+        get_centroids(): Retrieves the cluster centroids.
+
+    Raises:
+        ValueError: If the strategy is not specified.
+        NotFittedError: If the model hasn't been fitted yet.
     """
 
     _CLUSTERS: dict[ClusterStrategies, Any] = {

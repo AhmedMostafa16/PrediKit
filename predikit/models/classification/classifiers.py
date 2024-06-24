@@ -29,13 +29,69 @@ class Classifier(BaseClassifier):
     """
     A class that unifies various classification algorithms for efficient model training and prediction.
 
-    ### Parameters
-    strategy : {"RandomForestClassifier", "LGBMClassifier",
-    "SVC", "CatBoostClassifier", "KNeighborsClassifier",
-    "DecisionTreeClassifier", "XGBClassifier", "LogisticRegression",
-    "AdaBoostClassifier"}, default= None
+    Parameters
+    ----------
+    strategy : str
+        The classification algorithm to use. Available options are:
+        - "RandomForestClassifier"
+        - "LGBMClassifier"
+        - "SVC"
+        - "CatBoostClassifier"
+        - "KNeighborsClassifier"
+        - "DecisionTreeClassifier"
+        - "XGBClassifier"
+        - "LogisticRegression"
+        - "AdaBoostClassifier"
 
-    params: a dictionary of parameters {'parameter': value -> (str, int or float)}.
+    data : DataFrame
+        The input data for training and prediction.
+
+    target : str
+        The target variable to predict.
+
+    params : dict[str, str | int | float], optional
+        A dictionary of parameters for the chosen classification algorithm.
+
+    ### Attributes
+    model : object
+        The trained classification model.
+
+    X_train : DataFrame
+        The training data (features).
+
+    X_test : DataFrame
+        The test data (features).
+
+    y_train : Series
+        The training data (target variable).
+
+    y_test : Series
+        The test data (target variable).
+
+    ### Methods
+    fit() -> Classifier:
+        Fits the classifier model to the input data.
+
+    score() -> float:
+        Evaluates the model's performance on the given data.
+
+    predict() -> ndarray:
+        Predicts class labels for unseen data.
+
+    predict_proba() -> ndarray:
+        Predicts class probabilities for each data point.
+
+    predict_log_proba() -> ndarray:
+        Predicts the logarithm of class probabilities for each data point.
+
+    get_y_true() -> ndarray:
+        Returns the true labels for the test data.
+
+    get_model() -> Classifier:
+        Returns the classifier model object.
+
+    save_model(path: str) -> None:
+        Saves the model to a file.
     """
 
     _CLASSIFIERS: dict = {
@@ -77,10 +133,6 @@ class Classifier(BaseClassifier):
         """
         Fits the classifier model to the input data `X` and target labels `y`.
 
-        Args:
-            X (MatrixLike): The input data to be used for training.
-            y (MatrixLike): The target labels for the training data.
-
         Returns:
             Classifier: The `Classifier` object.
         """
@@ -100,10 +152,6 @@ class Classifier(BaseClassifier):
     def score(self) -> float:
         """
         Evaluates the model's performance on the given data and labels.
-
-        Args:
-            X: The input data to be evaluated.
-            y: The true labels for the input data.
 
         Returns:
             float: A score representing the model's performance (e.g., accuracy).
@@ -129,9 +177,6 @@ class Classifier(BaseClassifier):
         """
         Predicts class labels for unseen data.
 
-        Args:
-            X: The input data for prediction.
-
         Raises:
             `NotFittedError` if the model hasn't been fitted.
         """
@@ -144,9 +189,6 @@ class Classifier(BaseClassifier):
         """
         Predicts class probabilities for each data point.
 
-        Args:
-            X: The input data for prediction.
-
         Raises:
             `NotFittedError` if the model hasn't been fitted.
         """
@@ -158,9 +200,6 @@ class Classifier(BaseClassifier):
     def predict_log_proba(self) -> ndarray:
         """
         Predicts the logarithm of class probabilities for each data point.
-
-        Args:
-            X: The input data for prediction.
 
         Raises:
             `NotFittedError` if the model hasn't been fitted.
