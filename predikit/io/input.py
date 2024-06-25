@@ -168,9 +168,7 @@ class DataFrameParser(DataFrame):
             df = self._buf_loader(path_or_buf, **properties)
 
         elif isinstance(path_or_buf, (str, PathLike, BytesIO)):
-            extension = FileExtension.parse(
-                extension=extension, file=path_or_buf
-            )
+            extension = FileExtension.parse(extension=extension, file=path_or_buf)
             path_or_buf = cast(FilePath, path_or_buf)
             df = self._file_loader(path_or_buf, extension, **properties)
 
@@ -204,9 +202,7 @@ class DataFrameParser(DataFrame):
 
         return df
 
-    def _buf_loader(
-        self, buf: np.ndarray | dict | list, **properties
-    ) -> DataFrame:
+    def _buf_loader(self, buf: np.ndarray | dict | list, **properties) -> DataFrame:
         """
         Loads a DataFrame from a buffer.
 

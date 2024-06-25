@@ -125,8 +125,8 @@ class Classifier(BaseClassifier):
         else:
             self.model = self._CLASSIFIERS[self.strategy](**params)
         X, y = data.drop(target, axis=1), data[target]
-        self.X_train, self.X_test, self.y_train, self.y_test = (
-            train_test_split(X, y, test_size=0.2)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=0.2
         )
 
     def fit(self) -> "Classifier":
@@ -144,9 +144,7 @@ class Classifier(BaseClassifier):
                 "string",
             ]
         ):
-            self.y_train.dtype = LabelEncoder().fit_transform(
-                self.y_train.dtype
-            )
+            self.y_train.dtype = LabelEncoder().fit_transform(self.y_train.dtype)
         return self.model.fit(self.X_train, self.y_train)
 
     def score(self) -> float:

@@ -134,8 +134,8 @@ class Regressor(BaseRegressor):
         else:
             self.model = self._REGRESSORS[self.strategy](**params)
         X, y = data.drop(target, axis=1), data[target]
-        self.X_train, self.X_test, self.y_train, self.y_test = (
-            train_test_split(X, y, test_size=0.2)
+        self.X_train, self.X_test, self.y_train, self.y_test = train_test_split(
+            X, y, test_size=0.2
         )
 
     def fit(self) -> "Regressor":

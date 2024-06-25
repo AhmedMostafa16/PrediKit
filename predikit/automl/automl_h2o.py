@@ -327,9 +327,9 @@ class AutoML:
                 test_frame = (test_frame - test_frame.min()) / (
                     test_frame.max() - test_frame.min()
                 )
-                pred_train_frame = (
-                    pred_train_frame - pred_train_frame.min()
-                ) / (pred_train_frame.max() - pred_train_frame.min())
+                pred_train_frame = (pred_train_frame - pred_train_frame.min()) / (
+                    pred_train_frame.max() - pred_train_frame.min()
+                )
                 train_frame = (train_frame - train_frame.min()) / (
                     train_frame.max() - train_frame.min()
                 )
@@ -545,11 +545,7 @@ class AutoML:
         pr.update_state(y_true_test, y_pred_test)
         recall.update_state(y_true_test, y_pred_test)
 
-        f1score = (
-            2
-            * (pr.result() * recall.result())
-            / (pr.result() + recall.result())
-        )
+        f1score = 2 * (pr.result() * recall.result()) / (pr.result() + recall.result())
         auc_roc_score = auc_roc.result()
         acc_test_score = acc_test.result()
         acc_train_score = acc_train.result()
@@ -561,50 +557,46 @@ class AutoML:
 
         feedback = ""
         if acc_test_score >= 0.9:
-            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Good model accuracy)\n"
+            feedback += (
+                f"Accuracy: {(acc_test_score * 100):.3f}% (Good model accuracy)\n"
+            )
         elif acc_test_score >= 0.7:
-            feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Moderate model accuracy)\n"
+            feedback += (
+                f"Accuracy: {(acc_test_score * 100):.3f}% (Moderate model accuracy)\n"
+            )
         else:
             feedback += f"Accuracy: {(acc_test_score * 100):.3f}% (Low model accuracy. This indicates insufficient training data or model complexity)\n"
         if auc_roc_score >= 0.9:
-            feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Excellent AUC_ROC score)\n"
-        elif auc_roc_score >= 0.7:
             feedback += (
-                f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Good AUC_ROC score)\n"
+                f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Excellent AUC_ROC score)\n"
             )
+        elif auc_roc_score >= 0.7:
+            feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Good AUC_ROC score)\n"
         else:
             feedback += f"AUC_ROC: {(auc_roc_score * 100):.3f}% (Poor AUC_ROC score. Poor AUC_ROC may indicate need for more data or model tuning)\n"
         if pr_score >= 0.75:
-            feedback += (
-                f"Precision: {(pr_score * 100):.3f}% (High model precision)\n"
-            )
+            feedback += f"Precision: {(pr_score * 100):.3f}% (High model precision)\n"
         elif pr_score >= 0.5:
-            feedback += f"Precision: {(pr_score * 100):.3f}% (Moderate model precision)\n"
+            feedback += (
+                f"Precision: {(pr_score * 100):.3f}% (Moderate model precision)\n"
+            )
         else:
             feedback += f"Precision: {(pr_score * 100):.3f}% (Low model precision. Low precision suggests class imbalance)\n"
         if recall_score >= 0.75:
-            feedback += (
-                f"Recall: {(recall_score * 100):.3f}% (High model recall)\n"
-            )
+            feedback += f"Recall: {(recall_score * 100):.3f}% (High model recall)\n"
         elif recall_score >= 0.5:
             feedback += f"Recall: {(recall_score * 100):.3f}% (Moderate model recall)\n"
         else:
             feedback += f"Recall: {(recall_score * 100):.3f}% (Low model recall. Low recall can indicate a need for more training data)\n"
         if f1score >= 0.75:
-            feedback += (
-                f"F1 Score: {(f1score * 100):.3f}% (High model F1 Score)\n"
-            )
+            feedback += f"F1 Score: {(f1score * 100):.3f}% (High model F1 Score)\n"
         elif f1score >= 0.5:
-            feedback += (
-                f"F1 Score: {(f1score * 100):.3f}% (Moderate model F1 Score)\n"
-            )
+            feedback += f"F1 Score: {(f1score * 100):.3f}% (Moderate model F1 Score)\n"
         else:
             feedback += f"F1 Score: {(f1score * 100):.3f}% (Low model F1 Score. Low F1 Score can indicate class imbalance or insufficient training)\n"
         if len(np.unique(y_true_test)) <= 2:
             if logloss_score < 0.5:
-                feedback += (
-                    f"Log Loss: {(logloss_score):.3f}% (Good model Log Loss)\n"
-                )
+                feedback += f"Log Loss: {(logloss_score):.3f}% (Good model Log Loss)\n"
             else:
                 feedback += f"Log Loss: {(logloss_score):.3f} (Poor model Log Loss. High log loss can indicate a need for more data or model tuning. Lower Log Loss is better)\n"
         if train_vs_test_accuracy <= 0.05:
@@ -637,9 +629,7 @@ class AutoML:
         if r2_test >= 0.8:
             feedback += f"R2 score: {(r2_test * 100):.3f}% (Good R2 score)\n"
         elif r2_test >= 0.5:
-            feedback += (
-                f"R2 score: {(r2_test * 100):.3f}% (Moderate R2 score)\n"
-            )
+            feedback += f"R2 score: {(r2_test * 100):.3f}% (Moderate R2 score)\n"
         else:
             feedback += f"R2 score: {(r2_test * 100):.3f}% (Poor R2 score. Low R2 score can indicate model underfitting or insufficient data)\n"
         if adjusted_r2 >= 0.8:
