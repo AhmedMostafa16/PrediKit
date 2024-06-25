@@ -5,7 +5,7 @@ from pandas import DataFrame
 from predikit.errors import DataNotFittedError
 
 from .._typing import (
-    NaPosition,
+    Position,
     SortKind,
 )
 from ..preprocessing._base import BasePreprocessor
@@ -38,9 +38,11 @@ class RowSelector(BasePreprocessor):
         self,
         input: str,
         zero_indexed: bool = False,
+        delimiter: str | None = None,
     ) -> None:
         self.input: str = input
         self.zero_indexed: bool = zero_indexed
+        self.delimiter = delimiter
 
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
         if columns:
@@ -50,7 +52,10 @@ class RowSelector(BasePreprocessor):
             raise ValueError("Input String for Row Selection is Empty")
 
         interpreter = RowSelectionInterpreter(
-            self.input, len(data), zero_indexed=self.zero_indexed
+            self.input,
+            len(data),
+            zero_indexed=self.zero_indexed,
+            delimiter=self.delimiter,
         )
 
         self.selection = interpreter.interpret()
@@ -100,11 +105,13 @@ class RowIdentifier(BasePreprocessor):
         *,
         value_prefix: str = "",
         start_value: int = 0,
+        position: Position = "first",
         from_existing_col: str | None = None,
     ) -> None:
         self.new_col_name: str = new_col_name
         self.value_prefix: str = value_prefix
         self.start_value: int = start_value
+        self.position: Position = position
         self.from_existing_col: str | None = from_existing_col
 
     def fit(self, data: DataFrame, columns: list[str] | None = None) -> Self:
@@ -136,6 +143,10 @@ class RowIdentifier(BasePreprocessor):
 
         data[self.new_col_name] = self.indices
 
+        if self.position == "first":
+            col = data.pop(self.new_col_name)
+            data.insert(0, col.name, col)
+
         return data
 
 
@@ -159,12 +170,12 @@ class RowSorter(BasePreprocessor):
         by: str | list[str],
         ascending: bool = True,
         kind: SortKind = "quicksort",
-        na_position: NaPosition = "last",
+        na_position: Position = "last",
     ) -> None:
         self.by: str | list[str] = by
         self.ascending: bool = ascending
         self.kind: SortKind = kind
-        self.na_position: NaPosition = na_position
+        self.na_position: Position = na_position
 
     def transform(
         self, data: DataFrame, columns: list[str] | None = None

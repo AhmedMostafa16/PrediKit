@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+import os
 import pathlib
 
 import pandas
@@ -11,8 +12,6 @@ from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import DatasetFileInput
 from ...properties.outputs import TextOutput
-from ...properties.outputs.dataset_output import DatasetOutput
-from ...utils.dataset_utils import get_available_dataset_formats
 from ...properties.outputs.dataset_output import DatasetOutput
 from ...utils.dataset_utils import get_available_dataset_formats
 

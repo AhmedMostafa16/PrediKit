@@ -4,8 +4,6 @@ from __future__ import annotations
 
 import os
 import sys
-
-from nodes.properties.inputs.dataset_input import DatasetInput
 from typing import Union
 
 from nodes.properties.inputs.dataset_input import DatasetInput
@@ -23,13 +21,6 @@ from ...properties.inputs import (
 
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
-
-from predikit import (
-    DataFrameExporter,
-    FileExtension,
-)
-    TextInput,
-)
 
 
 @NodeFactory.register("predikit:dataset:save")
@@ -78,7 +69,7 @@ class DatasetGenericWriteNode(NodeBase):
         try:
             match extension.lower():
                 case "csv":
-                    pandas.DataFrame.to_csv(dataframe, full_path)
+                    pandas.DataFrame.to_csv(dataframe, full_path, index=False)
                 case "parquet":
                     pandas.DataFrame.to_parquet(dataframe, full_path)
                 case "xlsx":

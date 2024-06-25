@@ -66,6 +66,7 @@ class CSVDatasetWriteNode(NodeBase):
                 path_or_buf=full_path,
                 header=save_header,
                 sep=separator,
+                index=False,
             )
 
         except Exception:

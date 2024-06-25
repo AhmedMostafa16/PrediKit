@@ -595,6 +595,7 @@ class RowSelectionInterpreter:
         total_rows: int,
         *,
         zero_indexed: bool = False,
+        delimiter: str | None = None,
     ) -> None:
         self.input: str = input
         self.length: int = total_rows
@@ -607,6 +608,7 @@ class RowSelectionInterpreter:
             SelectionForm.TO: self._add_rows_to,
             SelectionForm.RANGE: self._add_row_range,
         }
+        self.delimiter = delimiter
 
     def interpret(self) -> list[int]:
         """Interprets string input to a list of numbers that can be used to
@@ -617,8 +619,8 @@ class RowSelectionInterpreter:
         list[int]
             The sorted numbers to be used to select rows from a DataFrame.
         """
-        for line in self.input.split():
-            self._validate_and_interpret_line(line)
+        for line in self.input.split(sep=self.delimiter):
+            self._validate_and_interpret_line(line.strip())
 
         return sorted(self._selected_rows)
 

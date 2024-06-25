@@ -30,7 +30,9 @@ MemoryUnit: TypeAlias = Literal["B", "KB", "MB", "GB"]
 
 # sort_index
 SortKind: TypeAlias = Literal["quicksort", "mergesort", "heapsort", "stable"]
-NaPosition: TypeAlias = Literal["first", "last"]
+
+# sort & row identifier
+Position: TypeAlias = Literal["first", "last"]
 
 # merger
 MergeHow = Literal["left", "right", "inner", "outer", "cross"]

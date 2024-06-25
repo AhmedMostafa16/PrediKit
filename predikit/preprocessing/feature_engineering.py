@@ -135,8 +135,8 @@ class MergeProcessor(BasePreprocessor):
             data = data[columns]
 
         # catch KeyError if `on` attribute column is not found
-        return data.merge(
-            right=self.data,
+        return self.data.merge(
+            right=data,
             on=self.on,
             how=self.how,
             suffixes=self.suffixes,
