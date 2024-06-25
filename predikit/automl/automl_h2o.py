@@ -497,7 +497,7 @@ class AutoML:
         self.best_model.save_mojo(path, force)
 
     @staticmethod
-    def save_model(cls, model, path: str, force: bool = False):
+    def save_model(model, path: str, force: bool = False):
         """
         Saves a given model as a file.
 
