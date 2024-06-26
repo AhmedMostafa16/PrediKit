@@ -8,6 +8,10 @@ from predikit.automl import (
     initialize_cluster_server,
     split_train_test,
 )
+from predikit.evaluation import (
+    CrossValidation,
+    Metrics,
+)
 from predikit.io import (
     DataFrameExporter,
     DataFrameParser,
@@ -67,6 +71,8 @@ __all__ = [
     "import_file",
     "initialize_cluster_server",
     "split_train_test",
+    "CrossValidation",
+    "Metrics",
 ]
 
 
