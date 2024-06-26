@@ -153,9 +153,7 @@ class CrossValidation:
         },
     }
 
-    def __init__(
-        self, model, data: DataFrame, target: str, cv: int = 5
-    ) -> None:
+    def __init__(self, model, data: DataFrame, target: str, cv: int = 5) -> None:
         """
         Constructs all the necessary attributes for the cross_validation object.
 
