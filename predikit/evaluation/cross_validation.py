@@ -42,7 +42,7 @@ class CrossValidation:
         Saves the best estimator to a file.
     """
 
-    _GRIDS = dict[str, dict[str, list[str | int | float]]] = {
+    _GRIDS: dict[str, dict[str, list[str | int | float | None]]] = {
         "LogisticRegression": {
             "penalty": ["l1", "l2"],
             "C": [0.1, 1, 10],
@@ -153,7 +153,9 @@ class CrossValidation:
         },
     }
 
-    def __init__(self, model, data: DataFrame, target: str, cv: int = 5) -> None:
+    def __init__(
+        self, model, data: DataFrame, target: str, cv: int = 5
+    ) -> None:
         """
         Constructs all the necessary attributes for the cross_validation object.
 
@@ -182,7 +184,7 @@ class CrossValidation:
         """
         self.grid.fit(self.X, self.y)
 
-    def get_best_params(self) -> dict[str, str | int | float]:
+    def get_best_params(self) -> dict[str, str | int | float | None]:
         """
         Returns the best parameters found by the grid search.
 
@@ -195,7 +197,7 @@ class CrossValidation:
         try:
             return self.grid.best_params_
         except NotFittedError as e:
-            raise e("The grid has not been fitted yet.")
+            raise Exception("The grid has not been fitted yet.") from e
 
     def get_best_score(self) -> float:
         """
@@ -210,7 +212,7 @@ class CrossValidation:
         try:
             return self.grid.best_score_
         except NotFittedError as e:
-            raise e("The grid has not been fitted yet.")
+            raise Exception("The grid has not been fitted yet.") from e
 
     def get_best_estimator(self):
         """
@@ -225,7 +227,7 @@ class CrossValidation:
         try:
             return self.grid.best_estimator_
         except NotFittedError as e:
-            raise e("The grid has not been fitted yet.")
+            raise Exception("The grid has not been fitted yet.") from e
 
     def save_model(self, path: str):
         """
@@ -240,4 +242,4 @@ class CrossValidation:
         try:
             joblib.dump(self.grid.best_estimator_, path)
         except NotFittedError as e:
-            raise e("The grid has not been fitted yet.")
+            raise Exception("The grid has not been fitted yet.") from e
