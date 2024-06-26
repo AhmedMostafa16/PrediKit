@@ -52,9 +52,7 @@ class FeatureSelection(BasePreprocessor):
         )
 
         if not any(selection):
-            raise ValueError(
-                "at least one of include or exclude must be nonempty"
-            )
+            raise ValueError("at least one of include or exclude must be nonempty")
 
         include_set = frozenset(self.include_dtypes)
         exclude_set = frozenset(self.exclude_dtypes)
@@ -74,9 +72,7 @@ class FeatureSelection(BasePreprocessor):
                     util.get_distinct_columns_dtype(data), list(exclude_set)
                 )
 
-        self.selected_features = util.select_dtypes_columns(
-            data, selected_dtypes
-        )
+        self.selected_features = util.select_dtypes_columns(data, selected_dtypes)
 
         if self.verbose:
             logging.debug(selected_dtypes)
@@ -128,9 +124,7 @@ class MergeProcessor(BasePreprocessor):
         self.how: MergeHow = how
         self.suffixes: tuple[str, str] = suffixes
 
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         if columns:
             data = data[columns]
 
@@ -184,6 +178,4 @@ class EncodingProcessor(BasePreprocessor):
         ]:
             return self._encoder.get_features_names_out()
         else:
-            raise ValueError(
-                "This Encoder does not support get_features_names_out."
-            )
+            raise ValueError("This Encoder does not support get_features_names_out.")

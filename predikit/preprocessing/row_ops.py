@@ -62,16 +62,12 @@ class RowSelector(BasePreprocessor):
 
         return self
 
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         if columns:
             data = data[columns]
 
         if not hasattr(self, "selection"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError("Data must be fitted first using the 'fit' method")
 
         if not self.zero_indexed:
             data.index += 1
@@ -130,16 +126,12 @@ class RowIdentifier(BasePreprocessor):
 
         return self
 
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         if columns:
             data = data[columns]
 
         if not hasattr(self, "indices"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError("Data must be fitted first using the 'fit' method")
 
         data[self.new_col_name] = self.indices
 
@@ -177,9 +169,7 @@ class RowSorter(BasePreprocessor):
         self.kind: SortKind = kind
         self.na_position: Position = na_position
 
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         if columns:
             data = data[columns]
 
