@@ -1,5 +1,5 @@
 import logging
-from typing import (
+from typing import (  # override,
     Self,
     cast,
     override,
@@ -68,9 +68,7 @@ class DataFilteringProcessor(BasePreprocessor):
         return self
 
     @override
-    def transform(
-        self, data: DataFrame, column: str | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, column: str | None = None) -> DataFrame:
         """
         Apply the filtering to the data.
 
@@ -88,9 +86,7 @@ class DataFilteringProcessor(BasePreprocessor):
             The filtered data.
         """
         if not hasattr(self, "_query"):
-            raise ValueError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise ValueError("Data must be fitted first using the 'fit' method")
 
         self.operator = cast(FilterOperator, self.operator)
 
@@ -134,9 +130,7 @@ class DataFilteringProcessor(BasePreprocessor):
             return f"`{column}`.{operator.to_str}"
 
         if operator.is_containment_operator:
-            negator = (
-                "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
-            )
+            negator = "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
 
             return "{0}`{1}`.str.contains('{2}', case={3})".format(
                 negator, column, value, self.case_sensitive
