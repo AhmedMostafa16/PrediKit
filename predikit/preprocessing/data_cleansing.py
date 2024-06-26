@@ -169,18 +169,14 @@ class MissingValuesProcessor(BasePreprocessor):
         }
 
         if self.strategy == MissingValueStrategy.MODE:
-            self.fill_value = strategy_fill[self.strategy](
-                data[self.na_cols]
-            ).iloc[0]
+            self.fill_value = strategy_fill[self.strategy](data[self.na_cols]).iloc[0]
         else:
             self.fill_value = strategy_fill[self.strategy](data[self.na_cols])
 
         return self
 
     @override
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         """
         Apply the MissingValuesProcessor to the dataset.
 
@@ -258,9 +254,7 @@ class MissingValuesProcessor(BasePreprocessor):
         """
         for na_col in na_cols:
             if na_col not in data.columns:
-                raise ValueError(
-                    f"Column {na_col} does not exist in the DataFrame."
-                )
+                raise ValueError(f"Column {na_col} does not exist in the DataFrame.")
 
             label = self._missing_value_label(na_col)
             data[label] = data[na_col].isna().astype("uint8")
@@ -391,9 +385,7 @@ class OutliersProcessor(BasePreprocessor):
         self._weight = {}
         for column in selection:
             if self.method == OutlierDetectionMethod.IQR:
-                lower_bound, upper_bound = self._IQR(
-                    data, column, self.threshold
-                )
+                lower_bound, upper_bound = self._IQR(data, column, self.threshold)
                 self._weight[column] = (lower_bound, upper_bound)
 
                 if not self.verbose:
@@ -401,8 +393,7 @@ class OutliersProcessor(BasePreprocessor):
 
                 total_outliers = len(
                     data[column][
-                        (data[column] < lower_bound)
-                        | (data[column] > upper_bound)
+                        (data[column] < lower_bound) | (data[column] > upper_bound)
                     ]
                 )
 
@@ -426,9 +417,7 @@ class OutliersProcessor(BasePreprocessor):
         return self
 
     @override
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         """
         Transform the dataset by processing outliers.
 
@@ -453,9 +442,7 @@ class OutliersProcessor(BasePreprocessor):
                 )
 
                 if self.add_indicator:
-                    outlier_indicator = self._indicator_label(
-                        column, self.method
-                    )
+                    outlier_indicator = self._indicator_label(column, self.method)
 
                     data[outlier_indicator] = 0
                     data.loc[outliers_mask, outlier_indicator] = 1
@@ -473,18 +460,14 @@ class OutliersProcessor(BasePreprocessor):
                 )
 
                 if self.add_indicator:
-                    outlier_indicator = self._indicator_label(
-                        column, self.method
-                    )
+                    outlier_indicator = self._indicator_label(column, self.method)
                     data[outlier_indicator] = 0
                     data.loc[outliers_mask, outlier_indicator] = 1
 
                 data.loc[outliers_mask, column] = data[column].median()
 
             else:
-                raise ValueError(
-                    f"Wrong Outlier Detection Method {self.method}"
-                )
+                raise ValueError(f"Wrong Outlier Detection Method {self.method}")
 
         return data
 
@@ -677,8 +660,7 @@ class StringOperationsProcessor(BasePreprocessor):
 
         if self._str_data is None:
             exc = NoStringColumnsError(
-                "No string columns found. "
-                "StringModifierProcessor will be skipped."
+                "No string columns found. " "StringModifierProcessor will be skipped."
             )
 
             raise exc
@@ -722,8 +704,7 @@ class StringOperationsProcessor(BasePreprocessor):
 
         if self._str_data is None:
             raise DataNotFittedError(
-                "No string columns found. "
-                "StringModifierProcessor will be skipped."
+                "No string columns found. " "StringModifierProcessor will be skipped."
             )
 
         if not self._operations:
@@ -900,15 +881,11 @@ class DataCleanser(BasePreprocessor):
     def __init__(
         self,
         missing_clean: bool = True,
-        missing_strategy: (
-            MissingValueStrategy | str
-        ) = MissingValueStrategy.MEAN,
+        missing_strategy: (MissingValueStrategy | str) = MissingValueStrategy.MEAN,
         missing_fill_value: int | float | str | None = None,
         missing_indicator: bool = False,
         outlier_clean: bool = True,
-        outlier_method: (
-            OutlierDetectionMethod | str
-        ) = OutlierDetectionMethod.IQR,
+        outlier_method: (OutlierDetectionMethod | str) = OutlierDetectionMethod.IQR,
         outlier_threshold: float = 2.5,
         outlier_indicator: bool = True,
         str_operations: bool = False,
@@ -974,9 +951,7 @@ class DataCleanser(BasePreprocessor):
                 logging.debug("Post-cleansing column correction")
                 na_cols = self._clean_missing_enc.na_cols
                 # undesired for outliers detection and treatment
-                missing_labels = self._clean_missing_enc._missing_value_labels(
-                    na_cols
-                )
+                missing_labels = self._clean_missing_enc._missing_value_labels(na_cols)
 
             na_cols = exclude_from_columns(columns, missing_labels)
             data = coe.fit_transform(data, columns=na_cols)

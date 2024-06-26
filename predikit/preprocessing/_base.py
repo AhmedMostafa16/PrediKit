@@ -107,9 +107,7 @@ class BasePreprocessor(TransformerMixin, BaseEstimator, ABC):
             ValueError: If the input data is empty.
         """
         if data.empty:
-            raise ValueError(
-                "Dataset cannot be empty in fit_transform process."
-            )
+            raise ValueError("Dataset cannot be empty in fit_transform process.")
 
         if not columns:
             result = self.fit(data, **fit_params)
@@ -189,9 +187,7 @@ class MissingValueStrategy(StrEnum):
                 return cls.OMIT
             # fmt: on
             case _:
-                raise ValueError(
-                    f"Invalid missing value handling strategy: {strategy}"
-                )
+                raise ValueError(f"Invalid missing value handling strategy: {strategy}")
 
 
 class OutlierDetectionMethod(StrEnum):
@@ -678,9 +674,7 @@ class RowSelectionInterpreter:
         self._validate_digit_in_range(line, digit)
         self._FORM_TO_OPERATION[form](digit)
 
-    def _validate_digit_in_range(
-        self, line: str, digit: int | tuple[int, int]
-    ) -> None:
+    def _validate_digit_in_range(self, line: str, digit: int | tuple[int, int]) -> None:
         """A validator function to check whether the digits from a line
         is inside the range of dataset length (0-N) where N is Length
 

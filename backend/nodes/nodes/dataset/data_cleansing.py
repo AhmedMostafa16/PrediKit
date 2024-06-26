@@ -584,9 +584,7 @@ class RowSorterNode(NodeBase):
         self.icon = "MdSortByAlpha"
         self.sub = "Row Operations"
 
-    def run(
-        self, dataset, column, ascending, kind, na_position
-    ) -> pandas.DataFrame:
+    def run(self, dataset, column, ascending, kind, na_position) -> pandas.DataFrame:
         row_sorter = RowSorter(
             column,
             ascending,

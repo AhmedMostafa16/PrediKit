@@ -83,8 +83,6 @@ class DatasetGenericWriteNode(NodeBase):
                 case "pickle" | "pkl" | "pk":
                     pandas.DataFrame.to_pickle(dataframe, full_path)
                 case _:
-                    raise ValueError(
-                        f"Unsupported dataset format: {extension}"
-                    )
+                    raise ValueError(f"Unsupported dataset format: {extension}")
         except Exception:
             raise ValueError(f"Failed to write dataset to path: {full_path}")

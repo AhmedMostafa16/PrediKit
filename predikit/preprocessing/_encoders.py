@@ -84,13 +84,9 @@ class OneHotEncoder:
                 df[column].dropna().unique()
             )  # Drop NaN values from unique values
             if self.drop == "first":
-                unique_values = np.delete(
-                    unique_values, 0
-                )  # Drop the first category
+                unique_values = np.delete(unique_values, 0)  # Drop the first category
             elif self.drop == "if_binary" and len(unique_values) == 2:
-                unique_values = unique_values[
-                    1:
-                ]  # Drop the first category if binary
+                unique_values = unique_values[1:]  # Drop the first category if binary
             self.encodings[column] = {
                 value: np.eye(len(unique_values))[i]
                 for i, value in enumerate(unique_values)
