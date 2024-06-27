@@ -69,7 +69,7 @@ class DatasetGenericWriteNode(NodeBase):
         try:
             match extension.lower():
                 case "csv":
-                    pandas.DataFrame.to_csv(dataframe, full_path, index=False)
+                    pandas.DataFrame.to_csv(dataframe, full_path)
                 case "parquet":
                     pandas.DataFrame.to_parquet(dataframe, full_path)
                 case "xlsx":
