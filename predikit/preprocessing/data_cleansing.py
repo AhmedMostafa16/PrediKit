@@ -40,7 +40,7 @@ class MissingValuesProcessor(BasePreprocessor):
     Replace missing values using a descriptive statistic (e.g. mean, median,or
     most frequent) along each column, or using a constant value, or omitting.
 
-    Parameters
+    Attributes
     ----------
     strategy : MissingValueStrategy, default='MEAN'
         The processor strategy.
@@ -70,17 +70,12 @@ class MissingValuesProcessor(BasePreprocessor):
     verbose : bool, default=False
         If True, prints information about missing values in the dataset.
 
-    Attributes
-    ----------
-    method : MissingValuesStrategy
-        The strategy to use for handling missing values. Default is 'MEDIAN'.
-
     Examples
     --------
     >>> import pandas as pd
     >>> from predikit import MissingValuesProcessor
     >>> df = pd.DataFrame({'A': [1, 2, 3, 4, 5], 'B': [1, 2, np.nan, 4, 5]})
-    >>>
+
     >>> mvp = MissingValuesProcessor()
     >>> cleaned_X_train = mvp.fit_transform(df)
     >>> cleaned_X_test = mvp.transform(df)
@@ -174,18 +169,14 @@ class MissingValuesProcessor(BasePreprocessor):
         }
 
         if self.strategy == MissingValueStrategy.MODE:
-            self.fill_value = strategy_fill[self.strategy](
-                data[self.na_cols]
-            ).iloc[0]
+            self.fill_value = strategy_fill[self.strategy](data[self.na_cols]).iloc[0]
         else:
             self.fill_value = strategy_fill[self.strategy](data[self.na_cols])
 
         return self
 
     @override
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         """
         Apply the MissingValuesProcessor to the dataset.
 
@@ -203,9 +194,7 @@ class MissingValuesProcessor(BasePreprocessor):
             data = data[columns]
 
         if not hasattr(self, "na_cols"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
 
         if not self.na_cols:
             return data
@@ -265,9 +254,7 @@ class MissingValuesProcessor(BasePreprocessor):
         """
         for na_col in na_cols:
             if na_col not in data.columns:
-                raise ValueError(
-                    f"Column {na_col} does not exist in the DataFrame."
-                )
+                raise ValueError(f"Column {na_col} does not exist in the DataFrame.")
 
             label = self._missing_value_label(na_col)
             data[label] = data[na_col].isna().astype("uint8")
@@ -299,7 +286,7 @@ class MissingValuesProcessor(BasePreprocessor):
         Examples
         --------
         >>> df = DataFrame({'A': [1, 2, np.nan], 'B': [4, np.nan, np.nan]})
-        >>> _log_missing_percent(df, 0.5)
+        ... _log_missing_percent(df, 0.5)
         Warning: ! Attention B - 67% Missing!
         """
         for col in data.columns:
@@ -398,9 +385,7 @@ class OutliersProcessor(BasePreprocessor):
         self._weight = {}
         for column in selection:
             if self.method == OutlierDetectionMethod.IQR:
-                lower_bound, upper_bound = self._IQR(
-                    data, column, self.threshold
-                )
+                lower_bound, upper_bound = self._IQR(data, column, self.threshold)
                 self._weight[column] = (lower_bound, upper_bound)
 
                 if not self.verbose:
@@ -408,8 +393,7 @@ class OutliersProcessor(BasePreprocessor):
 
                 total_outliers = len(
                     data[column][
-                        (data[column] < lower_bound)
-                        | (data[column] > upper_bound)
+                        (data[column] < lower_bound) | (data[column] > upper_bound)
                     ]
                 )
 
@@ -433,9 +417,7 @@ class OutliersProcessor(BasePreprocessor):
         return self
 
     @override
-    def transform(
-        self, data: DataFrame, columns: list[str] | None = None
-    ) -> DataFrame:
+    def transform(self, data: DataFrame, columns: list[str] | None = None) -> DataFrame:
         """
         Transform the dataset by processing outliers.
 
@@ -450,9 +432,8 @@ class OutliersProcessor(BasePreprocessor):
             The transformed dataframe (shape = (n_samples, n_features)).
         """
         if not hasattr(self, "_weight") or self._weight == {}:
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
+
         for column in self._weight:
             if self.method == OutlierDetectionMethod.IQR:
                 lower_bound, upper_bound = self._weight[column]
@@ -461,9 +442,7 @@ class OutliersProcessor(BasePreprocessor):
                 )
 
                 if self.add_indicator:
-                    outlier_indicator = self._indicator_label(
-                        column, self.method
-                    )
+                    outlier_indicator = self._indicator_label(column, self.method)
 
                     data[outlier_indicator] = 0
                     data.loc[outliers_mask, outlier_indicator] = 1
@@ -481,18 +460,14 @@ class OutliersProcessor(BasePreprocessor):
                 )
 
                 if self.add_indicator:
-                    outlier_indicator = self._indicator_label(
-                        column, self.method
-                    )
+                    outlier_indicator = self._indicator_label(column, self.method)
                     data[outlier_indicator] = 0
                     data.loc[outliers_mask, outlier_indicator] = 1
 
                 data.loc[outliers_mask, column] = data[column].median()
 
             else:
-                raise ValueError(
-                    f"Wrong Outlier Detection Method {self.method}"
-                )
+                raise ValueError(f"Wrong Outlier Detection Method {self.method}")
 
         return data
 
@@ -685,10 +660,10 @@ class StringOperationsProcessor(BasePreprocessor):
 
         if self._str_data is None:
             exc = NoStringColumnsError(
-                "No string columns found. "
-                "StringModifierProcessor will be skipped."
+                "No string columns found. " "StringModifierProcessor will be skipped."
             )
-            str(exc)
+
+            raise exc
 
         self._operations = [
             (self.remove_punctuation, self._remove_punctuation),
@@ -725,14 +700,11 @@ class StringOperationsProcessor(BasePreprocessor):
             If no operations are specified.
         """
         if not hasattr(self, "_str_data"):
-            raise DataNotFittedError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise DataNotFittedError
 
         if self._str_data is None:
             raise DataNotFittedError(
-                "No string columns found. "
-                "StringModifierProcessor will be skipped."
+                "No string columns found. " "StringModifierProcessor will be skipped."
             )
 
         if not self._operations:
@@ -909,15 +881,11 @@ class DataCleanser(BasePreprocessor):
     def __init__(
         self,
         missing_clean: bool = True,
-        missing_strategy: (
-            MissingValueStrategy | str
-        ) = MissingValueStrategy.MEAN,
+        missing_strategy: (MissingValueStrategy | str) = MissingValueStrategy.MEAN,
         missing_fill_value: int | float | str | None = None,
         missing_indicator: bool = False,
         outlier_clean: bool = True,
-        outlier_method: (
-            OutlierDetectionMethod | str
-        ) = OutlierDetectionMethod.IQR,
+        outlier_method: (OutlierDetectionMethod | str) = OutlierDetectionMethod.IQR,
         outlier_threshold: float = 2.5,
         outlier_indicator: bool = True,
         str_operations: bool = False,
@@ -983,12 +951,9 @@ class DataCleanser(BasePreprocessor):
                 logging.debug("Post-cleansing column correction")
                 na_cols = self._clean_missing_enc.na_cols
                 # undesired for outliers detection and treatment
-                missing_labels = self._clean_missing_enc._missing_value_labels(
-                    na_cols
-                )
+                missing_labels = self._clean_missing_enc._missing_value_labels(na_cols)
 
             na_cols = exclude_from_columns(columns, missing_labels)
-            logging.debug(na_cols)
             data = coe.fit_transform(data, columns=na_cols)
 
         if self.string_operations:

@@ -2,23 +2,6 @@ from pandas import DataFrame
 
 from predikit._typing import MemoryUnit
 
-# # tf currently not supported by python 3.12 | TODO: check for alternatives
-# def split_dataset(
-#     dataset: tf.Data.Dataset, validation_split: float = 0.25
-# ) -> (tf.Data.Dataset, tf.Data.Dataset):
-#     """Split dataset into training and validation sets.
-
-
-#     Args:
-#         dataset (tf.Data.Dataset): The entire dataset to be split.
-#         validation_split (float): The split ratio for the validation set.
-
-#     Returns:
-#         A tuple of tf.Data.Dataset objects representing the training and
-#         validation sets.
-#     """
-#     ...
-
 
 def get_dataframe_column_names(dataframe: DataFrame) -> list[str]:
     """
@@ -251,3 +234,24 @@ def str_data_memory_usage(
         return f"{df.memory_usage(deep=deep).sum() / 1024:.2f} KB"
 
     return f"{df.memory_usage(deep=deep).sum():.2f} B"
+
+
+def get_distinct_columns_dtype(dataframe: DataFrame) -> list[str]:
+    """Get the distinct data types of the columns in the DataFrame.
+
+    Parameters
+    ----------
+    dataframe : DataFrame
+        The input DataFrame containing the columns.
+
+    Returns
+    -------
+    list[str]
+        A list of distinct data types of the columns in the DataFrame.
+    """
+    return list({dtype.name for dtype in dataframe.dtypes.values})
+
+
+def select_dtypes_columns(dataframe: DataFrame, dtypes) -> list[str]:
+    selected_columns = dataframe.select_dtypes(include=dtypes).columns
+    return list(selected_columns)

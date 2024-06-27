@@ -1,3 +1,5 @@
+from typing import Any
+
 from catboost import CatBoostRegressor
 import joblib
 from lightgbm import LGBMRegressor
@@ -15,7 +17,6 @@ from sklearn.svm import SVR
 from sklearn.tree import DecisionTreeRegressor
 from xgboost import XGBRegressor
 
-from ..._typing import Any
 from ._base import (
     BaseRegressor,
     RegressorStrategies,

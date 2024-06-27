@@ -13,7 +13,7 @@ from ._base import (
 )
 
 
-class BasicFilteringProcessor(BasePreprocessor):
+class DataFilteringProcessor(BasePreprocessor):
     """
     A class used to filter data based on a specified operator and value.
 
@@ -156,9 +156,3 @@ class BasicFilteringProcessor(BasePreprocessor):
             True if the column is numeric, False otherwise.
         """
         return data[column].dtype.kind in "biufc"
-
-    # def fit_transform(self, data, column=None):
-    #     # TODO: fix this Result workaround
-    #     bfp = self.fit(data, column)
-    #     bfp = bfp.unwrap()
-    #     return bfp.transform(data, column).unwrap()

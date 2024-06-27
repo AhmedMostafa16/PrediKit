@@ -1,7 +1,6 @@
 "https://www.kaggle.com/code/mbalvi75/08-knn-diabetes-dataset"
 import os
 import sys
-import numpy as np
 import pandas as pd
 from sklearn.metrics import (
     accuracy_score,

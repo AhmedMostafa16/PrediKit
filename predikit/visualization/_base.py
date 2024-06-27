@@ -1,7 +1,6 @@
 from abc import ABC
 from enum import StrEnum
-
-from .._typing import Any
+from typing import Any
 
 
 class BaseVisualization(ABC):

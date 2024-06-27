@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import sys
 from typing import Union
 
 from nodes.properties.inputs.dataset_input import DatasetInput
@@ -17,6 +18,9 @@ from ...properties.inputs import (
     DatasetExtensionDropdown,
     TextInput,
 )
+
+root = os.path.dirname(os.path.abspath("../../../../predikit/"))
+sys.path.append(root)
 
 
 @NodeFactory.register("predikit:dataset:save")
@@ -79,8 +83,6 @@ class DatasetGenericWriteNode(NodeBase):
                 case "pickle" | "pkl" | "pk":
                     pandas.DataFrame.to_pickle(dataframe, full_path)
                 case _:
-                    raise ValueError(
-                        f"Unsupported dataset format: {extension}"
-                    )
+                    raise ValueError(f"Unsupported dataset format: {extension}")
         except Exception:
             raise ValueError(f"Failed to write dataset to path: {full_path}")
