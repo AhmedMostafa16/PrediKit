@@ -117,9 +117,7 @@ class Visualization(BaseVisualization):
         if isinstance(self.vis, Figure):
             return self.vis.data
         else:
-            raise TypeError(
-                "Visualization object does not contain valid data."
-            )
+            raise TypeError("Visualization object does not contain valid data.")
 
     def send_json(self) -> str:
         """
@@ -178,9 +176,7 @@ class Subplots(BaseVisualization):
 
                 # Extract the title from the figure
                 title = (
-                    plotly_fig.layout.title.text
-                    if plotly_fig.layout.title.text
-                    else ""
+                    plotly_fig.layout.title.text if plotly_fig.layout.title.text else ""
                 )
 
                 # Add title annotation to each subplot
@@ -211,12 +207,8 @@ class Subplots(BaseVisualization):
                     y_label = plotly_fig.layout.yaxis.title.text
 
                     # Update the subplot with the extracted labels
-                    this_figure.update_xaxes(
-                        title_text=x_label, row=i + 1, col=j + 1
-                    )
-                    this_figure.update_yaxes(
-                        title_text=y_label, row=i + 1, col=j + 1
-                    )
+                    this_figure.update_xaxes(title_text=x_label, row=i + 1, col=j + 1)
+                    this_figure.update_yaxes(title_text=y_label, row=i + 1, col=j + 1)
 
         # Adjust layout to avoid overlapping of labels with plots
         this_figure.update_layout(
