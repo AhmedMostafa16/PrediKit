@@ -9,6 +9,7 @@ import {
     NodeSchema,
     RegisterUserDto,
     SchemaId,
+    UpdateUserDto,
     UserInfo,
     Workflow,
     WorkflowDto,
@@ -209,6 +210,10 @@ export class Backend {
 
     login(user: LoginUserDto): Promise<BackendResult<UserInfo>> {
         return this.fetchJson("/users/login", "POST", user, false);
+    }
+
+    updateAccount(user: UpdateUserDto): Promise<BackendResult<UserInfo>> {
+        return this.fetchJson("/users", "PUT", user);
     }
 }
 

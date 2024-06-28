@@ -194,6 +194,10 @@ export interface LoginUserDto {
     password: string;
 }
 
+export interface UpdateUserDto extends Partial<RegisterUserDto> {
+    id: string;
+}
+
 export interface UserDto {
     fullname: string;
     email: string;

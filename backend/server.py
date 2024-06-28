@@ -1,5 +1,6 @@
 import asyncio
 from concurrent.futures import ThreadPoolExecutor
+import datetime
 import functools
 import gc
 import importlib
@@ -147,9 +148,7 @@ class AppContext:
         # This will be initialized by setup_queue.
         # This is necessary because we don't know Sanic's event loop yet.
         self.queue: EventQueue = None  # type: ignore
-        self.pool = ThreadPoolExecutor(
-            max_workers=multiprocessing.cpu_count() // 2
-        )
+        self.pool = ThreadPoolExecutor(max_workers=multiprocessing.cpu_count() // 2)
 
     @staticmethod
     def get(app_instance: Sanic) -> "AppContext":
@@ -191,9 +190,7 @@ def check_token(request) -> bool:
         return False
 
     try:
-        jwt.decode(
-            request.token, request.app.config.SECRET, algorithms=["HS256"]
-        )
+        jwt.decode(request.token, request.app.config.SECRET, algorithms=["HS256"])
     except jwt.exceptions.InvalidTokenError:
         return False
     else:
@@ -221,9 +218,7 @@ def protected(wrapped):
                 response = await f(request, *args, **kwargs)
                 return response
             else:
-                return json(
-                    {"success": True, "message": "You are unauthorized."}, 401
-                )
+                return json({"success": True, "message": "You are unauthorized."}, 401)
 
         return decorated_function
 
@@ -301,9 +296,7 @@ async def nodes(_):
     # sort nodes in category order
     sorted_registry = sorted(
         registry.items(),
-        key=lambda x: category_order.index(
-            NodeFactory.get_node(x[0]).category.name
-        ),
+        key=lambda x: category_order.index(NodeFactory.get_node(x[0]).category.name),
     )
     node_list = []
     for schema_id, _node_class in sorted_registry:
@@ -356,9 +349,7 @@ async def run(request: Request, workflow_id: str):
             )
         if ctx.executors[workflow_id].is_paused():
             ctx.executors[workflow_id].resume()
-            return json(
-                successResponse("Successfully resumed execution!"), status=200
-            )
+            return json(successResponse("Successfully resumed execution!"), status=200)
 
     try:
         # wait until all previews are done
@@ -410,9 +401,7 @@ async def run(request: Request, workflow_id: str):
             }
 
         await ctx.queue.put({"event": "execution-error", "data": error})
-        return json(
-            errorResponse("Error running nodes!", exception), status=500
-        )
+        return json(errorResponse("Error running nodes!", exception), status=500)
 
 
 class RunIndividualRequest(TypedDict):
@@ -445,9 +434,7 @@ async def run_individual(request: Request):
 
         with runIndividualCounter:
             # Run the node and pass in inputs as args
-            run_func = functools.partial(
-                node_instance.run, *full_data["inputs"]
-            )
+            run_func = functools.partial(node_instance.run, *full_data["inputs"])
             output, execution_time = await app.loop.run_in_executor(
                 None, timed_supplier(run_func)
             )
@@ -462,8 +449,8 @@ async def run_individual(request: Request):
             output_idxable = [output] if len(node_outputs) == 1 else output
             for idx, node_output in enumerate(node_outputs):
                 try:
-                    broadcast_data[node_output.id] = (
-                        node_output.get_broadcast_data(output_idxable[idx])
+                    broadcast_data[node_output.id] = node_output.get_broadcast_data(
+                        output_idxable[idx]
                     )
                 except Exception as error:
                     logger.error(f"Error broadcasting output: {error}")
@@ -486,9 +473,7 @@ async def run_individual(request: Request):
         return json({"success": False, "error": str(exception)})
 
 
-@app.route(
-    "/workflows/<workflow_id:str>/clearcache/individual", methods=["POST"]
-)
+@app.route("/workflows/<workflow_id:str>/clearcache/individual", methods=["POST"])
 async def clear_cache_individual(request: Request):
     """
     Clears the cache for an individual item.
@@ -525,9 +510,7 @@ async def sse(request: Request):
     """
     ctx = AppContext.get(request.app)
     headers = {"Cache-Control": "no-cache"}
-    response = await request.respond(
-        headers=headers, content_type="text/event-stream"
-    )
+    response = await request.respond(headers=headers, content_type="text/event-stream")
     while True:
         message = await ctx.queue.get()
         if response is not None:
@@ -553,14 +536,10 @@ async def pause(request: Request, workflow_id: str):
     try:
         logger.info("Executor found. Attempting to pause...")
         ctx.executors[workflow_id].pause()
-        return json(
-            successResponse("Successfully paused execution!"), status=200
-        )
+        return json(successResponse("Successfully paused execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error pausing execution!", exception), status=500
-        )
+        return json(errorResponse("Error pausing execution!", exception), status=500)
 
 
 @app.route("/workflows/<workflow_id:str>/resume", methods=["POST"])
@@ -576,14 +555,10 @@ async def resume(request: Request, workflow_id: str):
     try:
         logger.info("Executor found. Attempting to resume...")
         ctx.executors[workflow_id].resume()
-        return json(
-            successResponse("Successfully resumed execution!"), status=200
-        )
+        return json(successResponse("Successfully resumed execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error resuming execution!", exception), status=500
-        )
+        return json(errorResponse("Error resuming execution!", exception), status=500)
 
 
 @app.route("/workflows/<workflow_id:str>/kill", methods=["POST"])
@@ -599,14 +574,10 @@ async def kill(request: Request, workflow_id: str):
     try:
         logger.info("Executor found. Attempting to kill...")
         ctx.executors[workflow_id].kill()
-        return json(
-            successResponse("Successfully killed execution!"), status=200
-        )
+        return json(successResponse("Successfully killed execution!"), status=200)
     except Exception as exception:
         logger.log(2, exception, exc_info=True)
-        return json(
-            errorResponse("Error killing execution!", exception), status=500
-        )
+        return json(errorResponse("Error killing execution!", exception), status=500)
 
 
 @app.route("/ping", methods=["GET"])
@@ -620,9 +591,7 @@ async def get_all_workflows(request: Request):
         user_id = request.args.get("userId")
         print("User ID: ", user_id)
         if not user_id:
-            return json(
-                errorResponse("User ID is not provided!", ""), status=400
-            )
+            return json(errorResponse("User ID is not provided!", ""), status=400)
         user = await users_collection.find_one({"_id": ObjectId(user_id)})
         if not user:
             return json(errorResponse("User not found!", ""), status=404)
@@ -657,9 +626,7 @@ async def create_workflow(request: Request):
         workflow = request.json
         user_id = workflow.get("userId")
         if not user_id:
-            return json(
-                errorResponse("User ID is not provided!", ""), status=400
-            )
+            return json(errorResponse("User ID is not provided!", ""), status=400)
         del workflow["userId"]
         result = await workflows_collection.insert_one(workflow)
         if result.inserted_id:
@@ -696,9 +663,7 @@ async def get_workflow(request: Request, workflow_id: str):
         Exception: If an error occurs while fetching the workflow.
     """
     try:
-        workflow = await workflows_collection.find_one(
-            {"_id": ObjectId(workflow_id)}
-        )
+        workflow = await workflows_collection.find_one({"_id": ObjectId(workflow_id)})
         if workflow:
             workflow["id"] = str(workflow["_id"])
             del workflow["_id"]
@@ -754,16 +719,12 @@ async def delete_workflow(request: Request, workflow_id: str):
     """
     try:
         # Delete the workflow from the workflows collection
-        result = await workflows_collection.delete_one(
-            {"_id": ObjectId(workflow_id)}
-        )
+        result = await workflows_collection.delete_one({"_id": ObjectId(workflow_id)})
 
         # Delete the workflow from the owner's workflows list
         user_id = request.json.get("userId")
         if not user_id:
-            return json(
-                errorResponse("User ID is not provided!", ""), status=400
-            )
+            return json(errorResponse("User ID is not provided!", ""), status=400)
 
         user_result = await users_collection.update_one(
             {"_id": user_id},
@@ -859,9 +820,7 @@ async def register(request: Request):
 
     # Check if the username or email is already taken
     if await users_collection.find_one({"email": email}):
-        return json(
-            {"success": False, "error": "Email already taken"}, status=400
-        )
+        return json({"success": False, "error": "Email already taken"}, status=400)
 
     # Hash the password
     hashed_password = argon2.hash(password)
@@ -947,14 +906,57 @@ async def get_user(request: Request, user_id: str):
         return json(errorResponse("Error fetching user!", e), status=500)
 
 
+@app.route("/users", methods=["PUT"])
+async def update_user(request: Request):
+    try:
+        user_id = request.json.get("id")
+        existing_user = await users_collection.find_one({"_id": ObjectId(user_id)})
+        if not existing_user:
+            return json(errorResponse("User not found!", ""), status=404)
+
+        new_user = request.json
+        del new_user["id"]
+
+        # Map the new user data to the existing user
+        existing_user.update(new_user)
+
+        result = await users_collection.replace_one(
+            {"_id": ObjectId(user_id)}, existing_user
+        )
+        if result.matched_count == 0:
+            return json(errorResponse("User not found!", ""), status=404)
+        if result.modified_count == 0:
+            return json(errorResponse("User not updated!", ""), status=500)
+        return json(
+            {
+                "success": True,
+                "data": {
+                    "token": jwt.encode(
+                        {"email": existing_user["email"]},
+                        app.config.SECRET,
+                        algorithm="HS256",
+                    ),
+                    "user": {
+                        "id": str(existing_user["_id"]),
+                        "email": existing_user["email"],
+                        "fullname": existing_user["fullname"],
+                    },
+                },
+            },
+            status=200,
+        )
+    except Exception as e:
+        return json(errorResponse("Error updating user!", e), status=500)
+    finally:
+        gc.collect()
+
+
 # Main entry point for the application
 if __name__ == "__main__":
     host: str = os.getenv("HOST", "localhost")
     port = int(os.getenv("PORT", 5001))
     workers = int(os.getenv("WORKERS", multiprocessing.cpu_count()))
-    is_production: bool = (
-        os.environ.get("Production", "True").lower() == "true"
-    )
+    is_production: bool = os.environ.get("Production", "True").lower() == "true"
 
     # Ensure at least one worker is running
     if workers < 1 and not is_production:

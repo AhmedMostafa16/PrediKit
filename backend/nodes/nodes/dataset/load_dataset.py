@@ -36,9 +36,7 @@ class DatasetReadNode(NodeBase):
         """Reads an dataset from the specified path and return it as a pandas DataFrame."""
         try:
             logger.debug(f"Reading dataset from path: {path}")
-            directory = pathlib.Path(path)
-            dirname, basename = os.path.split(os.path.splitext(path)[0])
-            ext = directory.suffix
+            _base, ext = os.path.splitext(path)
 
             supported_formats = ext.lower() in get_available_dataset_formats()
 
@@ -92,7 +90,7 @@ class DatasetReadNode(NodeBase):
                 gc.collect()
             except Exception as e:
                 raise Exception(f"Error reading dataset: {e}")
-
+            dirname, basename = os.path.split(os.path.splitext(path)[0])
             return df, dirname, basename
         except Exception as e:
             raise Exception(f"Error: {str(e)}")

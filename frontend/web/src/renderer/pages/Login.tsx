@@ -41,7 +41,6 @@ export const Login = memo(() => {
     const handleClick = () => setShow(!show);
 
     const onSubmit = async (values: FieldValues) => {
-        console.log(values);
         const user: LoginUserDto = {
             email: values.email,
             password: values.password,
@@ -49,14 +48,11 @@ export const Login = memo(() => {
 
         const result = await backend.login(user);
         if (result.success) {
-            console.log("User loggedin successfully");
             setUserInfo(result.data);
-            console.log("User info updated");
-            console.log(result.data);
             navigate("/workflows", { replace: true });
         } else {
             sendToast({
-                title: "User registration failed",
+                title: "Login failed",
                 description: result.error,
                 status: "error",
             });
@@ -163,7 +159,7 @@ export const Login = memo(() => {
                                         Log in
                                     </Button>
                                     <Text mt={4}>
-                                        Don't have an account?{" "}
+                                        Don&apos;t have an account?{" "}
                                         <Link
                                             as={ReactRouterLink}
                                             color="blue.500"

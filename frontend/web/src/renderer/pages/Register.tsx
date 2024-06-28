@@ -43,16 +43,14 @@ export const Register = memo(() => {
     const handleClick = () => setShow(!show);
 
     const onSubmit = async (values: FieldValues) => {
-        console.log(values);
         const user: RegisterUserDto = {
-            fullname: values.fullname,
-            email: values.email,
-            password: values.password,
+            fullname: values.fullname as string,
+            email: values.email as string,
+            password: values.password as string,
         };
 
         const result = await backend.register(user);
         if (result.success) {
-            console.log("User registered successfully");
             setUserInfo(result.data);
             navigate("/workflows");
         } else {

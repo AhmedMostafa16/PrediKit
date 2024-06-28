@@ -1,6 +1,5 @@
 import { Box, Center, ChakraProvider, ColorModeScript, Spinner, VStack } from "@chakra-ui/react";
 import log from "electron-log";
-import { LocalStorage } from "node-localstorage";
 import { memo, useEffect, useRef, useState } from "react";
 import { ReactFlowProvider } from "react-flow-renderer";
 import { HashRouter, Route, RouteObject, Routes, createHashRouter } from "react-router-dom";
@@ -49,8 +48,9 @@ export const App = memo(() => {
     useAsyncEffect(
         {
             supplier: () => ipcRenderer.invoke("get-localstorage-location"),
-            successEffect: (location) => {
-                (global as Record<string, unknown>).customLocalStorage = new LocalStorage(location);
+            successEffect: () => {
+                const { localStorage } = window;
+                localStorage.getItem("user-info");
                 setStorageInitialized(true);
             },
         },
@@ -121,7 +121,7 @@ export const App = memo(() => {
 
     if (error) return null;
 
-    if (!nodesInfo || !data) {
+    if (!nodesInfo || !data || !storageInitialized) {
         return (
             <Box
                 h="100vh"
