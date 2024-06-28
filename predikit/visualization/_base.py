@@ -75,11 +75,3 @@ class VisualizationStrategies(StrEnum):
                 return cls.BarH
             case _:
                 raise ValueError(f"Invalid visualization strategy: {strategy}")
-
-
-"""
-            case "countplot" | "count":
-                return cls.CountPlot
-            case "pairplot" | "pair":
-                return cls.PairPlot
-            """

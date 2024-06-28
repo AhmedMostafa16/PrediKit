@@ -27,13 +27,41 @@ class Visualization(BaseVisualization):
     """
     A class that unifies various visualizations.
 
-    ### Parameters
-    strategy : {"Bar", "Scatter", "Hist", "CountPlot", "HeatMap",
-    "PairPlot", "BoxPlot", "LinePlot", "PieChart" , "AreaPlot", "Hexbin", "Barh", "KDE"},
-    default= None
+    Parameters:
+        strategy (str): The visualization strategy to use. Available options are:
+            - "Bar"
+            - "Scatter"
+            - "Hist"
+            - "CountPlot"
+            - "HeatMap"
+            - "PairPlot"
+            - "BoxPlot"
+            - "LinePlot"
+            - "PieChart"
+            - "AreaPlot"
+            - "Hexbin"
+            - "Barh"
+            - "KDE"
+        params (dict): A dictionary of parameters for the visualization. Each parameter
+            should be a key-value pair, where the key is a string and the value can be
+            a string, integer, or float.
 
-    params: a dictionary of parameters
-    {'parameter': value -> (str, int or float)}.
+    Attributes:
+        _VISUALIZATIONS (dict): A dictionary mapping visualization strategies to their
+            corresponding functions.
+
+    Methods:
+        barh(df: pd.DataFrame, *args, **kwargs) -> None:
+            Returns a BarH plot for a Pandas DataFrame.
+
+        get_traces() -> List[dict]:
+            Get the traces or data from the visualization.
+
+        send_json() -> str:
+            Convert the visualization to JSON.
+
+        show() -> None:
+            Shows the plot.
     """
 
     @staticmethod
@@ -53,16 +81,20 @@ class Visualization(BaseVisualization):
         VisualizationStrategies.KDE: create_distplot,
         VisualizationStrategies.BarH: barh,
     }
-    """
-        VisualizationStrategies.CountPlot: countplot,
-        VisualizationStrategies.PairPlot: pairplot,
-        """
 
     def __init__(
         self,
         strategy: VisualizationStrategies,
         params: dict[str, str | int | float] = None,
     ) -> None:
+        """
+        Initialize a Visualization object.
+
+        Args:
+            strategy (VisualizationStrategies): The visualization strategy to use.
+            params (dict, optional): A dictionary of parameters for the visualization.
+                Defaults to None.
+        """
         if params is None:
             params = {}
         if strategy is None:
@@ -89,16 +121,16 @@ class Visualization(BaseVisualization):
                 "Visualization object does not contain valid data."
             )
 
-    def send_json(self):
+    def send_json(self) -> str:
         """
         Convert the visualization to JSON.
 
-        Args:
-            .
+        Returns:
+            str: The visualization data in JSON format.
         """
         return to_json(self.vis)
 
-    def show(self):
+    def show(self) -> None:
         """
         Shows the plot.
         """
@@ -109,12 +141,13 @@ class Subplots(BaseVisualization):
     """
     A class that creates subplots.
 
-    ### Parameters
-    figures: list
+    Parameters:
+    -----------
+    figures : list
         A list of figures to be displayed.
-    rows: int
+    rows : int
         The number of rows in the subplot.
-    cols: int
+    cols : int
         The number of columns in the subplot.
     """
 
@@ -126,6 +159,9 @@ class Subplots(BaseVisualization):
     def subplots(self):
         """
         Creates subplots with axis labels and titles.
+
+        Returns:
+            A Plotly figure object with subplots, axis labels, and titles.
         """
         # Create a subplot with the specified number of rows and columns
         this_figure = sp.make_subplots(rows=self.rows, cols=self.cols)
@@ -194,8 +230,15 @@ class Subplots(BaseVisualization):
         """
         Convert the visualization to JSON.
 
-        Args:
-            .
+        Parameters:
+        -----------
+        figure : Plotly figure
+            The figure to be converted to JSON.
+
+        Returns:
+        --------
+        str
+            The JSON representation of the figure.
         """
         return to_json(figure)
 
@@ -203,7 +246,9 @@ class Subplots(BaseVisualization):
         """
         Shows the plot.
 
-        Args:
-            figure: The figure to be displayed.
+        Parameters:
+        -----------
+        figure : Plotly figure
+            The figure to be displayed.
         """
         offline.iplot(figure)
