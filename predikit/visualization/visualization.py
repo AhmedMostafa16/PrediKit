@@ -66,7 +66,21 @@ class Visualization(BaseVisualization):
 
     @staticmethod
     def barh(df: pd.DataFrame, *args, **kwargs):
-        """Returns BarH plot for a Pandas dataframe"""
+        """
+        Returns a horizontal bar plot for a Pandas DataFrame.
+
+        Parameters:
+        - df (pd.DataFrame): The DataFrame to plot.
+        - *args: Additional positional arguments to pass to the underlying `plot.barh` method.
+        - **kwargs: Additional keyword arguments to pass to the underlying `plot.barh` method.
+
+        Returns:
+        - matplotlib.axes.Axes: The Axes object containing the plot.
+
+        Example:
+        >>> df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        >>> barh(df)
+        """
         return df.plot.barh(*args, **kwargs)
 
     _VISUALIZATIONS: dict = {
