@@ -41,6 +41,17 @@ JsonInput = Union[JsonEdgeInput, JsonValueInput]
 
 
 class JsonNode(TypedDict):
+    """
+    Represents a JSON node.
+
+    Attributes:
+        id (NodeId): The ID of the node.
+        schemaId (str): The ID of the schema.
+        inputs (List[JsonInput]): The list of input nodes.
+        parent (Optional[NodeId]): The ID of the parent node.
+        nodeType (str): The type of the node.
+    """
+
     id: NodeId
     schemaId: str
     inputs: List[JsonInput]

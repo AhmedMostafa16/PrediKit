@@ -1,3 +1,5 @@
+"""This module is responsible for automating the whole preprocessing proces for AutoML."""
+
 import logging
 
 import pandas as pd

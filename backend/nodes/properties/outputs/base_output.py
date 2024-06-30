@@ -7,7 +7,16 @@ from base_types import OutputId
 
 from .. import expression
 
-OutputKind = Literal["dataset", "text", "generic", "plot"]
+OutputKind = Literal[
+    "dataset",
+    "image",
+    "large-image",
+    "text",
+    "directory",
+    "generic",
+    "plot",
+    "list",
+]
 
 
 class BaseOutput:
@@ -17,7 +26,7 @@ class BaseOutput:
         label: str,
         kind: OutputKind = "generic",
         has_handle: bool = True,
-    ):
+    ) -> None:
         """
         Initializes a BaseOutput object.
 
@@ -94,7 +103,8 @@ class BaseOutput:
         """
         yield from self.toDict().items()
 
-    def get_broadcast_data(self, _value):
+    @staticmethod
+    def get_broadcast_data(_value):
         """
         Returns the broadcast data of the BaseOutput object.
 

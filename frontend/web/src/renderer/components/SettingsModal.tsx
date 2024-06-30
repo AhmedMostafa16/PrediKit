@@ -2,9 +2,17 @@ import { SettingsIcon } from "@chakra-ui/icons";
 import {
     Button,
     Flex,
+    FormControl,
+    FormErrorMessage,
+    FormHelperText,
+    FormLabel,
     HStack,
     Icon,
     IconButton,
+    Input,
+    InputGroup,
+    InputRightElement,
+    MenuItem,
     Modal,
     ModalBody,
     ModalCloseButton,
@@ -18,6 +26,7 @@ import {
     NumberInputField,
     NumberInputStepper,
     Select,
+    Stack,
     StackDivider,
     Switch,
     Tab,
@@ -30,12 +39,17 @@ import {
     VStack,
     useDisclosure,
 } from "@chakra-ui/react";
-import { PropsWithChildren, ReactNode, memo } from "react";
-import { BsPaletteFill } from "react-icons/bs";
+import { PropsWithChildren, ReactNode, memo, useState } from "react";
+import { FieldValues, useForm } from "react-hook-form";
+import { BsFillEyeFill, BsFillEyeSlashFill, BsPaletteFill } from "react-icons/bs";
 import { FaTools } from "react-icons/fa";
 import { useContext } from "use-context-selector";
+import { UpdateUserDto } from "../../common/common-types";
 import { ipcRenderer } from "../../common/safeIpc";
+import { AlertBoxContext } from "../contexts/AlertBoxContext";
+import { BackendContext } from "../contexts/BackendContext";
 import { SettingsContext } from "../contexts/SettingsContext";
+import { UserContext } from "../contexts/UserContext";
 
 interface SettingsItemProps {
     title: ReactNode;
@@ -320,6 +334,202 @@ export const SettingsButton = memo(() => {
             <SettingsModal
                 isOpen={isSettingsOpen}
                 onClose={onSettingsClose}
+            />
+        </>
+    );
+});
+
+const AccountSettingsModal = memo(({ isOpen, onClose }: SettingsModalProps) => {
+    const { backend } = useContext(BackendContext);
+    const { getUserInfo, setUserInfo } = useContext(UserContext);
+
+    const {
+        handleSubmit,
+        register,
+        formState: { errors, isSubmitting },
+    } = useForm({
+        defaultValues: {
+            fullname: getUserInfo().user.fullname,
+            email: getUserInfo().user.email,
+            password: "",
+        },
+    });
+    const { sendToast } = useContext(AlertBoxContext);
+    const [show, setShow] = useState(false);
+    const handleClick = () => setShow(!show);
+
+    const onSubmit = async (values: FieldValues) => {
+        console.log(values);
+        const user: UpdateUserDto = {
+            id: getUserInfo().user.id,
+            fullname: values.fullname,
+            email: values.email,
+            password: values.password,
+        };
+
+        const result = await backend.updateAccount(user);
+        if (result.success) {
+            setUserInfo(result.data);
+            onClose();
+        } else {
+            sendToast({
+                title: "Account inforamtion update failed",
+                description: result.error,
+                status: "error",
+            });
+        }
+    };
+
+    return (
+        <Modal
+            isCentered
+            isOpen={isOpen}
+            returnFocusOnClose={false}
+            scrollBehavior="inside"
+            size="xl"
+            onClose={onClose}
+        >
+            <ModalOverlay />
+            <form onSubmit={handleSubmit(onSubmit)}>
+                <ModalContent>
+                    <ModalHeader>Account Settings</ModalHeader>
+                    <ModalCloseButton />
+                    <ModalBody>
+                        <Stack
+                            p={0}
+                            spacing={4}
+                        >
+                            <FormControl
+                                isRequired
+                                isInvalid={!!errors.fullname}
+                            >
+                                <FormLabel htmlFor="fullname">Full Name</FormLabel>
+                                <Input
+                                    id="fullname"
+                                    placeholder="John Doe"
+                                    {...register("fullname", {
+                                        required: "This is required",
+                                        minLength: {
+                                            value: 3,
+                                            message: "Minimum length should be 3",
+                                        },
+                                    })}
+                                />
+                                <FormErrorMessage>
+                                    {errors.fullname && String(errors.fullname.message)}
+                                </FormErrorMessage>
+                            </FormControl>
+                            <FormControl
+                                isRequired
+                                isInvalid={!!errors.email}
+                            >
+                                <FormLabel htmlFor="email">Email</FormLabel>
+                                <Input
+                                    id="email"
+                                    placeholder="email@example.com"
+                                    {...register("email", {
+                                        required: "This is required",
+                                        pattern: {
+                                            value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                                            message: "Invalid email",
+                                        },
+                                    })}
+                                />
+                                <FormErrorMessage>
+                                    {errors.email && String(errors.email.message)}
+                                </FormErrorMessage>
+                            </FormControl>
+
+                            <FormControl
+                                isInvalid={!!errors.password}
+                                isRequired={false}
+                            >
+                                <FormLabel htmlFor="password">Password</FormLabel>
+                                <FormHelperText>
+                                    Leave blank if you do not wish to change the password.
+                                </FormHelperText>
+                                <InputGroup size="md">
+                                    <Input
+                                        id="password"
+                                        placeholder="Enter password"
+                                        pr="4.5rem"
+                                        type={show ? "text" : "password"}
+                                        {...register("password", {
+                                            minLength: {
+                                                value: 8,
+                                                message: "Minimum length should be 8",
+                                            },
+                                        })}
+                                    />
+                                    <InputRightElement width="4rem">
+                                        <Button
+                                            h="1.75rem"
+                                            size="sm"
+                                            onClick={handleClick}
+                                        >
+                                            {show ? <BsFillEyeSlashFill /> : <BsFillEyeFill />}
+                                        </Button>
+                                    </InputRightElement>
+                                </InputGroup>
+                                <FormErrorMessage>
+                                    {errors.password && String(errors.password.message)}
+                                </FormErrorMessage>
+                            </FormControl>
+                        </Stack>
+                    </ModalBody>
+                    <ModalFooter>
+                        <HStack>
+                            <Button
+                                colorScheme="blue"
+                                isLoading={isSubmitting}
+                                type="submit"
+                                // eslint-disable-next-line @typescript-eslint/no-misused-promises
+                                onClick={async () => {}}
+                            >
+                                Save
+                            </Button>
+                            <Button
+                                mr={3}
+                                variant="ghost"
+                                onClick={onClose}
+                            >
+                                Close
+                            </Button>
+                        </HStack>
+                    </ModalFooter>
+                </ModalContent>
+            </form>
+        </Modal>
+    );
+});
+
+export const AccountSettingsButton = memo(() => {
+    const {
+        isOpen: isAccountSettingsOpen,
+        onOpen: onAccountSettingsOpen,
+        onClose: onAccountSettingsClose,
+    } = useDisclosure();
+    return (
+        <>
+            <Tooltip
+                closeOnClick
+                closeOnMouseDown
+                borderRadius={8}
+                label="Account Settings"
+                px={2}
+                py={1}
+            >
+                <MenuItem
+                    aria-label="Account"
+                    icon={<SettingsIcon />}
+                    onClick={onAccountSettingsOpen}
+                >
+                    Account Settings
+                </MenuItem>
+            </Tooltip>
+            <AccountSettingsModal
+                isOpen={isAccountSettingsOpen}
+                onClose={onAccountSettingsClose}
             />
         </>
     );

@@ -3,6 +3,7 @@ import path from "path";
 import { DragEvent, memo, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useContext, useContextSelector } from "use-context-selector";
 import { Input, NodeData } from "../../../common/common-types";
+import { isStartingNode } from "../../../common/util";
 import { AlertBoxContext } from "../../contexts/AlertBoxContext";
 import { BackendContext } from "../../contexts/BackendContext";
 import { GlobalContext, GlobalVolatileContext } from "../../contexts/GlobalWorkflowState";
@@ -12,6 +13,7 @@ import { DisabledStatus } from "../../helpers/disabled";
 import { getNodeAccentColor } from "../../helpers/getNodeAccentColor";
 import { useDisabled } from "../../hooks/useDisabled";
 import { useNodeMenu } from "../../hooks/useNodeMenu";
+import { useRunNode } from "../../hooks/useRunNode";
 import { useValidity } from "../../hooks/useValidity";
 import { PreviewNodeModal } from "../PreviewNodeModal";
 import { NodeBody } from "./NodeBody";
@@ -128,7 +130,7 @@ const NodeInner = memo(({ data, selected }: NodeProps) => {
     const disabled = useDisabled(data);
     const menu = useNodeMenu(data, disabled);
 
-    // useRunNode(data, validity.isValid && isStartingNode(schema));
+    useRunNode(data, validity.isValid && isStartingNode(schema));
 
     return (
         <>

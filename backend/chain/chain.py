@@ -86,7 +86,8 @@ class Chain:
         self.__edges_by_target: Dict[NodeId, List[Edge]] = {}
 
     def add_node(self, node: Node):
-        assert node.id not in self.nodes, f"Duplicate node id {node.id}"
+        if node.id in self.nodes:
+            raise AssertionError(f"Duplicate node id {node.id}")
         self.nodes[node.id] = node
 
     def add_edge(self, edge: Edge):
@@ -119,9 +120,6 @@ class Chain:
             for n in list(self.nodes.values()):
                 if n.parent == node_id:
                     self.remove_node(n.id)
-
-    def get_node(self, node_id: NodeId) -> Node | None:
-        return self.nodes.get(node_id)
 
 
 class SubChain:

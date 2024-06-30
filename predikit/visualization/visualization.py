@@ -81,6 +81,21 @@ class Visualization(BaseVisualization):
         >>> df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
         >>> barh(df)
         """
+        """
+        Returns a horizontal bar plot for a Pandas DataFrame.
+
+        Parameters:
+        - df (pd.DataFrame): The DataFrame to plot.
+        - *args: Additional positional arguments to pass to the underlying `plot.barh` method.
+        - **kwargs: Additional keyword arguments to pass to the underlying `plot.barh` method.
+
+        Returns:
+        - matplotlib.axes.Axes: The Axes object containing the plot.
+
+        Example:
+        >>> df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        >>> barh(df)
+        """
         return df.plot.barh(*args, **kwargs)
 
     _VISUALIZATIONS: dict = {
@@ -113,8 +128,8 @@ class Visualization(BaseVisualization):
             params = {}
         if strategy is None:
             raise ValueError("Select a visualization.")
-        else:
-            self.strategy = VisualizationStrategies.from_str(strategy)
+
+        self.strategy = VisualizationStrategies.from_str(strategy)
 
         if params is None or not isinstance(params, dict) or len(params) == 0:
             self.vis = self._VISUALIZATIONS[self.strategy]()
@@ -127,6 +142,9 @@ class Visualization(BaseVisualization):
 
         Returns:
             List of dictionaries representing the traces.
+
+        Raises:
+            TypeError: If the visualization object does not contain valid data.
         """
         if isinstance(self.vis, Figure):
             return self.vis.data
@@ -156,17 +174,31 @@ class Subplots(BaseVisualization):
     Parameters:
     -----------
     figures : list
+    Parameters:
+    -----------
+    figures : list
         A list of figures to be displayed.
     rows : int
+    rows : int
         The number of rows in the subplot.
+    cols : int
     cols : int
         The number of columns in the subplot.
     """
 
-    def __init__(self, figures: list, rows: int, cols: int) -> None:
-        self.figures = figures
-        self.rows = rows
-        self.cols = cols
+    class Visualization:
+        def __init__(self, figures: list, rows: int, cols: int) -> None:
+            """
+            Initialize a Visualization object.
+
+            Args:
+                figures (list): A list of figures to be displayed.
+                rows (int): The number of rows in the visualization grid.
+                cols (int): The number of columns in the visualization grid.
+            """
+            self.figures = figures
+            self.rows = rows
+            self.cols = cols
 
     def subplots(self):
         """
@@ -245,6 +277,15 @@ class Subplots(BaseVisualization):
         --------
         str
             The JSON representation of the figure.
+        Parameters:
+        -----------
+        figure : Plotly figure
+            The figure to be converted to JSON.
+
+        Returns:
+        --------
+        str
+            The JSON representation of the figure.
         """
         return to_json(figure)
 
@@ -252,6 +293,10 @@ class Subplots(BaseVisualization):
         """
         Shows the plot.
 
+        Parameters:
+        -----------
+        figure : Plotly figure
+            The figure to be displayed.
         Parameters:
         -----------
         figure : Plotly figure

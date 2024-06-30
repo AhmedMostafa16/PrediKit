@@ -2,14 +2,10 @@ import logging
 from typing import (  # override,
     Self,
     cast,
+    override,
 )
 
 from pandas import DataFrame
-from result import (
-    Err,
-    Ok,
-    Result,
-)
 
 from ._base import (
     BasePreprocessor,
@@ -17,7 +13,7 @@ from ._base import (
 )
 
 
-class BasicFilteringProcessor(BasePreprocessor):
+class DataFilteringProcessor(BasePreprocessor):
     """
     A class used to filter data based on a specified operator and value.
 
@@ -71,10 +67,8 @@ class BasicFilteringProcessor(BasePreprocessor):
         self._query = self._parse_query(column, self.operator, self.value)
         return self
 
-    # @ override
-    def transform(
-        self, data: DataFrame, column: str | None = None
-    ) -> DataFrame:
+    @override
+    def transform(self, data: DataFrame, column: str | None = None) -> DataFrame:
         """
         Apply the filtering to the data.
 
@@ -92,9 +86,7 @@ class BasicFilteringProcessor(BasePreprocessor):
             The filtered data.
         """
         if not hasattr(self, "_query"):
-            raise ValueError(
-                "Data must be fitted first using the 'fit' method"
-            )
+            raise ValueError("Data must be fitted first using the 'fit' method")
 
         self.operator = cast(FilterOperator, self.operator)
 
@@ -138,9 +130,7 @@ class BasicFilteringProcessor(BasePreprocessor):
             return f"`{column}`.{operator.to_str}"
 
         if operator.is_containment_operator:
-            negator = (
-                "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
-            )
+            negator = "~" if operator == FilterOperator.DOES_NOT_CONTAIN else ""
 
             return "{0}`{1}`.str.contains('{2}', case={3})".format(
                 negator, column, value, self.case_sensitive
@@ -148,7 +138,8 @@ class BasicFilteringProcessor(BasePreprocessor):
 
         raise ValueError(f"Invalid operator: {operator}")
 
-    def _is_numeric(self, data: DataFrame, column: str) -> bool:
+    @staticmethod
+    def _is_numeric(data: DataFrame, column: str) -> bool:
         """
         Check if the column is numeric.
 
@@ -165,9 +156,3 @@ class BasicFilteringProcessor(BasePreprocessor):
             True if the column is numeric, False otherwise.
         """
         return data[column].dtype.kind in "biufc"
-
-    # def fit_transform(self, data, column=None):
-    #     # TODO: fix this Result workaround
-    #     bfp = self.fit(data, column)
-    #     bfp = bfp.unwrap()
-    #     return bfp.transform(data, column).unwrap()

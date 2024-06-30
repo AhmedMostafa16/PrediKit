@@ -32,7 +32,7 @@ import { ipcRenderer } from "../../common/safeIpc";
 import { ParsedSaveData } from "../../common/SaveFile";
 import { evaluate } from "../../common/types/evaluate";
 import { Expression } from "../../common/types/expression";
-import { getPrediKitScope } from "../../common/types/predikit-scope";
+import { getPredikitScope } from "../../common/types/predikit-scope";
 import { Type } from "../../common/types/types";
 import {
     EMPTY_SET,
@@ -97,7 +97,7 @@ interface GlobalVolatile {
     outputDataMap: ReadonlyMap<string, OutputDataEntry>;
     useConnectingFrom: readonly [
         OnConnectStartParams | null,
-        SetState<OnConnectStartParams | null>,
+        SetState<OnConnectStartParams | null>
     ];
 }
 interface Global {
@@ -214,7 +214,7 @@ export const GlobalProvider = memo(
                             map.set(nodeId, inner);
                         }
 
-                        inner.set(outputId, evaluate(type, getPrediKitScope()));
+                        inner.set(outputId, evaluate(type, getPredikitScope()));
                     } else {
                         inner?.delete(outputId);
                     }
@@ -623,9 +623,7 @@ export const GlobalProvider = memo(
                                 const inputData = { ...n.data.inputData } as Mutable<InputData>;
                                 const nodeSchema = schemata.get(n.data.schemaId);
                                 nodeSchema.inputs.forEach((input) => {
-                                    const clearKinds = new Set<InputKind>([
-                                        "file" /* , 'directory' */,
-                                    ]);
+                                    const clearKinds = new Set<InputKind>(["file", "directory"]);
                                     if (clearKinds.has(input.kind)) {
                                         delete inputData[input.id];
                                     }
@@ -663,7 +661,7 @@ export const GlobalProvider = memo(
                         sendToast({
                             status: "error",
                             duration: 10_000,
-                            description: `Failed to save chain`,
+                            description: "Failed to save chain",
                         });
                     }
                 })();

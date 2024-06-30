@@ -13,6 +13,7 @@ InputKind = Literal[
     "dropdown",
     "text",
     "text-line",
+    "directory",
     "file",
     "generic",
 ]
@@ -25,7 +26,7 @@ class BaseInput:
         label: str,
         kind: InputKind = "generic",
         has_handle=True,
-    ):
+    ) -> None:
         self.input_type: expression.ExpressionJson = input_type
         self.input_conversion: Union[expression.ExpressionJson, None] = None
         self.kind: InputKind = kind
@@ -35,7 +36,8 @@ class BaseInput:
         self.id: InputId = InputId(-1)
 
     # This is the method that should be created by each input
-    def enforce(self, value):
+    @staticmethod
+    def enforce(value):
         """Enforce the input type"""
         return value
 

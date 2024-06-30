@@ -1,6 +1,5 @@
 from os import PathLike
 from typing import (
-    Any,
     Callable,
     Literal,
     TypeAlias,
@@ -28,3 +27,23 @@ PdReader: TypeAlias = Callable[..., DataFrame]
 FilePath: TypeAlias = str | PathLike[str]
 DfExporter: TypeAlias = Callable[..., str | None]
 MemoryUnit: TypeAlias = Literal["B", "KB", "MB", "GB"]
+
+# sort_index
+SortKind: TypeAlias = Literal["quicksort", "mergesort", "heapsort", "stable"]
+
+# sort & row identifier
+Position: TypeAlias = Literal["first", "last"]
+
+# merger
+MergeHow = Literal["left", "right", "inner", "outer", "cross"]
+
+FeatureType: TypeAlias = Literal[
+    "number",
+    "int",
+    "float",
+    "bool",
+    "category",
+    "object",
+    "datetime",
+    "timedelta",
+]

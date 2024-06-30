@@ -5,8 +5,9 @@ import * as bs from "react-icons/bs";
 import * as cg from "react-icons/cg";
 import * as im from "react-icons/im";
 import * as md from "react-icons/md";
+import * as tb from "react-icons/tb";
 
-const libraries = { bs, cg, md, im };
+const libraries = { bs, cg, md, im, tb };
 
 export const IconFactory = memo(
     ({

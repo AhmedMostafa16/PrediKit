@@ -26,16 +26,21 @@ export const useNodeMenu = (
 
     const { disclosure } = useDisclosureContext();
 
+    // Check if the node belongs to the Dataset category
+    const isDatasetNode = data.schemaId.includes("dataset");
+
     return useContextMenu(() => (
         <MenuList className="nodrag">
-            <MenuItem
-                icon={<BsEyeFill />}
-                onClick={() => {
-                    disclosure.onOpen();
-                }}
-            >
-                Preview
-            </MenuItem>
+            {isDatasetNode && !data.isDisabled && (
+                <MenuItem
+                    icon={<BsEyeFill />}
+                    onClick={() => {
+                        disclosure.onOpen();
+                    }}
+                >
+                    Preview
+                </MenuItem>
+            )}
 
             <MenuItem
                 icon={<CopyIcon />}

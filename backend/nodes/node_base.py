@@ -3,7 +3,6 @@ from abc import (
     abstractmethod,
 )
 from typing import (
-    Any,
     List,
     Literal,
 )
@@ -62,9 +61,9 @@ class NodeBase(metaclass=ABCMeta):
         self.__outputs = value
 
     @abstractmethod
-    def run(self) -> Any:
+    def run(self):
         """Abstract method to run a node's logic"""
-        return
+        raise NotImplementedError
 
 
 # pylint: disable=abstract-method
@@ -76,7 +75,7 @@ class IteratorNodeBase(NodeBase):
         self.icon = "MdLoop"
         self.sub = "Iteration"
         self.type = "iterator"
-        self.default_nodes = []
+        self.default_nodes: list = []
 
         self.side_effects = True
 

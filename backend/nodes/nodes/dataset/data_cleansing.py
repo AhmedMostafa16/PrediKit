@@ -1,7 +1,7 @@
+# ruff: noqa: E402
 from __future__ import annotations
 
 import os
-import re
 import sys
 
 import pandas
@@ -9,11 +9,18 @@ import pandas
 root = os.path.dirname(os.path.abspath("../../../../predikit/"))
 sys.path.append(root)
 
+from typing import cast
+
 from predikit import (
-    BasicFilteringProcessor,
+    DataFilteringProcessor,
+    FeatureSelection,
     OutliersProcessor,
+    RowIdentifier,
+    RowSelector,
+    RowSorter,
     StringOperationsProcessor,
 )
+from predikit._typing import FeatureType
 
 from . import category as DatasetCategory
 from ...node_base import NodeBase
@@ -56,7 +63,7 @@ class OutliersNode(NodeBase):
                 default=1.5,
                 minimum=0,
                 maximum=10,
-                precision=3,
+                precision=5,
                 hide_trailing_zeros=True,
                 controls_step=0.1,
             ),
@@ -71,7 +78,7 @@ class OutliersNode(NodeBase):
         self.category = DatasetCategory
         self.name = "Detect Outliers"
         self.icon = "BsCookie"
-        self.sub = "Data Cleasing"
+        self.sub = "Data Cleansing"
 
     def run(self, dataset, method, threshold, add_indicator_column):
         outliers_processor = OutliersProcessor(
@@ -149,7 +156,7 @@ class StringOperationsNode(NodeBase):
         self.category = DatasetCategory
         self.name = "String Operations"
         self.icon = "MdOutlineTextFields"
-        self.sub = "Data Cleasing"
+        self.sub = "Data Cleansing"
 
     def run(
         self,
@@ -177,21 +184,13 @@ class StringOperationsNode(NodeBase):
         return result
 
 
-@NodeFactory.register("predikit:dataset:basic_filter")
-class BasicFilterNode(NodeBase):
+@NodeFactory.register("predikit:dataset:data_filter")
+class DataFilterNode(NodeBase):
     def __init__(self):
         super().__init__()
         self.description = "Filter a dataset based on a condition."
         self.inputs = [
             DatasetInput(),
-            # DropDownInput(
-            #     label="Column",
-            #     options=[
-            #         {"option": col, "value": col, "type": "string"}
-            #         for col in get_column_names_from_node_input(self.inputs[0])
-            #     ],
-            #     input_type="string",
-            # ),
             TextInput(
                 label="Column",
                 allow_numbers=True,
@@ -282,19 +281,318 @@ class BasicFilterNode(NodeBase):
         ]
 
         self.category = DatasetCategory
-        self.name = "Basic Filter"
+        self.name = "Data Filter"
         self.icon = "MdFilterAlt"  # ImFilter for advanced filter
-        self.sub = "Data Cleasing"
+        self.sub = "Data Cleansing"
 
     def run(
         self, dataset: pandas.DataFrame, column, operator: str, value: str
     ) -> pandas.DataFrame:
         try:
-            filter = BasicFilteringProcessor(
+            filter = DataFilteringProcessor(
                 operator=operator,
                 value=value,
             )
 
             return filter.fit_transform(dataset, column)
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
+
+
+@NodeFactory.register("predikit:dataset:feature_selection")
+class FeatureSelectionNode(NodeBase):
+    _options: list[dict[str, str]] = [
+        {
+            "option": "Number",
+            "value": "number",
+            "type": "string",
+        },
+        {
+            "option": "String",
+            "value": "object",
+            "type": "string",
+        },
+        {
+            "option": "Integer",
+            "value": "int",
+            "type": "string",
+        },
+        {
+            "option": "Float",
+            "value": "float",
+            "type": "string",
+        },
+        {
+            "option": "Boolean",
+            "value": "bool",
+            "type": "string",
+        },
+        {
+            "option": "Category",
+            "value": "category",
+            "type": "string",
+        },
+        {
+            "option": "Object",
+            "value": "object",
+            "type": "string",
+        },
+        {
+            "option": "Datetime",
+            "value": "datetime",
+            "type": "string",
+        },
+        {
+            "option": "Timedelta",
+            "value": "timedelta",
+            "type": "string",
+        },
+    ]
+
+    def __init__(self):
+        super().__init__()
+        self.description = "Select features from a dataset."
+        # of FeatureType
+
+        self.inputs = [
+            DatasetInput(),
+            DropDownInput(
+                label="Include Data Types",
+                options=self._options,
+                input_type="string",
+            ),
+            DropDownInput(
+                label="Exclude Data Types",
+                options=self._options,
+                input_type="string",
+            ),
+        ]
+        self.outputs = [
+            DatasetOutput(label="Dataset"),
+        ]
+
+        self.category = DatasetCategory
+        self.name = "Feature Selection"
+        self.icon = "TbAtom"
+        self.sub = "Feature Engineering"
+
+    def run(
+        self,
+        dataset: pandas.DataFrame,
+        include_dtypes: str,
+        exclude_dtypes: str,
+    ) -> pandas.DataFrame:
+        include_dtypes = cast(FeatureType, include_dtypes)
+        exclude_dtypes = cast(FeatureType, exclude_dtypes)
+
+        feature_selection = FeatureSelection(
+            include_dtypes=[include_dtypes],
+            exclude_dtypes=[exclude_dtypes],
+        )
+
+        try:
+            return feature_selection.fit_transform(dataset)
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
+
+
+@NodeFactory.register("predikit:dataset:row_selector")
+class RowSelectorNode(NodeBase):
+    _options_delimiter: dict[str, str] = {
+        "Comma": ",",
+        "Semicolon": ";",
+        "New Line": "\n",
+        "Slash": "/",
+        "Back Slash": "\\",
+    }
+
+    def __init__(self):
+        super().__init__()
+        self.description = "Select rows from a dataset based on a condition. Press info for more special syntax details."
+        self.inputs = [
+            DatasetInput(),
+            DropDownInput(
+                label="Delimiter",
+                options=[
+                    {
+                        "option": key,
+                        "value": value,
+                        "type": "string",
+                    }
+                    for key, value in self._options_delimiter.items()
+                ],
+                input_type="string",
+            ),
+            TextInput(
+                label="Condition",
+                allow_numbers=True,
+            ),
+        ]
+        self.outputs = [
+            DatasetOutput(label="Dataset"),
+        ]
+
+        self.category = DatasetCategory
+        self.name = "Row Selector"
+        self.icon = "TbLayersSelected"
+        self.sub = "Row Operations"
+
+    def run(
+        self,
+        dataset,
+        delimiter,
+        condition: str,
+    ) -> pandas.DataFrame:
+        row_selector = RowSelector(
+            input=condition,
+            delimiter=delimiter,
+        )
+
+        try:
+            return row_selector.fit_transform(dataset)
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
+
+
+@NodeFactory.register("predikit:dataset:row_identifier")
+class RowIdentifierNode(NodeBase):
+    def __init__(self):
+        super().__init__()
+        self.description = "Select rows from a dataset based on a condition. Press info for more special syntax details."
+        self.inputs = [
+            DatasetInput(),
+            DropDownInput(
+                label="New Column Position",
+                options=[
+                    {
+                        "option": "First",
+                        "value": "first",
+                        "type": "string",
+                    },
+                    {
+                        "option": "Last",
+                        "value": "last",
+                        "type": "string",
+                    },
+                ],
+                input_type="string",
+            ),
+            TextInput(
+                label="New Column Name",
+                allow_numbers=True,
+            ),
+            TextInput(
+                label="Prefix",
+                allow_numbers=True,
+            ).make_optional(),
+            NumberInput(
+                label="Start Value",
+                default=1,
+            ),
+        ]
+        self.outputs = [
+            DatasetOutput(label="Dataset"),
+        ]
+        self.category = DatasetCategory
+        self.name = "Row Identifier"
+        self.icon = "MdPermIdentity"
+        self.sub = "Row Operations"
+
+    def run(
+        self,
+        dataset,
+        new_column_name,
+        value_prefix,
+        start_value,
+        position,
+    ) -> pandas.DataFrame:
+        row_identifier = RowIdentifier(
+            new_col_name=new_column_name,
+            value_prefix=value_prefix,
+            start_value=start_value,
+            position=position,
+        )
+
+        try:
+            return row_identifier.fit_transform(dataset)
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
+
+
+@NodeFactory.register("predikit:dataset:row_sorter")
+class RowSorterNode(NodeBase):
+    def __init__(self):
+        super().__init__()
+        self.description = "Sort rows in a dataset based on a column."
+        self.inputs = [
+            DatasetInput(),
+            TextInput(
+                label="Column",
+                allow_numbers=True,
+            ),
+            BoolInput(
+                label="Ascending",
+            ),
+            DropDownInput(
+                label="Sort Method",
+                options=[
+                    {
+                        "option": "Quick Sort",
+                        "value": "quicksort",
+                        "type": "string",
+                    },
+                    {
+                        "option": "Merge Sort",
+                        "value": "mergesort",
+                        "type": "string",
+                    },
+                    {
+                        "option": "Heap Sort",
+                        "value": "heapsort",
+                        "type": "string",
+                    },
+                    {
+                        "option": "Stable",
+                        "value": "stable",
+                        "type": "string",
+                    },
+                ],
+                input_type="string",
+            ),
+            DropDownInput(
+                label="Empty Data Position",
+                options=[
+                    {
+                        "option": "First",
+                        "value": "first",
+                        "type": "string",
+                    },
+                    {
+                        "option": "Last",
+                        "value": "last",
+                        "type": "string",
+                    },
+                ],
+                input_type="string",
+            ),
+        ]
+        self.outputs = [
+            DatasetOutput(label="Dataset"),
+        ]
+        self.category = DatasetCategory
+        self.name = "Row Sorter"
+        self.icon = "MdSortByAlpha"
+        self.sub = "Row Operations"
+
+    def run(self, dataset, column, ascending, kind, na_position) -> pandas.DataFrame:
+        row_sorter = RowSorter(
+            column,
+            ascending,
+            kind,
+            na_position,
+        )
+
+        try:
+            return row_sorter.fit_transform(dataset)
         except Exception as e:
             raise Exception(f"Error: {str(e)}")

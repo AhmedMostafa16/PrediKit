@@ -25,3 +25,18 @@ class FileOutput(BaseOutput):
 def DatasetFileOutput() -> FileOutput:
     """Output for saving a local dataset file"""
     return FileOutput("DatasetFile", "Dataset File")
+
+
+def ImageFileOutput() -> FileOutput:
+    """Output for saving a local image file"""
+    return FileOutput("ImageFile", "Image File")
+
+
+def DirectoryOutput(label: str = "Directory") -> FileOutput:
+    """Output for saving to a directory"""
+    return FileOutput("Directory", label, kind="directory")
+
+
+def OnnxFileOutput() -> FileOutput:
+    """Output for saving a .onnx file"""
+    return FileOutput("OnnxFile", "ONNX Model File")

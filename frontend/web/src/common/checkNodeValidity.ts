@@ -3,9 +3,9 @@ import { evaluate } from "./types/evaluate";
 import { IntersectionExpression, NamedExpression } from "./types/expression";
 import { FunctionInstance } from "./types/function";
 import { isDisjointWith } from "./types/intersection";
-import { getPrediKitScope } from "./types/predikit-scope";
+import { getPredikitScope } from "./types/predikit-scope";
 import { IntIntervalType, NumericLiteralType, StructType, Type } from "./types/types";
-import { IntNumberType, isDataset } from "./types/util";
+import { IntNumberType, isDataset, isImage } from "./types/util";
 import { assertNever } from "./util";
 
 export type Validity =
@@ -38,6 +38,24 @@ const getAcceptedNumbers = (number: IntNumberType): Set<number> | undefined => {
 
     // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
     return infinite ? undefined : numbers;
+};
+const formatChannelNumber = (n: IntNumberType): string | undefined => {
+    const numbers = getAcceptedNumbers(n);
+    if (!numbers) return undefined;
+
+    const known: string[] = [];
+    if (numbers.has(1)) known.push("grayscale");
+    if (numbers.has(3)) known.push("RGB");
+    if (numbers.has(4)) known.push("RGBA");
+
+    if (known.length === numbers.size) {
+        const article = known[0] === "grayscale" ? "a" : "an";
+        if (known.length === 1) return `${article} ${known[0]} image`;
+        if (known.length === 2) return `${article} ${known[0]} or ${known[1]} image`;
+        if (known.length === 3) return `${article} ${known[0]}, ${known[1]} or ${known[2]} image`;
+    }
+
+    return undefined;
 };
 
 const explainNumber = (n: Type): string | undefined => {
@@ -221,16 +239,41 @@ export const checkNodeValidity = ({
         for (const { inputId, assignedType, inputType } of functionInstance.inputErrors) {
             const input = schema.inputs.find((i) => i.id === inputId)!;
 
-            const iType = evaluate(
-                new IntersectionExpression([inputType, new NamedExpression("Dataset")]),
-                getPrediKitScope()
-            );
+            if (isDataset(assignedType)) {
+                const iType = evaluate(
+                    new IntersectionExpression([inputType, new NamedExpression("Image")]),
+                    getPredikitScope()
+                );
 
-            if (!isDataset(assignedType) || !isDataset(iType)) {
-                return {
-                    isValid: false,
-                    reason: `Input ${input.label} was connected with an incompatible value. Expected a dataset.`,
-                };
+                if (!isDataset(iType)) {
+                    return {
+                        isValid: false,
+                        reason: `Input ${input.label} was connected with an incompatible value. Expected a dataset.`,
+                    };
+                }
+            }
+
+            // image channel mismatch
+            if (isImage(assignedType)) {
+                const iType = evaluate(
+                    new IntersectionExpression([inputType, new NamedExpression("Image")]),
+                    getPredikitScope()
+                );
+                if (isImage(iType)) {
+                    const assignedChannels = assignedType.fields[2].type;
+                    const inputChannels = iType.fields[2].type;
+
+                    if (isDisjointWith(assignedChannels, inputChannels)) {
+                        const expected = formatChannelNumber(inputChannels);
+                        const assigned = formatChannelNumber(assignedChannels);
+                        if (expected && assigned) {
+                            return {
+                                isValid: false,
+                                reason: `Input ${input.label} requires ${expected} but was connected with ${assigned}.`,
+                            };
+                        }
+                    }
+                }
             }
 
             // number mismatch

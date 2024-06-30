@@ -1,14 +1,13 @@
+from typing import Any
+
 from numpy import ndarray
+from pandas import DataFrame
 from sklearn.cluster import (
     DBSCAN,
     KMeans,
 )
 from sklearn.exceptions import NotFittedError
 
-from ..._typing import (
-    Any,
-    MatrixLike,
-)
 from ._base import (
     BaseCluster,
     ClusterStrategies,
@@ -18,10 +17,29 @@ from ._base import (
 class Cluster(BaseCluster):
     """
     A class that encapsulates various clustering algorithms for efficient data analysis.
-    ### Parameters
-    strategy : {"KMeans", "DBSCAN"}, default= None
 
-    params: a dictionary of parameters {'parameter': value -> (str, int or float)}.
+    Parameters:
+        strategy (str): The clustering strategy to be used. Valid options are "KMeans" and "DBSCAN".
+        data (DataFrame): The input data for clustering.
+        cols (list[str]): The columns of the input data to be used for clustering.
+        params (dict[str, str|int|float], optional): A dictionary of parameters for the clustering algorithm. Defaults to None.
+
+    Attributes:
+        strategy (ClusterStrategies): The clustering strategy.
+        model (Any): The clustering model.
+        X (ndarray): The input data for clustering.
+
+    Methods:
+        fit(): Fits the cluster model to the input data.
+        predict(): Predicts the cluster labels for the input data.
+        fit_predict(): Fits the cluster model to the input data and returns the cluster labels.
+        get_labels(): Returns the cluster labels.
+        get_inertia(): Calculates the within-cluster inertia.
+        get_centroids(): Retrieves the cluster centroids.
+
+    Raises:
+        ValueError: If the strategy is not specified.
+        NotFittedError: If the model hasn't been fitted yet.
     """
 
     _CLUSTERS: dict[ClusterStrategies, Any] = {
@@ -31,7 +49,10 @@ class Cluster(BaseCluster):
 
     def __init__(
         self,
-        strategy: ClusterStrategies = None,
+        strategy: ClusterStrategies,
+        data: DataFrame,
+        cols: list[str],
+        *,
         params: dict[str, str | int | float] = None,
     ) -> None:
         if strategy is None:
@@ -43,8 +64,9 @@ class Cluster(BaseCluster):
             self.model = self._CLUSTERS[self.strategy]()
         else:
             self.model = self._CLUSTERS[self.strategy](**params)
+        self.X = data[cols].to_numpy()
 
-    def fit(self, X: MatrixLike) -> "Cluster":
+    def fit(self) -> "Cluster":
         """
         Fits the cluster model to the input data `X`.
 
@@ -54,7 +76,7 @@ class Cluster(BaseCluster):
         Returns:
             Cluster: The `Cluster` object.
         """
-        return self.model.fit(X)
+        return self.model.fit(self.X)
 
     def predict(self) -> ndarray:
         """
@@ -66,10 +88,10 @@ class Cluster(BaseCluster):
         """
         try:
             return self.model.labels_
-        except:
-            raise NotFittedError("You have to fit the model first.")
+        except NotFittedError as e:
+            raise e("You have to fit the model first.")
 
-    def fit_predict(self, X: MatrixLike) -> ndarray:
+    def fit_predict(self) -> ndarray:
         """
         Fits the cluster model to the input data `X`.
 
@@ -82,7 +104,7 @@ class Cluster(BaseCluster):
         Raises:
             NotFittedError: If the model hasn't been fitted yet.
         """
-        return self.model.fit_predict(X)
+        return self.model.fit_predict(self.X)
 
     def get_labels(self) -> ndarray:
         """
@@ -94,8 +116,8 @@ class Cluster(BaseCluster):
         """
         try:
             return self.model.labels_
-        except:
-            raise NotFittedError("You have to fit the model first.")
+        except NotFittedError as e:
+            raise e("You have to fit the model first.")
 
     def get_inertia(self) -> float:
         """
@@ -110,8 +132,8 @@ class Cluster(BaseCluster):
         if self.strategy is ClusterStrategies.KMeans:
             try:
                 return self.model.labels_
-            except:
-                raise NotFittedError("You have to fit the model first.")
+            except NotFittedError as e:
+                raise e("You have to fit the model first.")
         else:
             raise ValueError("This model does not support get_inertia.")
 
@@ -128,7 +150,7 @@ class Cluster(BaseCluster):
         if self.strategy is ClusterStrategies.KMeans:
             try:
                 return self.model.cluster_centers_
-            except:
-                raise NotFittedError("You have to fit the model first.")
+            except NotFittedError as e:
+                raise e("You have to fit the model first.")
         else:
             raise ValueError("This model does not support get_centroids.")

@@ -66,25 +66,24 @@ class MathNode(NodeBase):
     ) -> Union[int, float]:
         if op == "add":
             return in1 + in2
-        elif op == "sub":
+        if op == "sub":
             return in1 - in2
-        elif op == "mul":
+        if op == "mul":
             return in1 * in2
-        elif op == "div":
+        if op == "div":
             return in1 / in2
-        elif op == "pow":
+        if op == "pow":
             return in1**in2
-        elif op == "max":
+        if op == "max":
             return max(in1, in2)
-        elif op == "min":
+        if op == "min":
             return min(in1, in2)
-        elif op == "mod":
+        if op == "mod":
             if (
                 in1 in MathNode.special_mod_numbers
                 or in2 in MathNode.special_mod_numbers
             ):
                 return in1 - in2 * math.floor(in1 / in2)
-            else:
-                return in1 % in2
-        else:
-            raise RuntimeError(f"Unknown operator {op}")
+            return in1 % in2
+
+        raise RuntimeError(f"Unknown operator {op}")

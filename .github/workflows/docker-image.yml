@@ -2,17 +2,22 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
+env:
+  DATE: ${{ github.run_number }}
 
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Build the backend Docker image
-      run: docker build . --file Dockerfile --tag predikit:$(date +%s)
+      - uses: actions/checkout@v4
+      - name: Build the backend Docker image
+        run: docker build . --file Dockerfile --tag predikit:$DATE
+      - name: Run the backend Docker image
+        run: docker run -d -p 5001:5001 predikit:$DATE
+      - name: Stop the backend Docker container
+        run: docker stop $(docker ps -q --filter ancestor=predikit:$DATE)

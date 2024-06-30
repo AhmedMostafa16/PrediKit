@@ -1,8 +1,21 @@
 import { Tag } from "@chakra-ui/react";
 import React, { memo } from "react";
 import { StructType, Type } from "../../common/types/types";
-import { isNumericLiteral } from "../../common/types/util";
+import { isImage, isNumericLiteral } from "../../common/types/util";
 import { without } from "../../common/types/without";
+
+const getColorMode = (channels: number) => {
+    switch (channels) {
+        case 1:
+            return "Gray";
+        case 3:
+            return "RGB";
+        case 4:
+            return "RGBA";
+        default:
+            return undefined;
+    }
+};
 
 const nullType = new StructType("null");
 
@@ -14,6 +27,25 @@ const getTypeText = (type: Type): string[] => {
         // if (isDataset(type)) {
         //     tags.push(`Dataset`);
         // }
+        if (isImage(type)) {
+            const [width, height, channels] = type.fields;
+            if (isNumericLiteral(width.type) && isNumericLiteral(height.type)) {
+                tags.push(`${width.type.toString()}x${height.type.toString()}`);
+            }
+            if (isNumericLiteral(channels.type)) {
+                const mode = getColorMode(channels.type.value);
+                if (mode) {
+                    tags.push(mode);
+                }
+            }
+        }
+
+        if (type.name === "PyTorchModel" && type.fields.length === 3) {
+            const [scale] = type.fields;
+            if (isNumericLiteral(scale.type)) {
+                tags.push(`${scale.type.toString()}x`);
+            }
+        }
     }
     return tags;
 };

@@ -34,9 +34,10 @@ export type InputKind =
     | "dropdown"
     | "text"
     | "text-line"
+    | "directory"
     | "file"
     | "generic";
-export type FileInputKind = "dataset";
+export type FileInputKind = "dataset" | "image";
 export interface Input {
     readonly id: InputId;
     readonly type: ExpressionJson;
@@ -52,7 +53,14 @@ export interface Input {
     readonly filetypes?: string[];
 }
 
-export type OutputKind = "dataset" | "text" | "generic" | "plot";
+export type OutputKind =
+    | "dataset"
+    | "image"
+    | "large-image"
+    | "text"
+    | "directory"
+    | "generic"
+    | "plot";
 
 export interface Output {
     readonly id: OutputId;
@@ -173,4 +181,33 @@ export interface WorkflowDto {
 
 export interface Workflow extends WorkflowDto {
     id: string;
+}
+
+export interface RegisterUserDto {
+    fullname: string;
+    email: string;
+    password: string;
+}
+
+export interface LoginUserDto {
+    email: string;
+    password: string;
+}
+
+export interface UpdateUserDto extends Partial<RegisterUserDto> {
+    id: string;
+}
+
+export interface UserDto {
+    fullname: string;
+    email: string;
+}
+
+export interface User extends UserDto {
+    id: string;
+}
+
+export interface UserInfo {
+    token: string;
+    user: User;
 }

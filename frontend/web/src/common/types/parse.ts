@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import antlr4 from "antlr4";
 import { assertNever, noop } from "../util";
 import IVLTSLexer from "./antlr4/IVLTSLexer";
@@ -51,7 +49,7 @@ export class ConversionError extends Error {
 
 const getOptional = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Uncapitalize<RuleNames>,
+    K extends keyof T & Uncapitalize<RuleNames>
 >(
     context: T,
     key: K
@@ -72,7 +70,7 @@ const getOptional = <
 };
 const getRequired = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Uncapitalize<RuleNames>,
+    K extends keyof T & Uncapitalize<RuleNames>
 >(
     context: T,
     key: K
@@ -88,7 +86,7 @@ const getRequired = <
 };
 const getMultiple = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Uncapitalize<RuleNames>,
+    K extends keyof T & Uncapitalize<RuleNames>
 >(
     context: T,
     key: K
@@ -113,7 +111,7 @@ interface Token {
 
 const getOptionalToken = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string,
+    K extends keyof T & Capitalize<keyof T & string> & string
 >(
     context: T,
     key: K
@@ -133,7 +131,7 @@ const getOptionalToken = <
 };
 const getRequiredToken = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string,
+    K extends keyof T & Capitalize<keyof T & string> & string
 >(
     context: T,
     key: K
@@ -149,7 +147,7 @@ const getRequiredToken = <
 };
 const getMultipleTokens = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string,
+    K extends keyof T & Capitalize<keyof T & string> & string
 >(
     context: T,
     key: K
@@ -171,7 +169,7 @@ interface OperatorToken<T> {
 }
 const getOperatorsInOrder = <
     T extends antlr4.ParserRuleContext,
-    K extends keyof T & Capitalize<keyof T & string> & string,
+    K extends keyof T & Capitalize<keyof T & string> & string
 >(
     context: T,
     keys: K[]
@@ -361,7 +359,7 @@ class AstConverter {
                 getOptional(context, "functionCall") ??
                 getOptional(context, "matchExpression") ??
                 getOptional(context, "named");
-            if (!rule) throw new ConversionError(context, `No known rule or token`);
+            if (!rule) throw new ConversionError(context, "No known rule or token");
             return this.toExpression(rule);
         }
         if (context instanceof IVLTSParser.NamedContext) {
@@ -444,7 +442,7 @@ class AstConverter {
                 getOptional(context, "functionDefinition") ??
                 getOptional(context, "variableDefinition") ??
                 getOptional(context, "enumDefinition");
-            if (!rule) throw new ConversionError(context, `No known rule or token`);
+            if (!rule) throw new ConversionError(context, "No known rule or token");
             return this.toDefinitions(rule);
         }
         if (context instanceof IVLTSParser.StructDefinitionContext) {
@@ -465,7 +463,7 @@ class AstConverter {
             const parameters = this.parametersToList(getRequired(context, "parameters"));
             const rule =
                 getOptional(context, "expression") ?? getOptional(context, "scopeExpression");
-            if (!rule) throw new ConversionError(context, `No known rule or token`);
+            if (!rule) throw new ConversionError(context, "No known rule or token");
             return [
                 new FunctionDefinition(
                     name,
@@ -515,13 +513,7 @@ class AstConverter {
 }
 
 const errorListener: Parameters<antlr4.Recognizer["addErrorListener"]>[0] = {
-    syntaxError: (
-        recognizer: any,
-        offendingSymbol: any,
-        line: any,
-        column: any,
-        msg: any
-    ): void => {
+    syntaxError: (recognizer, offendingSymbol, line, column, msg): void => {
         throw new SyntaxError(`At ${line}:${column}: ${msg}`);
     },
     reportAmbiguity: noop,

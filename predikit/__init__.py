@@ -8,6 +8,10 @@ from predikit.automl import (
     initialize_cluster_server,
     split_train_test,
 )
+from predikit.evaluation import (
+    CrossValidation,
+    Metrics,
+)
 from predikit.io import (
     DataFrameExporter,
     DataFrameParser,
@@ -18,18 +22,22 @@ from predikit.models import (
     Regressor,
 )
 from predikit.preprocessing import (
-    BasicFilteringProcessor,
     CaseModifyingMethod,
     DataCleanser,
+    DataFilteringProcessor,
     DataPreparer,
     EncodingProcessor,
     EncodingStrategies,
     FeatureSelection,
     FilterOperator,
+    MergeProcessor,
     MissingValuesProcessor,
     MissingValueStrategy,
     OutlierDetectionMethod,
     OutliersProcessor,
+    RowIdentifier,
+    RowSelector,
+    RowSorter,
     StringOperationsProcessor,
 )
 from predikit.util import (
@@ -53,7 +61,7 @@ __all__ = [
     "DataPreparer",
     "DataFrameExporter",
     "FilterOperator",
-    "BasicFilteringProcessor",
+    "DataFilteringProcessor",
     "FeatureSelection",
     "StringOperationsProcessor",
     "CaseModifyingMethod",
@@ -61,9 +69,21 @@ __all__ = [
     "util",
     "Classifier",
     "Regressor",
+    "import_file",
+    "initialize_cluster_server",
+    "split_train_test",
     "Cluster",
     "AutoML",
     "Visualization",
+    "RowSelector",
+    "RowIdentifier",
+    "RowSorter",
+    "MergeProcessor",
+    "import_file",
+    "initialize_cluster_server",
+    "split_train_test",
+    "CrossValidation",
+    "Metrics",
 ]
 
 

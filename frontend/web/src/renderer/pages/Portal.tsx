@@ -28,20 +28,24 @@ import { PortalHeader } from "../components/PortalHeader";
 import { AlertBoxContext, AlertType } from "../contexts/AlertBoxContext";
 import { BackendContext } from "../contexts/BackendContext";
 import { GlobalContext } from "../contexts/GlobalWorkflowState";
+import { UserContext } from "../contexts/UserContext";
 
 export const Portal = memo(() => {
     const { setCurrentWorkflowId, setCurrentWorkflow, loadWorkflow } = useContext(GlobalContext);
     const { backend } = useContext(BackendContext);
-    const { showAlert } = useContext(AlertBoxContext);
+    const { showAlert, sendToast } = useContext(AlertBoxContext);
     const [workflows, setWorkflows] = useState<Workflow[]>([]);
     const navigate = useNavigate();
     const { isOpen, onOpen, onClose } = useDisclosure();
+    const { getUserInfo } = useContext(UserContext);
 
     const cancelRef = useRef<HTMLDivElement | HTMLButtonElement | null>(null);
 
+    const userId = getUserInfo().user.id;
+
     const fetchWorkflows = async () => {
         try {
-            const result = await backend.getAllWorkflows();
+            const result = await backend.getAllWorkflows(userId);
             setWorkflows(result); // Update workflows state
             log.info("Workflows: ", result); // Log the updated result
         } catch (error) {
@@ -126,8 +130,27 @@ export const Portal = memo(() => {
                                         ml={3}
                                         onClick={() => {
                                             try {
-                                                backend.deleteWorkflow(workflow.id);
-                                                fetchWorkflows();
+                                                backend
+                                                    .deleteWorkflow(workflow.id, userId)
+                                                    .then(() => {
+                                                        sendToast({
+                                                            description:
+                                                                "The workflow has been successfully deleted.",
+                                                            status: "success",
+                                                        });
+                                                    })
+                                                    .catch((error: any) => {
+                                                        log.error(
+                                                            "Error deleting workflow:",
+                                                            error
+                                                        );
+                                                        showAlert({
+                                                            title: "Error deleting workflow",
+                                                            message: error.message,
+                                                            type: AlertType.ERROR,
+                                                        });
+                                                    });
+                                                fetchWorkflows().then(() => {});
                                             } catch (error: any) {
                                                 log.error("Error deleting workflow:", error);
                                                 showAlert({
@@ -149,8 +172,6 @@ export const Portal = memo(() => {
             </Tr>
         );
     });
-
-    // console.log("Workflows: ", elements);
 
     const columns = useMemo(() => {
         return (

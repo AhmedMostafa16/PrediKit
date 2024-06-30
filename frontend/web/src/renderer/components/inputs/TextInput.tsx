@@ -4,13 +4,13 @@ import { useContextSelector } from "use-context-selector";
 import { useDebouncedCallback } from "use-debounce";
 import { evaluate } from "../../../common/types/evaluate";
 import { FunctionCallExpression } from "../../../common/types/expression";
-import { getPrediKitScope } from "../../../common/types/predikit-scope";
+import { getPredikitScope } from "../../../common/types/predikit-scope";
 import { Type } from "../../../common/types/types";
 import { GlobalVolatileContext } from "../../contexts/GlobalWorkflowState";
 import { InputProps } from "./props";
 
 const typeToString = (type: Type): Type => {
-    return evaluate(new FunctionCallExpression("toString", [type]), getPrediKitScope());
+    return evaluate(new FunctionCallExpression("toString", [type]), getPredikitScope());
 };
 
 interface TextInputProps extends InputProps {

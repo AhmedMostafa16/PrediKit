@@ -210,3 +210,31 @@ def Dataset(
     if dtypes is not None:
         fields["dtypes"] = dtypes
     return named("Dataset", fields)
+
+
+def Image(
+    width: Optional[ExpressionJson] = None,
+    height: Optional[ExpressionJson] = None,
+    channels: Optional[ExpressionJson] = None,
+    width_as: Optional[ExpressionJson] = None,
+    height_as: Optional[ExpressionJson] = None,
+    channels_as: Optional[ExpressionJson] = None,
+    size_as: Optional[ExpressionJson] = None,
+) -> ExpressionJson:
+    fields: Dict[str, ExpressionJson] = {}
+    if width is not None:
+        fields["width"] = width
+    if height is not None:
+        fields["height"] = height
+    if channels is not None:
+        fields["channels"] = channels
+    if width_as is not None:
+        fields["width"] = field(width_as, "width")
+    if height_as is not None:
+        fields["height"] = field(height_as, "height")
+    if channels_as is not None:
+        fields["channels"] = field(channels_as, "channels")
+    if size_as is not None:
+        fields["width"] = field(size_as, "width")
+        fields["height"] = field(size_as, "height")
+    return named("Image", fields)

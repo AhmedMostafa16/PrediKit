@@ -1,7 +1,7 @@
 import log from "electron-log";
 import { extname } from "path";
 import { XYPosition } from "react-flow-renderer";
-import { SchemaId } from "../../common/common-types";
+import { InputId, SchemaId } from "../../common/common-types";
 import { ipcRenderer } from "../../common/safeIpc";
 import { openSaveFile } from "../../common/SaveFile";
 import { SchemaMap } from "../../common/SchemaMap";
@@ -86,7 +86,36 @@ const openPrediKitFileProcessor: DataTransferProcessor = (dataTransfer) => {
     return false;
 };
 
+const openImageFileProcessor: DataTransferProcessor = (
+    dataTransfer,
+    { schemata, getNodePosition, createNode }
+) => {
+    const LOAD_IMAGE_ID = "predikit:image:load" as SchemaId;
+    if (!schemata.has(LOAD_IMAGE_ID)) return false;
+    const schema = schemata.get(LOAD_IMAGE_ID);
+    const fileTypes = schema.inputs[0]?.filetypes;
+    if (!fileTypes) return false;
+
+    const path = getSingleFileWithExtension(dataTransfer, fileTypes);
+    if (path) {
+        // found a supported image file
+        createNode({
+            // hard-coded offset because it looks nicer
+            position: getNodePosition(100, 100),
+            data: {
+                schemaId: LOAD_IMAGE_ID,
+                inputData: { [0 as InputId]: path },
+            },
+            nodeType: schema.nodeType,
+        });
+
+        return true;
+    }
+    return false;
+};
+
 export const dataTransferProcessors: readonly DataTransferProcessor[] = [
     predikitSchemaProcessor,
     openPrediKitFileProcessor,
+    openImageFileProcessor,
 ];

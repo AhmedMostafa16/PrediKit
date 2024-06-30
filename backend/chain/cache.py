@@ -2,9 +2,11 @@ import gc
 from typing import (
     Any,
     Dict,
+    Generic,
     Iterable,
     Optional,
     Set,
+    TypeVar,
 )
 
 from sanic.log import logger
@@ -16,10 +18,23 @@ from .chain import (
 
 
 class CacheStrategy:
+    """
+    Represents a caching strategy for the chain cache.
+
+    Attributes:
+        STATIC_HITS_TO_LIVE (int): The number of hits to live for a static cache.
+        hits_to_live (int): The number of hits to live for the cache strategy.
+
+    Properties:
+        static (bool): Returns True if the cache strategy is static, False otherwise.
+        no_caching (bool): Returns True if the cache strategy has no caching, False otherwise.
+    """
+
     STATIC_HITS_TO_LIVE = 1_000_000_000
 
     def __init__(self, hits_to_live: int) -> None:
-        assert hits_to_live >= 0
+        if hits_to_live < 0:
+            raise AssertionError
         self.hits_to_live = hits_to_live
 
     @property
@@ -58,27 +73,60 @@ def get_cache_strategies(chain: Chain) -> Dict[NodeId, CacheStrategy]:
     return result
 
 
-class _CacheEntry:
-    def __init__(self, value: Any, hits_to_live: int):
-        assert hits_to_live > 0
-        self.value = value
-        self.hits_to_live = hits_to_live
+T = TypeVar("T")
 
 
-class OutputCache:
+class _CacheEntry(Generic[T]):
+    """
+    Represents an entry in the cache.
+
+    Attributes:
+        value (T): The value stored in the cache entry.
+        hits_to_live (int): The number of hits remaining before the entry is considered expired.
+    """
+
+    def __init__(self, value: T, hits_to_live: int):
+        if hits_to_live <= 0:
+            raise AssertionError
+        self.value: T = value
+        self.hits_to_live: int = hits_to_live
+
+
+class OutputCache(Generic[T]):
+    """
+    A cache class used for storing and retrieving output values.
+
+    Args:
+        parent (Optional[OutputCache[T]]): The parent cache to inherit from.
+        static_data (Optional[Dict[NodeId, T]]): The static data to initialize the cache with.
+
+    Attributes:
+        __static (Dict[NodeId, T]): The dictionary to store static data.
+        __counted (Dict[NodeId, _CacheEntry[T]]): The dictionary to store counted data.
+        parent (Optional[OutputCache[T]]): The parent cache.
+
+    """
+
     def __init__(
         self,
-        parent: Optional["OutputCache"] = None,
-        static_data: Optional[Dict[NodeId, Any]] = None,
+        parent: Optional["OutputCache[T]"] = None,
+        static_data: Optional[Dict[NodeId, T]] = None,
     ):
         super().__init__()
-        self.__static: Dict[NodeId, Any] = (
+        self.__static: Dict[NodeId, T] = (
             static_data.copy() if static_data else {}
         )
-        self.__counted: Dict[NodeId, _CacheEntry] = {}
-        self.parent: Optional[OutputCache] = parent
+        self.__counted: Dict[NodeId, _CacheEntry[T]] = {}
+        self.parent: Optional[OutputCache[T]] = parent
 
     def keys(self) -> Iterable[NodeId]:
+        """
+        Get the keys of the cache.
+
+        Returns:
+            Iterable[NodeId]: The keys of the cache.
+
+        """
         keys: Set[NodeId] = set()
         keys.union(self.__static.keys(), self.__counted.keys())
         if self.parent:
@@ -86,13 +134,33 @@ class OutputCache:
         return keys
 
     def has(self, node_id: NodeId) -> bool:
+        """
+        Check if a node ID exists in the cache.
+
+        Args:
+            node_id (NodeId): The ID of the node to check.
+
+        Returns:
+            bool: True if the node ID exists in the cache, False otherwise.
+
+        """
         if node_id in self.__static or node_id in self.__counted:
             return True
         if self.parent:
             return self.parent.has(node_id)
         return False
 
-    def get(self, node_id: NodeId) -> Optional[Any]:
+    def get(self, node_id: NodeId) -> Optional[T]:
+        """
+        Get the value associated with a node ID from the cache.
+
+        Args:
+            node_id (NodeId): The ID of the node to get the value for.
+
+        Returns:
+            Optional[T]: The value associated with the node ID, or None if not found.
+
+        """
         staticValue = self.__static.get(node_id, None)
         if staticValue is not None:
             return staticValue
@@ -112,10 +180,19 @@ class OutputCache:
 
         return None
 
-    def set(self, node_id: NodeId, value: Any, strategy: CacheStrategy):
+    def set(self, node_id: NodeId, value: T, strategy: CacheStrategy):
+        """
+        Set the value associated with a node ID in the cache.
+
+        Args:
+            node_id (NodeId): The ID of the node to set the value for.
+            value (T): The value to set.
+            strategy (CacheStrategy): The caching strategy to use.
+
+        """
         if strategy.no_caching:
             return
-        elif strategy.static:
+        if strategy.static:
             self.__static[node_id] = value
         else:
             self.__counted[node_id] = _CacheEntry(value, strategy.hits_to_live)

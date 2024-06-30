@@ -11,6 +11,7 @@ from typing import (  # override,
     LiteralString,
     Self,
     cast,
+    override,
 )
 
 import numpy as np
@@ -167,9 +168,7 @@ class DataFrameParser(DataFrame):
             df = self._buf_loader(path_or_buf, **properties)
 
         elif isinstance(path_or_buf, (str, PathLike, BytesIO)):
-            extension = FileExtension.parse(
-                extension=extension, file=path_or_buf
-            )
+            extension = FileExtension.parse(extension=extension, file=path_or_buf)
             path_or_buf = cast(FilePath, path_or_buf)
             df = self._file_loader(path_or_buf, extension, **properties)
 
@@ -182,7 +181,7 @@ class DataFrameParser(DataFrame):
 
         if self.verbose:
             logging.debug(
-                f"✅ Done! Data ingestion process completed. DataFrame is "
+                "✅ Done! Data ingestion process completed. DataFrame is "
                 "ready for use."
             )
             shape = df.shape
@@ -203,9 +202,7 @@ class DataFrameParser(DataFrame):
 
         return df
 
-    def _buf_loader(
-        self, buf: np.ndarray | dict | list, **properties
-    ) -> DataFrame:
+    def _buf_loader(self, buf: np.ndarray | dict | list, **properties) -> DataFrame:
         """
         Loads a DataFrame from a buffer.
 
@@ -277,9 +274,8 @@ class DataFrameParser(DataFrame):
 
         return reader(path, **properties)
 
-    def __check_fix_properties(
-        self, func: Callable[..., Any], **kwargs
-    ) -> dict:
+    @staticmethod
+    def __check_fix_properties(func: Callable[..., Any], **kwargs) -> dict:
         """
         Validate Keyword argument of a function (key/name only) value checker
         is not supported yet.
@@ -408,7 +404,7 @@ class DataFrameParser(DataFrame):
 
         return parsed_types
 
-    # @ override
+    @override
     def __new__(cls, *args, **kwargs) -> Self:
         """
         Creates a new instance of the DataFrameParser class.
