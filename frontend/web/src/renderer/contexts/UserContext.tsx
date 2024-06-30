@@ -20,7 +20,7 @@ export const UserProvider = memo(({ children }: React.PropsWithChildren<unknown>
     };
 
     const getIsLoggedIn = (): boolean => {
-        return !!userInfo && !!userInfo.user && !!userInfo.user.id;
+        return !!userInfo && !!userInfo.user.id;
     };
 
     const contextValue = useMemoObject<UserContextType>({

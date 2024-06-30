@@ -196,6 +196,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
         outputDataActions,
         getInputHash,
         getCurrentWorkflowId,
+        autoSave,
     } = useContext(GlobalContext);
     const { schemata, port, backend } = useContext(BackendContext);
     const { sendAlert, sendToast } = useContext(AlertBoxContext);
@@ -451,6 +452,7 @@ export const ExecutionProvider = memo(({ children }: React.PropsWithChildren<{}>
         if (status === ExecutionStatus.PAUSED) {
             await resume();
         } else {
+            await autoSave();
             await runNodes();
         }
     };

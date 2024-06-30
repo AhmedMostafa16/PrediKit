@@ -39,7 +39,8 @@ export const EditorHeader = memo(() => {
             >
                 <HStack
                     as={Link}
-                    to="/"
+                    to="/workflows"
+                    replace
                     onClick={() => {
                         setCurrentWorkflowId("");
                         setCurrentWorkflow({} as Workflow);
