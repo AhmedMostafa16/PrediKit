@@ -165,19 +165,18 @@ class Subplots(BaseVisualization):
         The number of columns in the subplot.
     """
 
-    class Visualization:
-        def __init__(self, figures: list, rows: int, cols: int) -> None:
-            """
-            Initialize a Visualization object.
+    def __init__(self, figures: list, rows: int, cols: int) -> None:
+        """
+        Initialize a Visualization object.
 
-            Args:
-                figures (list): A list of figures to be displayed.
-                rows (int): The number of rows in the visualization grid.
-                cols (int): The number of columns in the visualization grid.
-            """
-            self.figures = figures
-            self.rows = rows
-            self.cols = cols
+        Args:
+            figures (list): A list of figures to be displayed.
+            rows (int): The number of rows in the visualization grid.
+            cols (int): The number of columns in the visualization grid.
+        """
+        self.figures = figures
+        self.rows = rows
+        self.cols = cols
 
     def subplots(self):
         """
