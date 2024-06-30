@@ -42,14 +42,13 @@ class Visualization(BaseVisualization):
             - "Hexbin"
             - "Barh"
             - "KDE"
-
-        params (dict): A dictionary of parameters for the visualization. The keys
-            should be the parameter names and the values should be the corresponding
-            values for those parameters. The value types can be str, int, or float.
+        params (dict): A dictionary of parameters for the visualization. Each parameter
+            should be a key-value pair, where the key is a string and the value can be
+            a string, integer, or float.
 
     Attributes:
-        _VISUALIZATIONS (dict): A dictionary mapping visualization strategies to
-            their corresponding visualization functions.
+        _VISUALIZATIONS (dict): A dictionary mapping visualization strategies to their
+            corresponding functions.
 
     Methods:
         barh(df: pd.DataFrame, *args, **kwargs) -> None:
@@ -67,6 +66,21 @@ class Visualization(BaseVisualization):
 
     @staticmethod
     def barh(df: pd.DataFrame, *args, **kwargs):
+        """
+        Returns a horizontal bar plot for a Pandas DataFrame.
+
+        Parameters:
+        - df (pd.DataFrame): The DataFrame to plot.
+        - *args: Additional positional arguments to pass to the underlying `plot.barh` method.
+        - **kwargs: Additional keyword arguments to pass to the underlying `plot.barh` method.
+
+        Returns:
+        - matplotlib.axes.Axes: The Axes object containing the plot.
+
+        Example:
+        >>> df = pd.DataFrame({'A': [1, 2, 3], 'B': [4, 5, 6]})
+        >>> barh(df)
+        """
         """
         Returns a horizontal bar plot for a Pandas DataFrame.
 
@@ -107,7 +121,8 @@ class Visualization(BaseVisualization):
 
         Args:
             strategy (VisualizationStrategies): The visualization strategy to use.
-            params (dict[str, str | int | float], optional): Additional parameters for the visualization. Defaults to None.
+            params (dict, optional): A dictionary of parameters for the visualization.
+                Defaults to None.
         """
         if params is None:
             params = {}
@@ -133,18 +148,19 @@ class Visualization(BaseVisualization):
         """
         if isinstance(self.vis, Figure):
             return self.vis.data
-        raise TypeError("Visualization object does not contain valid data.")
+        else:
+            raise TypeError("Visualization object does not contain valid data.")
 
-    def send_json(self):
+    def send_json(self) -> str:
         """
         Convert the visualization to JSON.
 
         Returns:
-            str: The visualization converted to JSON.
+            str: The visualization data in JSON format.
         """
         return to_json(self.vis)
 
-    def show(self):
+    def show(self) -> None:
         """
         Shows the plot.
         """
@@ -158,9 +174,14 @@ class Subplots(BaseVisualization):
     Parameters:
     -----------
     figures : list
+    Parameters:
+    -----------
+    figures : list
         A list of figures to be displayed.
     rows : int
+    rows : int
         The number of rows in the subplot.
+    cols : int
     cols : int
         The number of columns in the subplot.
     """
@@ -184,7 +205,7 @@ class Subplots(BaseVisualization):
         Creates subplots with axis labels and titles.
 
         Returns:
-            A Plotly Figure object representing the subplots.
+            A Plotly figure object with subplots, axis labels, and titles.
         """
         # Create a subplot with the specified number of rows and columns
         this_figure = sp.make_subplots(rows=self.rows, cols=self.cols)
@@ -201,9 +222,7 @@ class Subplots(BaseVisualization):
 
                 # Extract the title from the figure
                 title = (
-                    plotly_fig.layout.title.text
-                    if plotly_fig.layout.title.text
-                    else ""
+                    plotly_fig.layout.title.text if plotly_fig.layout.title.text else ""
                 )
 
                 # Add title annotation to each subplot
@@ -234,12 +253,8 @@ class Subplots(BaseVisualization):
                     y_label = plotly_fig.layout.yaxis.title.text
 
                     # Update the subplot with the extracted labels
-                    this_figure.update_xaxes(
-                        title_text=x_label, row=i + 1, col=j + 1
-                    )
-                    this_figure.update_yaxes(
-                        title_text=y_label, row=i + 1, col=j + 1
-                    )
+                    this_figure.update_xaxes(title_text=x_label, row=i + 1, col=j + 1)
+                    this_figure.update_yaxes(title_text=y_label, row=i + 1, col=j + 1)
 
         # Adjust layout to avoid overlapping of labels with plots
         this_figure.update_layout(
@@ -262,6 +277,15 @@ class Subplots(BaseVisualization):
         --------
         str
             The JSON representation of the figure.
+        Parameters:
+        -----------
+        figure : Plotly figure
+            The figure to be converted to JSON.
+
+        Returns:
+        --------
+        str
+            The JSON representation of the figure.
         """
         return to_json(figure)
 
@@ -269,6 +293,10 @@ class Subplots(BaseVisualization):
         """
         Shows the plot.
 
+        Parameters:
+        -----------
+        figure : Plotly figure
+            The figure to be displayed.
         Parameters:
         -----------
         figure : Plotly figure
