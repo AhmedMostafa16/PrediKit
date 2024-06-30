@@ -331,9 +331,13 @@ export const GlobalProvider = memo(
         useEffect(() => {
             const id = setTimeout(() => {
                 const dot = hasRelevantUnsavedChanges ? " •" : "";
-                document.title = `PrediKit - ${
-                    savePath || currentWorkflow?.title || "Untitled"
-                }${dot}`;
+                if (currentWorkflow) {
+                    document.title = `PrediKit - ${
+                        savePath || currentWorkflow?.title || "Untitled"
+                    }${dot}`;
+                } else {
+                    document.title = `PrediKit`;
+                }
             }, 200);
             return () => clearTimeout(id);
         }, [savePath, hasRelevantUnsavedChanges]);

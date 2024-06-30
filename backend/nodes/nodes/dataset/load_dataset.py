@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import gc
 import os
-import pathlib
 
 import pandas
 from sanic.log import logger
+
+from ...properties.outputs.file_outputs import DirectoryOutput
 
 from . import category as DatasetCategory
 from ...node_base import NodeBase
@@ -24,6 +25,7 @@ class DatasetReadNode(NodeBase):
         self.inputs = [DatasetFileInput()]
         self.outputs = [
             DatasetOutput(label="Dataset"),
+            DirectoryOutput("Dataset Directory"),
             TextOutput("Dataset Filename"),
         ]
 
