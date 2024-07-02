@@ -27,7 +27,7 @@ npm install -f --save-exact
 
 ```bash
 cd backend/
-python .py
+python server.py
 ```
 
 5. Run the frontend server by running the following command:
