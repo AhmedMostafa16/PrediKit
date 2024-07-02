@@ -6,14 +6,13 @@ import os
 import pandas
 from sanic.log import logger
 
-from ...properties.outputs.file_outputs import DirectoryOutput
-
 from . import category as DatasetCategory
 from ...node_base import NodeBase
 from ...node_factory import NodeFactory
 from ...properties.inputs import DatasetFileInput
 from ...properties.outputs import TextOutput
 from ...properties.outputs.dataset_output import DatasetOutput
+from ...properties.outputs.file_outputs import DirectoryOutput
 from ...utils.dataset_utils import get_available_dataset_formats
 
 
