@@ -1,8 +1,0 @@
-/home/mghali/dev/projects/PrediKit/examples/sample_data/Flights 1m.pickle
-/home/mghali/dev/projects/PrediKit/examples/sample_data/House Price.parquet
-/home/mghali/dev/projects/PrediKit/examples/sample_data/Titanic.parquet
-/home/mghali/dev/projects/PrediKit/examples/sample_data/airline_bumping.csv
-/home/mghali/dev/projects/PrediKit/examples/sample_data/movies.pkl
-/home/mghali/dev/projects/PrediKit/examples/sample_data/stations.pickle
-/home/mghali/dev/projects/PrediKit/examples/sample_data/temperatures.csv
-/home/mghali/dev/projects/PrediKit/examples/sample_data/weatherAUS.csv
